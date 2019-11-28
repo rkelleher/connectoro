@@ -4,3 +4,4 @@ Using the Fuse theme, React version. That helps us lock down a few other decisio
  - https://material-ui.com/
  - https://github.com/reduxjs/react-redux
  - https://react-redux.js.org/next/api/hooks
+ - https://tailwindcss.com/
