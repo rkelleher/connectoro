@@ -1,0 +1,16 @@
+{
+  "name": "connectoro-server-core",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "rollup --config rollup.config.prod.js",
+    "develop": "rollup --config rollup.config.dev.js",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "@hapi/hapi": "18.4.0"
+  },
+  "devDependencies": {
+    "rollup": "1.27.5"
+  }
+}
