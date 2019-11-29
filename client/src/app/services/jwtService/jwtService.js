@@ -72,7 +72,10 @@ class jwtService extends FuseUtils.EventEmitter {
                 data: {
                     email,
                     password
-                }
+                },
+                // axios' default 'Accept' includes '*/*' which breaks this:
+                // https://create-react-app.dev/docs/proxying-api-requests-in-development/
+                headers: {'Accept': 'application/json'},
             }).then(response => {
                 if ( response.data.user )
                 {
