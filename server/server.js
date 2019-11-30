@@ -7,7 +7,9 @@ const hapiJWT = require("hapi-auth-jwt2");
 
 const mongoose = require("mongoose");
 
-const EMAIL_TAKEN_ERROR_CODE = 'ERR_EMAIL_TAKEN';
+const ERR_NO_USER_WITH_EMAIL = 'ERR_NO_USER_WITH_EMAIL';
+const ERR_EMAIL_TAKEN = 'ERR_EMAIL_TAKEN';
+const ERR_WRONG_PASSWORD = 'ERR_WRONG_PASSWORD'
 
 const BCRYPT_SALT_ROUNDS = 10;
 
@@ -17,6 +19,8 @@ const BCRYPT_SALT_ROUNDS = 10;
 //      if JWT_SECRET env variable is not set correctly,
 //      we could accidentally deploy with the dev default secret
 const JWT_SECRET = process.env.JWT_SECRET || "secretsandlies";
+
+const JWT_ALGORITH = 'HS256';
 
 //TODO use process.env.PORT on App Engine
 const HTTP_SERVER_PORT = 3001;
@@ -52,6 +56,80 @@ const UserSchema = new mongoose.Schema({
 
 const User = mongoose.model("users", UserSchema);
 
+function getUserDetails(user) {
+  return {
+    role: "admin",
+    data: {
+      'displayName': user.displayName,
+      'photoURL'   : 'assets/images/avatars/Abbott.jpg',
+      'email'      : user.email,
+      settings     : {
+        layout          : {
+          style : 'layout1',
+          config: {
+            scroll : 'content',
+            navbar : {
+              display : true,
+              folded  : true,
+              position: 'left'
+            },
+            toolbar: {
+              display : true,
+              style   : 'fixed',
+              position: 'below'
+            },
+            footer : {
+              display : true,
+              style   : 'fixed',
+              position: 'below'
+            },
+            mode   : 'fullwidth'
+          }
+        },
+        customScrollbars: true,
+        theme           : {
+          main   : 'defaultDark',
+          navbar : 'defaultDark',
+          toolbar: 'defaultDark',
+          footer : 'defaultDark'
+        }
+      },
+      shortcuts    : [
+        'calendar',
+        'mail',
+        'contacts'
+      ]
+    }
+  }
+}
+
+async function getUserDetailsById(id) {
+  // TODO use select() to fetch less data
+  const user = await User.findById(id);
+  return getUserDetails(user);
+}
+
+// TODO expire token
+function createToken(userId) {
+  return jwt.sign(
+    {sub: userId},
+    JWT_SECRET,
+    {algorithm: JWT_ALGORITH}
+  );
+}
+
+// TODO what kind of additional verification can we do?
+async function validateToken(decoded, request, h) {
+  const userId = decoded.sub;
+  const user = await User.findById(userId);
+  if (user) {
+    request.headers.authenticatedUserId = userId;
+    return {isValid: true};
+  } else {
+    return {isValid: false}
+  }
+};
+
 const init = async () => {
   const server = Hapi.server({
     port: HTTP_SERVER_PORT,
@@ -64,15 +142,11 @@ const init = async () => {
 
   await server.register(hapiJWT);
 
-  const validateWebToken = async function(decoded, request, h) {
-    const tokenIsValid = false;
-    return {isValid: tokenIsValid};
-  };
-
   server.auth.strategy("jwt", "jwt", {
     key: JWT_SECRET,
-    validate: validateWebToken,
-    verifyOptions: {algorithms: ["HS256"]}
+    validate: validateToken,
+    verifyOptions: {algorithms: [JWT_ALGORITH]},
+    tokenType: "Bearer"
   });
 
   server.auth.default("jwt");
@@ -105,7 +179,7 @@ const init = async () => {
       const {displayName, email, password} = request.payload;
       
       if (await User.findOne({email})) {
-        return {errorCode: EMAIL_TAKEN_ERROR_CODE}
+        return {errorCode: ERR_EMAIL_TAKEN}
       }
 
       const passwordHash = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS)
@@ -118,20 +192,12 @@ const init = async () => {
 
       await user.save();
 
-      // TODO expire token
-      // TODO into shared fn
-      const token = jwt.sign(
-        { sub: user.id },
-        JWT_SECRET,
-        {algorithm: 'HS256'}
-      );
+      const token = createToken(user.id);
+      const userDetails = getUserDetails(user);
 
       return {
         token,
-        user: {
-          displayName: user.displayName,
-          email: user.email
-        }
+        user: userDetails
       };
     },
     options: {
@@ -162,20 +228,12 @@ const init = async () => {
         }
       }
 
-      // TODO expire token
-      // TODO into shared fn
-      const token = jwt.sign(
-        { sub: user.id },
-        JWT_SECRET,
-        {algorithm: 'HS256'}
-      );
+      const token = createToken(user.id);
+      const userDetails = getUserDetails(user);
 
       return {
         token,
-        user: {
-          displayName: user.displayName,
-          email: user.email
-        }
+        user: userDetails
       };
     },
     options: {
@@ -188,8 +246,11 @@ const init = async () => {
     method: "GET",
     path: "/api/auth/access-token",
     handler: async (request, h) => {
-      // give them their db user (-hash)
-      return {error: "Not implemented"};
+      const userId = request.headers.authenticatedUserId;
+      const user = await getUserDetailsById(userId);
+      // give the user a fresh token
+      const token = createToken(userId);
+      return {user, token};
     }
   });
 

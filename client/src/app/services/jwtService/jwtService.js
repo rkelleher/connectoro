@@ -56,7 +56,7 @@ class jwtService extends FuseUtils.EventEmitter {
                 .then(response => {
                     if ( response.data.user )
                     {
-                        this.setSession(response.data.access_token);
+                        this.setSession(response.data.token);
                         resolve(response.data.user);
                     }
                     else
@@ -75,7 +75,7 @@ class jwtService extends FuseUtils.EventEmitter {
             }).then(response => {
                 if ( response.data.user )
                 {
-                    this.setSession(response.data.access_token);
+                    this.setSession(response.data.token);
                     resolve(response.data.user);
                 }
                 else
@@ -88,15 +88,11 @@ class jwtService extends FuseUtils.EventEmitter {
 
     signInWithToken = () => {
         return new Promise((resolve, reject) => {
-            axios.get('/api/auth/access-token', {
-                data: {
-                    access_token: this.getAccessToken()
-                }
-            })
+            axios.get('/api/auth/access-token')
                 .then(response => {
                     if ( response.data.user )
                     {
-                        this.setSession(response.data.access_token);
+                        this.setSession(response.data.token);
                         resolve(response.data.user);
                     }
                     else
@@ -119,6 +115,7 @@ class jwtService extends FuseUtils.EventEmitter {
     };
 
     setSession = access_token => {
+        // TODO move tokens out of localstorage and into cookies
         if ( access_token )
         {
             localStorage.setItem('jwt_access_token', access_token);
