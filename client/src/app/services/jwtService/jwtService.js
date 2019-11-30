@@ -15,12 +15,13 @@ class jwtService extends FuseUtils.EventEmitter {
             return response;
         }, err => {
             return new Promise((resolve, reject) => {
-                if ( err.response.status === 401 && err.config && !err.config.__isRetryRequest )
-                {
-                    // if you ever get an unauthorized response, logout the user
-                    this.emit('onAutoLogout', 'Invalid access_token');
-                    this.setSession(null);
-                }
+                // TODO handle unauthorized response
+                // if ( err.response.status === 401 && err.config && !err.config.__isRetryRequest )
+                // {
+                //     // if you ever get an unauthorized response, logout the user
+                //     this.emit('onAutoLogout', 'Invalid access_token');
+                //     this.setSession(null);
+                // }
                 throw err;
             });
         });
@@ -68,14 +69,9 @@ class jwtService extends FuseUtils.EventEmitter {
 
     signInWithEmailAndPassword = (email, password) => {
         return new Promise((resolve, reject) => {
-            axios.get('/api/auth', {
-                data: {
-                    email,
-                    password
-                },
-                // axios' default 'Accept' includes '*/*' which breaks this:
-                // https://create-react-app.dev/docs/proxying-api-requests-in-development/
-                headers: {'Accept': 'application/json'},
+            axios.post('/api/auth', {
+                email,
+                password
             }).then(response => {
                 if ( response.data.user )
                 {

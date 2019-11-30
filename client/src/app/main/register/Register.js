@@ -4,7 +4,7 @@ import {darken} from '@material-ui/core/styles/colorManipulator';
 import {FuseAnimate} from '@fuse';
 import {Link} from 'react-router-dom';
 import clsx from 'clsx';
-import JWTLoginTab from './tabs/JWTLoginTab';
+import JWTRegisterTab from './tabs/JWTRegisterTab';
 import {makeStyles} from '@material-ui/styles';
 
 const useStyles = makeStyles(theme => ({
@@ -14,7 +14,7 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-function Login()
+function Register()
 {
     const classes = useStyles();
 
@@ -47,15 +47,18 @@ function Login()
 
                     <CardContent className="flex flex-col items-center justify-center p-32 md:p-48 md:pt-128 ">
 
-                        <Typography variant="h6" className="text-center md:w-full mb-48">LOGIN TO YOUR ACCOUNT</Typography>
+                        <Typography variant="h6" className="md:w-full mb-32">CREATE AN ACCOUNT</Typography>
 
-                        <JWTLoginTab/>
+                        <JWTRegisterTab/>
 
-                        <div className="flex flex-col items-center justify-center pt-32">
-                            <span className="font-medium">Don't have an account?</span>
-                            <Link className="font-medium" to="/register">Create an account</Link>
+                        <div className="flex flex-col items-center justify-center pt-32 pb-24">
+                            <span className="font-medium">Already have an account?</span>
+                            <Link className="font-medium" to="/login">Login</Link>
+                            <Link className="font-medium mt-8" to="/">Back to Dashboard</Link>
                         </div>
 
+                        <div className="flex flex-col items-center">
+                        </div>
                     </CardContent>
                 </Card>
             </FuseAnimate>
@@ -63,4 +66,4 @@ function Login()
     )
 }
 
-export default Login;
+export default Register;

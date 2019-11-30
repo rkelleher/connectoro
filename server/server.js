@@ -1,8 +1,29 @@
 const Hapi = require("@hapi/hapi");
+const Joi = require("@hapi/joi")
+
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const hapiJWT = require("hapi-auth-jwt2");
+
 const mongoose = require("mongoose");
 
+const EMAIL_TAKEN_ERROR_CODE = 'ERR_EMAIL_TAKEN';
+
+const BCRYPT_SALT_ROUNDS = 10;
+
+// this key is a single point of security failure
+// see: docs/architecture-decisions/security.md
+// TODO confirm that we are in a production environment
+//      if JWT_SECRET env variable is not set correctly,
+//      we could accidentally deploy with the dev default secret
+const JWT_SECRET = process.env.JWT_SECRET || "secretsandlies";
+
+//TODO use process.env.PORT on App Engine
 const HTTP_SERVER_PORT = 3001;
+
+//TODO use 0.0.0.0 on App Engine
 const HTTP_SERVER_HOST = "localhost";
+
 const MONGO_ADDRESS = "mongodb://localhost/connectoro";
 
 const MONGO_CONNECTED_STR = "MongoDB connected";
@@ -11,11 +32,21 @@ const MONGO_FORCED_DISCONNECT_STR =
   "MongoDB was disconnected due to app termination";
 
 const UserSchema = new mongoose.Schema({
-  email: {
-    type: String
+  displayName: {
+    type: String,
+    required: true
   },
-  password: {
-    type: String
+  email: {
+    type: String,
+    required: true
+  },
+  passwordHash: {
+    type: String,
+    required: true
+  },
+  createdDate: {
+    type: Date,
+    default: Date.now
   }
 });
 
@@ -27,9 +58,24 @@ const init = async () => {
     host: HTTP_SERVER_HOST,
     routes: {
       // TODO: CORs only in development
-      cors: true
+      cors: false
     }
   });
+
+  await server.register(hapiJWT);
+
+  const validateWebToken = async function(decoded, request, h) {
+    const tokenIsValid = false;
+    return {isValid: tokenIsValid};
+  };
+
+  server.auth.strategy("jwt", "jwt", {
+    key: JWT_SECRET,
+    validate: validateWebToken,
+    verifyOptions: {algorithms: ["HS256"]}
+  });
+
+  server.auth.default("jwt");
 
   server.app.db = mongoose.connect(MONGO_ADDRESS, {
     useNewUrlParser: true,
@@ -55,19 +101,85 @@ const init = async () => {
   server.route({
     method: "POST",
     path: "/api/auth/register",
-    handler: (request, h) => {
-      console.log("request:", request);
-      return {error: "Not implemented"};
+    handler: async (request, h) => {
+      const {displayName, email, password} = request.payload;
+      
+      if (await User.findOne({email})) {
+        return {errorCode: EMAIL_TAKEN_ERROR_CODE}
+      }
+
+      const passwordHash = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS)
+
+      const user = new User({
+        displayName,
+        email,
+        passwordHash
+      });
+
+      await user.save();
+
+      // TODO expire token
+      // TODO into shared fn
+      const token = jwt.sign(
+        { sub: user.id },
+        JWT_SECRET,
+        {algorithm: 'HS256'}
+      );
+
+      return {
+        token,
+        user: {
+          displayName: user.displayName,
+          email: user.email
+        }
+      };
+    },
+    options: {
+      auth: false
     }
   });
 
   // Login with email and password
   server.route({
-    method: "GET",
+    method: "POST",
     path: "/api/auth",
-    handler: (request, h) => {
-      console.log("request:", request);
-      return {error: "Not implemented"};
+    handler: async (request, h) => {
+      // TODO catch failure to destructure (no payload etc.)
+      const {email, password} = request.payload;
+
+      const passwordHash = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS)
+      const user = await User.findOne({email});
+
+      if (!user) {
+        return {
+          errorCode: ERR_NO_USER_WITH_EMAIL
+        }
+      }
+
+      if (!bcrypt.compare(passwordHash, user.passwordHash)) {
+        return {
+          errorCode: ERR_WRONG_PASSWORD
+        }
+      }
+
+      // TODO expire token
+      // TODO into shared fn
+      const token = jwt.sign(
+        { sub: user.id },
+        JWT_SECRET,
+        {algorithm: 'HS256'}
+      );
+
+      return {
+        token,
+        user: {
+          displayName: user.displayName,
+          email: user.email
+        }
+      };
+    },
+    options: {
+      auth: false
     }
   });
 
@@ -75,8 +187,8 @@ const init = async () => {
   server.route({
     method: "GET",
     path: "/api/auth/access-token",
-    handler: (request, h) => {
-      console.log("request:", request);
+    handler: async (request, h) => {
+      // give them their db user (-hash)
       return {error: "Not implemented"};
     }
   });
@@ -85,8 +197,8 @@ const init = async () => {
   server.route({
     method: "POST",
     path: "/api/auth/user/update",
-    handler: (request, h) => {
-      console.log("request:", request);
+    handler: async (request, h) => {
+      // TODO update user details
       return {error: "Not implemented"};
     }
   });
@@ -98,10 +210,11 @@ const init = async () => {
 process.on("unhandledRejection", error => {
   console.log(error);
 
-  mongoose.connection && mongoose.connection.close(() => {
-    console.log(MONGO_FORCED_DISCONNECT_STR);
-    process.exit(1);
-  });
+  mongoose.connection &&
+    mongoose.connection.close(() => {
+      console.log(MONGO_FORCED_DISCONNECT_STR);
+      process.exit(1);
+    });
 });
 
 init();

@@ -1,5 +1,4 @@
 import * as UserActions from './user.actions';
-import * as Actions from 'app/store/actions';
 import jwtService from 'app/services/jwtService';
 
 export const REGISTER_ERROR = 'REGISTER_ERROR';
