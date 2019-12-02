@@ -11,8 +11,10 @@ You'll need to install the following:
 
 Start mongo and create a new database called `connectoro`. 
 
-Navigate to `/server` and run `yarn start:dev` to start the Node server.
+In both `/server` and `/client`, duplicate the `.env.example` file and name it `.env`.
 
-Navigate to `/client` and run `yarn start` to build and serve the web app.
+Inside `/server` run `yarn start:dev` to start the backend server.
+
+Inside `/client` run `yarn start` to build and serve the frontend web app.
 
 A new browser window should open and you'll see a security warning. This is because react-scripts is serving the app over https with a self-signed certificate (only in dev mode). You can safely ignore the warning and click through to the app.

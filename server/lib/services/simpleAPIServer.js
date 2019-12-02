@@ -12,21 +12,17 @@ const ERR_EMAIL_TAKEN = 'ERR_EMAIL_TAKEN';
 const ERR_WRONG_PASSWORD = 'ERR_WRONG_PASSWORD'
 
 const BCRYPT_SALT_ROUNDS = 10;
+const JWT_ALGORITH = 'HS256';
 
 // this key is a single point of security failure
 // see: docs/architecture-decisions/security.md
-// TODO confirm that we are in a production environment
-//      if JWT_SECRET env variable is not set correctly,
-//      we could accidentally deploy with the dev default secret
-const JWT_SECRET = process.env.JWT_SECRET || "secretsandlies";
+const JWT_SECRET = process.env.JWT_SECRET;
 
-const JWT_ALGORITH = 'HS256';
-
-//TODO use process.env.PORT on App Engine
-const HTTP_SERVER_PORT = 3001;
+// PORT is the env variable used by App Engine
+const HTTP_SERVER_PORT = process.env.PORT;
 
 //TODO use 0.0.0.0 on App Engine
-const HTTP_SERVER_HOST = "localhost";
+const HTTP_SERVER_HOST = process.env.HTTP_SERVER_HOST;
 
 function createToken(userId) {
   return jwt.sign(
@@ -58,8 +54,7 @@ export async function buildSimpleAPIServer(db) {
     port: HTTP_SERVER_PORT,
     host: HTTP_SERVER_HOST,
     routes: {
-      // TODO: CORs only in development
-      cors: false
+      cors: process.env.NODE_ENV === 'development'
     }
   });
 
@@ -171,16 +166,3 @@ export async function buildSimpleAPIServer(db) {
 
   return server;
 }
-
-// exports.init = async () => {
-//   const server = await buildServer();
-//   await server.initialize();
-//   return server;
-// };
-
-// exports.start = async () => {
-//   const server = await buildServer();
-//   await server.start();
-//   console.log("Server running on %s", server.info.uri);
-//   return server;
-// };

@@ -1,8 +1,10 @@
 #!/usr/bin/sh
-scripts/build-client.sh
-scripts/build-server.sh
+cd client
+yarn build
+cd ..
 
-cp -r client/build server/dist/static
+rm -r server/static
+cp -r client/build server/static
 
 cd server
 # gcloud app deploy

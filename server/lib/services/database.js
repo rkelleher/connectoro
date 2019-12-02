@@ -1,13 +1,15 @@
 import mongoose from "mongoose";
 
-const MONGO_ADDRESS = "mongodb://localhost/connectoro";
+const MONGO_ADDRESS = process.env.MONGO_ADDRESS;
 
+const MONGO_CONNECTING_STR = "Connecting to MongoDB...";
 const MONGO_CONNECTED_STR = "MongoDB connected";
 const MONGO_DISCONNECT_STR = "MongoDB disconnected";
 const MONGO_FORCED_DISCONNECT_STR =
   "MongoDB was disconnected due to app termination";
 
 export async function buildDatabase() {
+  console.log(MONGO_CONNECTING_STR);
 
   const db = mongoose.connect(MONGO_ADDRESS, {
     useNewUrlParser: true,

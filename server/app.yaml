@@ -1,2 +1,9 @@
 runtime: nodejs12
 env: standard
+handlers:
+- url: /api/.*
+  secure: always
+  script: auto
+
+- url: /.*
+  static_dir: static

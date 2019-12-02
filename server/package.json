@@ -7,13 +7,14 @@
   },
   "type": "module",
   "scripts": {
-    "start:dev": "nodemon --experimental-modules server.js",
-    "start": "node --experimental-modules server.js",
+    "start:dev": "nodemon -r dotenv/config --experimental-modules server.js",
+    "start": "node -r dotenv/config --experimental-modules server.js",
     "test": "tap"
   },
   "dependencies": {
     "@hapi/hapi": "18.4.0",
     "bcrypt": "3.0.7",
+    "dotenv": "^8.2.0",
     "hapi-auth-jwt2": "8.8.1",
     "jsonwebtoken": "8.5.1",
     "lodash": "4.17.15",
