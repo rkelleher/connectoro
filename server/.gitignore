@@ -1,2 +1,3 @@
 /static
-secret.env.json
+secret.*.env.json
+app.yaml

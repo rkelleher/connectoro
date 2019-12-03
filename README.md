@@ -11,7 +11,9 @@ You'll need to install the following:
 
 Start mongo and create a new database called `connectoro`. 
 
-In both `/server` and `/client`, duplicate the `.env.example` file and name it `.env`.
+In `/client`, duplicate the `.env.example` file and name it `.env`.
+
+In `/server/secrets`, duplicate the `secret.dev.env.template.json` file and name it `secret.dev.env.json`. You'll need to insert any values labeled `<INSERT HERE>`.
 
 Inside `/server` run `yarn start:dev` to start the backend server.
 

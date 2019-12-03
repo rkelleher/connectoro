@@ -1,0 +1,23 @@
+{
+  "name": "connectoro",
+  "version": "1.0.0",
+  "private": true,
+  "description": "E-commerce management system on steroids!",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rkelleher/connectoro.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rkelleher/connectoro/issues"
+  },
+  "homepage": "https://github.com/rkelleher/connectoro#readme",
+  "dependencies": {
+    "ejs": "^3.0.1"
+  }
+}

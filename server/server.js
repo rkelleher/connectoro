@@ -3,22 +3,20 @@ import { buildSimpleAPIServer } from './lib/services/simpleAPIServer.js';
 import config from 'nconf';
 
 (async () => {
-  // config added in order of priority, highest to lowest
-  config
-    .argv()
-    .env()
-    .file('secrets', 'secret.env.json')
-    .file('defaults', 'default.env.json')
+  // config is added in order of priority, highest to lowest
+  config.argv().env()
 
   // helper fn for reading config, to be passed throughout the app
-  // to keep config vals transparent we shouldn't use config.set outside of this file
+  // to keep config vals transparent we shouldn't use config.set etc. outside of this file
   const cg = (key) => config.get(key);
 
-  // TODO move once prod config on App Engine is sorted
   if (cg('NODE_ENV') === 'production') {
-    config.set('HTTP_SERVER_HOST', '0.0.0.0');
-  } else {
-    config.set('JWT_SECRET', 'secretsandlies');
+    config.file('prod', 'prod.env.json')
+
+  } else if(cg('NODE_ENV') === 'development') {
+    config
+      .file('secrets', 'secret.dev.env.json')
+      .file('dev', 'dev.env.json')
   }
 
   const db = await buildDatabase(cg);
