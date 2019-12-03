@@ -11,25 +11,13 @@ const ERR_NO_USER_WITH_EMAIL = 'ERR_NO_USER_WITH_EMAIL';
 const ERR_EMAIL_TAKEN = 'ERR_EMAIL_TAKEN';
 const ERR_WRONG_PASSWORD = 'ERR_WRONG_PASSWORD'
 
-const BCRYPT_SALT_ROUNDS = 10;
-const JWT_ALGORITH = 'HS256';
 
-// this key is a single point of security failure
-// see: docs/architecture-decisions/security.md
-const JWT_SECRET = process.env.JWT_SECRET;
-
-// PORT is the env variable used by App Engine
-const HTTP_SERVER_PORT = process.env.PORT;
-
-//TODO use 0.0.0.0 on App Engine
-const HTTP_SERVER_HOST = process.env.HTTP_SERVER_HOST;
-
-function createToken(userId) {
+function createToken(cg, userId) {
   return jwt.sign(
     {sub: userId},
-    JWT_SECRET,
+    cg('JWT_SECRET'),
     {
-      algorithm: JWT_ALGORITH,
+      algorithm: cg('JWT_ALGORITH'),
       expiresIn: '1d' // 1 day
     }
   );
@@ -47,12 +35,19 @@ async function validateToken(decoded, request, h) {
   }
 };
 
-export async function buildSimpleAPIServer(db) {
-  // TODO throw if no db
+export async function buildSimpleAPIServer(cg, db) {
+
+  if (!db) {
+    throw new Error('No database object')
+  }
+
+  if (!cg('JWT_SECRET')) {
+    throw new Error('JWT Secret has not been set correctly')
+  }
 
   const server = Hapi.server({
-    port: HTTP_SERVER_PORT,
-    host: HTTP_SERVER_HOST,
+    port: cg('PORT'),
+    host: cg('HTTP_SERVER_HOST'),
     routes: {
       cors: process.env.NODE_ENV === 'development'
     }
@@ -63,9 +58,9 @@ export async function buildSimpleAPIServer(db) {
   await server.register(hapiJWT);
 
   server.auth.strategy("jwt", "jwt", {
-    key: JWT_SECRET,
+    key: cg('JWT_SECRET'),
     validate: validateToken,
-    verifyOptions: {algorithms: [JWT_ALGORITH]},
+    verifyOptions: {algorithms: [cg('JWT_ALGORITH')]},
     tokenType: "Bearer"
   });
 
@@ -82,7 +77,7 @@ export async function buildSimpleAPIServer(db) {
         return {errorCode: ERR_EMAIL_TAKEN}
       }
 
-      const passwordHash = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS)
+      const passwordHash = await bcrypt.hash(password, cg('BCRYPT_SALT_ROUNDS'));
 
       const user = new User({
         displayName,
@@ -92,7 +87,7 @@ export async function buildSimpleAPIServer(db) {
 
       await user.save();
 
-      const token = createToken(user.id);
+      const token = createToken(cg, user.id);
       const userDetails = getUserDetails(user);
 
       return {
@@ -128,7 +123,7 @@ export async function buildSimpleAPIServer(db) {
         }
       }
 
-      const token = createToken(user.id);
+      const token = createToken(cg, user.id);
       const userDetails = getUserDetails(user);
 
       return {
@@ -149,7 +144,7 @@ export async function buildSimpleAPIServer(db) {
       const userId = request.headers.authenticatedUserId;
       const user = await getUserDetailsById(userId);
       // give the user a fresh token
-      const token = createToken(userId);
+      const token = createToken(cg, userId);
       return {user, token};
     }
   });
