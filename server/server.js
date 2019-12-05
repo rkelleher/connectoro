@@ -4,19 +4,23 @@ import config from 'nconf';
 
 (async () => {
   // config is added in order of priority, highest to lowest
-  config.argv().env()
+  config.argv().env();
 
   // helper fn for reading config, to be passed throughout the app
   // to keep config vals transparent we shouldn't use config.set etc. outside of this file
   const cg = (key) => config.get(key);
 
+  if (!cg('NODE_ENV')) {
+    throw new Error('NODE_ENV has not been set');
+  }
+
   if (cg('NODE_ENV') === 'production') {
-    config.file('prod', 'prod.env.json')
+    config.file('prod', 'prod.env.json');
 
   } else {
     config
       .file('secrets', 'secrets/secret.dev.env.json')
-      .file('dev', 'dev.env.json')
+      .file('dev', 'dev.env.json');
   }
 
   const db = await buildDatabase(cg);

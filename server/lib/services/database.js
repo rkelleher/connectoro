@@ -8,6 +8,11 @@ const MONGO_FORCED_DISCONNECT_STR =
 
 function buildURI(cg) {
   const name = cg('DB_NAME');
+
+  if (!name) {
+    throw new Error('DB_NAME has not been set');
+  }
+
   const env = cg('NODE_ENV');
 
   if (env === 'production') {
@@ -30,8 +35,8 @@ export async function buildDatabase(cg) {
   const db = mongoose.connect(uri, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    // TODO this is the suggested config for testing w/ mongod-memory-server
-    //      but I haven't run into any issues so far
+    // this is the suggested config for testing w/ mongod-memory-server
+    // but I haven't run into any issues so far
     // autoReconnect: true,
     // reconnectTries: Number.MAX_VALUE,
     // reconnectInterval: 1000

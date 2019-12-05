@@ -7,7 +7,7 @@
   },
   "type": "module",
   "scripts": {
-    "start:dev": "nodemon --experimental-modules server.js",
+    "start:dev": "cross-env NODE_ENV=development nodemon --experimental-modules server.js",
     "start": "node --experimental-modules server.js",
     "test": "tap"
   },
@@ -24,6 +24,7 @@
     "nconf": "0.10.0"
   },
   "devDependencies": {
+    "cross-env": "^6.0.3",
     "mongodb-memory-server": "6.0.1",
     "nodemon": "2.0.1",
     "tap": "14.10.2"

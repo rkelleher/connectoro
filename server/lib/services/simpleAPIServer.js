@@ -19,12 +19,11 @@ function createToken(cg, userId) {
     cg('JWT_SECRET'),
     {
       algorithm: cg('JWT_ALGORITH'),
-      expiresIn: '1d' // 1 day
+      expiresIn: cg('LOGIN_EXPIRES_IN')
     }
   );
 }
 
-// TODO what kind of additional verification can we do?
 async function validateToken(decoded, request, h) {
   const userId = decoded.sub;
   const user = await User.findById(userId);
