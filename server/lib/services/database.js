@@ -15,8 +15,10 @@ function buildURI(cg) {
     const host = cg('DB_HOST')
     const port = cg('DB_PORT');
     return `mongodb://${user}:${pass}@${host}:${port}/${name}`;
-  } else {
-    return `mongodb://localhost/${name}`
+  } else if (cg('NODE_ENV') === 'development') {
+    return `mongodb://localhost/${name}`;
+  } else if (cg('NODE_ENV') == 'testing') {
+    return cg('DB_URI');
   }
 }
 
@@ -25,7 +27,12 @@ export async function buildDatabase(cg) {
 
   const db = mongoose.connect(buildURI(cg), {
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
+    // TODO this is the suggested config for testing w/ mongod-memory-server
+    //      but I haven't run into any issues so far
+    // autoReconnect: true,
+    // reconnectTries: Number.MAX_VALUE,
+    // reconnectInterval: 1000
   });
 
   mongoose.connection.on("connected", () => {

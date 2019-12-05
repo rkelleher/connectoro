@@ -1,11 +1,12 @@
 import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
+import Boom from "@hapi/boom";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import hapiJWT from "hapi-auth-jwt2";
 
 import { User } from '../models/user.model.js';
-import { getUserDetails } from '../controllers/user.controller.js';
+import { getUserDetails, getUserDetailsById } from '../controllers/user.controller.js';
 
 const ERR_NO_USER_WITH_EMAIL = 'ERR_NO_USER_WITH_EMAIL';
 const ERR_EMAIL_TAKEN = 'ERR_EMAIL_TAKEN';
@@ -49,7 +50,7 @@ export async function buildSimpleAPIServer(cg, db) {
     port: cg('PORT'),
     host: cg('HTTP_SERVER_HOST'),
     routes: {
-      cors: process.env.NODE_ENV === 'development'
+      cors: cg('NODE_ENV') === 'development'
     }
   });
 
@@ -74,7 +75,7 @@ export async function buildSimpleAPIServer(cg, db) {
       const {displayName, email, password} = request.payload;
       
       if (await User.findOne({email})) {
-        return {errorCode: ERR_EMAIL_TAKEN}
+        return Boom.badRequest(ERR_EMAIL_TAKEN);
       }
 
       const passwordHash = await bcrypt.hash(password, cg('BCRYPT_SALT_ROUNDS'));
@@ -108,19 +109,15 @@ export async function buildSimpleAPIServer(cg, db) {
       // TODO catch failure to destructure (no payload etc.)
       const {email, password} = request.payload;
 
-      const passwordHash = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS)
+      const passwordHash = await bcrypt.hash(password, cg('BCRYPT_SALT_ROUNDS'))
       const user = await User.findOne({email});
 
       if (!user) {
-        return {
-          errorCode: ERR_NO_USER_WITH_EMAIL
-        }
+        throw Boom.unauthorized(ERR_NO_USER_WITH_EMAIL);
       }
 
       if (!bcrypt.compare(passwordHash, user.passwordHash)) {
-        return {
-          errorCode: ERR_WRONG_PASSWORD
-        }
+        throw Boom.unauthorized(ERR_WRONG_PASSWORD);
       }
 
       const token = createToken(cg, user.id);
