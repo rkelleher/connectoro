@@ -4,6 +4,7 @@ import Boom from "@hapi/boom";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import hapiJWT from "hapi-auth-jwt2";
+import mongoose from 'mongoose';
 
 import { User } from '../models/user.model.js';
 import { getUserDetails, getUserDetailsById } from '../controllers/user.controller.js';
@@ -11,7 +12,6 @@ import { getUserDetails, getUserDetailsById } from '../controllers/user.controll
 const ERR_NO_USER_WITH_EMAIL = 'ERR_NO_USER_WITH_EMAIL';
 const ERR_EMAIL_TAKEN = 'ERR_EMAIL_TAKEN';
 const ERR_WRONG_PASSWORD = 'ERR_WRONG_PASSWORD'
-
 
 function createToken(cg, userId) {
   return jwt.sign(
@@ -86,7 +86,15 @@ export async function buildSimpleAPIServer(cg, db) {
         passwordHash
       });
 
-      await user.save();
+      try {
+        await user.save();
+      } catch(e) {
+        if (e instanceof mongoose.Error.ValidationError) {
+          return Boom.badRequest()
+        } else {
+          throw e;
+        }
+      }
 
       const token = createToken(cg, user.id);
       const userDetails = getUserDetails(user);
@@ -97,7 +105,14 @@ export async function buildSimpleAPIServer(cg, db) {
       };
     },
     options: {
-      auth: false
+      auth: false,
+      validate: {
+        payload: Joi.object({
+          displayName: Joi.string().required(),
+          email: Joi.string().required(),
+          password: Joi.string().required(),
+        })
+      }
     }
   });
 
@@ -106,17 +121,17 @@ export async function buildSimpleAPIServer(cg, db) {
     method: "POST",
     path: "/api/auth",
     handler: async (request, h) => {
-      // TODO catch failure to destructure (no payload etc.)
       const {email, password} = request.payload;
 
-      const passwordHash = await bcrypt.hash(password, cg('BCRYPT_SALT_ROUNDS'))
       const user = await User.findOne({email});
 
       if (!user) {
         throw Boom.unauthorized(ERR_NO_USER_WITH_EMAIL);
       }
 
-      if (!bcrypt.compare(passwordHash, user.passwordHash)) {
+      const passwordsMatch = await bcrypt.compare(password, user.passwordHash);
+
+      if (!passwordsMatch) {
         throw Boom.unauthorized(ERR_WRONG_PASSWORD);
       }
 
@@ -129,7 +144,13 @@ export async function buildSimpleAPIServer(cg, db) {
       };
     },
     options: {
-      auth: false
+      auth: false,
+      validate: {
+        payload: Joi.object({
+          email: Joi.string().required(),
+          password: Joi.string().required()
+        })
+      }
     }
   });
 

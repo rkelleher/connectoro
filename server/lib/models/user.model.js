@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import "mongoose-type-email";
 
 const UserSchema = new mongoose.Schema({
   displayName: {
@@ -6,7 +7,7 @@ const UserSchema = new mongoose.Schema({
     required: true
   },
   email: {
-    type: String,
+    type: mongoose.SchemaTypes.Email,
     required: true
   },
   passwordHash: {

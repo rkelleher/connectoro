@@ -13,9 +13,9 @@ import config from 'nconf';
   if (cg('NODE_ENV') === 'production') {
     config.file('prod', 'prod.env.json')
 
-  } else if(cg('NODE_ENV') === 'development') {
+  } else {
     config
-      .file('secrets', 'secret.dev.env.json')
+      .file('secrets', 'secrets/secret.dev.env.json')
       .file('dev', 'dev.env.json')
   }
 

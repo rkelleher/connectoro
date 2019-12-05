@@ -8,16 +8,17 @@ const MONGO_FORCED_DISCONNECT_STR =
 
 function buildURI(cg) {
   const name = cg('DB_NAME');
+  const env = cg('NODE_ENV');
 
-  if (cg('NODE_ENV') === 'production') {
+  if (env === 'production') {
     const user = cg('DB_USERNAME');
     const pass = cg('DB_PASSWORD');
     const host = cg('DB_HOST')
     const port = cg('DB_PORT');
     return `mongodb://${user}:${pass}@${host}:${port}/${name}`;
-  } else if (cg('NODE_ENV') === 'development') {
+  } else if (env === 'development') {
     return `mongodb://localhost/${name}`;
-  } else if (cg('NODE_ENV') == 'testing') {
+  } else if (env == 'testing') {
     return cg('DB_URI');
   }
 }
@@ -25,7 +26,8 @@ function buildURI(cg) {
 export async function buildDatabase(cg) {
   console.log(MONGO_CONNECTING_STR);
 
-  const db = mongoose.connect(buildURI(cg), {
+  const uri = buildURI(cg);
+  const db = mongoose.connect(uri, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     // TODO this is the suggested config for testing w/ mongod-memory-server

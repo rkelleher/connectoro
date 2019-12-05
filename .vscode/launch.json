@@ -8,6 +8,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
+            "cwd": "${workspaceFolder}/server",
             "program": "${workspaceFolder}/server/server.js",
             "runtimeArgs": ["--experimental-modules"]
         }

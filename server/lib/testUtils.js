@@ -1,6 +1,8 @@
 import { MongoMemoryServer } from "mongodb-memory-server";
 import { buildSimpleAPIServer } from "./services/simpleAPIServer";
 import { buildDatabase } from "./services/database";
+import bcrypt from 'bcrypt';
+import { User } from "./models/user.model";
 
 export function setupCg(context) {
   context.config = {
@@ -51,4 +53,15 @@ export async function initializeTestServer(context) {
 export async function stopTestServer(context) {
   // console.log('Stopping test server')
   return context.server.stop();
+}
+
+export async function addTestUser(context, userDetails) {
+  const { displayName, email, password } = userDetails;
+  const passwordHash = await bcrypt.hash(password, context.cg('BCRYPT_SALT_ROUNDS'));
+  const user = new User({
+    displayName,
+    email,
+    passwordHash
+  });
+  await user.save();
 }
