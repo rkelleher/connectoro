@@ -40,7 +40,8 @@ export function updateUserSettings(settings)
         const oldUser = getState().auth.user;
         const user = _.merge({}, oldUser, {data: {settings}});
 
-        updateUserData(user);
+        // TODO save to server
+        // updateUserData(user);
 
         return dispatch(setUserData(user));
     }
@@ -61,7 +62,8 @@ export function updateUserShortcuts(shortcuts)
             }
         };
 
-        updateUserData(newUser);
+        // TODO save to server
+        // updateUserData(newUser);
 
         return dispatch(setUserData(newUser));
     }

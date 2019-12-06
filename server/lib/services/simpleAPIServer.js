@@ -171,8 +171,8 @@ export async function buildSimpleAPIServer(cg, db) {
     method: "POST",
     path: "/api/auth/user/update",
     handler: async (request, h) => {
-      // TODO update user details
-      return {error: "Not implemented"};
+      // TODO save user updates
+      throw new Boom.notImplemented();
     }
   });
 

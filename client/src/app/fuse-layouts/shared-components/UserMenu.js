@@ -23,7 +23,7 @@ function UserMenu(props)
         <React.Fragment>
 
             <Button className="h-64" onClick={userMenuClick}>
-                {user.data.photoURL ?
+                {/* {user.data.photoURL ?
                     (
                         <Avatar className="" alt="user photo" src={user.data.photoURL}/>
                     )
@@ -33,7 +33,7 @@ function UserMenu(props)
                             {user.data.displayName[0]}
                         </Avatar>
                     )
-                }
+                } */}
 
                 <div className="hidden md:flex flex-col ml-12 items-start">
                     <Typography component="span" className="normal-case font-600 flex">
