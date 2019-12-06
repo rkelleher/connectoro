@@ -18,9 +18,9 @@ function buildURI(cg) {
   if (env === 'production') {
     const user = cg('DB_USERNAME');
     const pass = cg('DB_PASSWORD');
-    const host = cg('DB_HOST')
-    const port = cg('DB_PORT');
-    return `mongodb://${user}:${pass}@${host}:${port}/${name}`;
+    const host = cg('DB_HOST');
+    const params = cg('DB_PARAM_STR');
+    return `mongodb+srv://${user}:${pass}@${host}/${name}${params}`;
   } else if (env === 'development') {
     return `mongodb://localhost/${name}`;
   } else if (env == 'testing') {

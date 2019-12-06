@@ -9,7 +9,8 @@ cp -r client/build server/static
 node inject-secrets.js
 
 cd server
-# gcloud app deploy
-# rm app.yaml
+echo "Deploying app with --no-promote for testing"
+gcloud app deploy --no-promote
+rm app.yaml
 cd ..
-echo "done!"
+echo "Done!"
