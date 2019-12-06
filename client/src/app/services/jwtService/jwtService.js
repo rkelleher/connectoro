@@ -50,40 +50,56 @@ class jwtService extends FuseUtils.EventEmitter {
         }
     };
 
-    createUser = (data) => {
-        return new Promise((resolve, reject) => {
-            axios.post('/api/auth/register', data)
-                .then(response => {
-                    if ( response.data.user )
-                    {
-                        this.setSession(response.data.token);
-                        resolve(response.data.user);
-                    }
-                    else
-                    {
-                        reject(response.data.error);
-                    }
-                });
-        });
+    createUser = async (reqData) => {
+        try {
+            const {data} = await axios.post('/api/auth/register', reqData);
+            if (data.user) {
+                this.setSession(data.token);
+                return {
+                    user: data.user
+                }
+            } else {
+                throw new Error('No user in serer response');
+            }
+        } catch (error) {
+            if (error.response && error.response.data && error.response.data.message) {
+                // the server has given us a reason
+                return {
+                    problem: error.response.data.message
+                }
+            } else {
+                // the server is not responding or there was a 500 error etc.
+                throw new Error(error);
+            }
+            
+        }
     };
 
-    signInWithEmailAndPassword = (email, password) => {
-        return new Promise((resolve, reject) => {
-            axios.post('/api/auth', {
+    signInWithEmailAndPassword = async (email, password) => {
+        try {
+            const {data} = await axios.post('/api/auth', {
                 email,
                 password
-            }).then(response => {
-                if ( response.data.user )
-                {
-                    this.setSession(response.data.token);
-                    resolve(response.data.user);
-                }
-                else
-                {
-                    reject(response.data.error);
-                }
             });
-        });
+            if (data.user) {
+                this.setSession(data.token);
+                return {
+                    user: data.user
+                }
+            } else {
+                throw new Error('No user in server response');
+            }
+        } catch (error) {
+            if (error.response && error.response.data && error.response.data.message) {
+                // the server has given us a reason, likely incorrect login data
+                return {
+                    problem: error.response.data.message
+                }
+            } else {
+                // the server is not responding or there was a 500 error etc.
+                throw new Error(error);
+            }
+        }
     };
 
     signInWithToken = () => {

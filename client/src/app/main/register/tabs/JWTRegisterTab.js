@@ -53,10 +53,10 @@ function JWTRegisterTab(props)
                     name="displayName"
                     label="Display name"
                     validations={{
-                        minLength: 4
+                        minLength: 2
                     }}
                     validationErrors={{
-                        minLength: 'Min character length is 4'
+                        minLength: 'Min character length is 2'
                     }}
                     InputProps={{
                         endAdornment: <InputAdornment position="end"><Icon className="text-20" color="action">person</Icon></InputAdornment>
@@ -86,9 +86,13 @@ function JWTRegisterTab(props)
                     type="password"
                     name="password"
                     label="Password"
-                    validations="equalsField:password-confirm"
+                    validations={{
+                        equalsField: "password-confirm",
+                        minLength: 6
+                    }}
                     validationErrors={{
-                        equalsField: 'Passwords do not match'
+                        equalsField: 'Passwords do not match',
+                        minLength: 'Min password length is 6'
                     }}
                     InputProps={{
                         endAdornment: <InputAdornment position="end"><Icon className="text-20" color="action">vpn_key</Icon></InputAdornment>
@@ -102,7 +106,9 @@ function JWTRegisterTab(props)
                     type="password"
                     name="password-confirm"
                     label="Confirm Password"
-                    validations="equalsField:password"
+                    validations={{
+                        equalsField: "password"
+                    }}
                     validationErrors={{
                         equalsField: 'Passwords do not match'
                     }}

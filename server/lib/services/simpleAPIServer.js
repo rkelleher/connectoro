@@ -107,9 +107,9 @@ export async function buildSimpleAPIServer(cg, db) {
       auth: false,
       validate: {
         payload: Joi.object({
-          displayName: Joi.string().required(),
+          displayName: Joi.string().min(2).required(),
           email: Joi.string().required(),
-          password: Joi.string().required(),
+          password: Joi.string().min(6).required(),
         })
       }
     }
