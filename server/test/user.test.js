@@ -1,6 +1,8 @@
 import t from 'tap';
-import { setupTestDB, setupCg, setupTestServer, teardownTestDB,
-  stopTestServer, initializeTestServer, clearTestDB, addTestUser } from '../lib/testUtils.js';
+import {
+  setupTestDB, setupCg, setupTestServer, teardownTestDB,
+  stopTestServer, initializeTestServer, clearTestDB, addTestUser
+} from '../lib/testUtils.js';
 import { User } from '../lib/models/user.model.js';
 
 (async () => {
@@ -90,7 +92,7 @@ import { User } from '../lib/models/user.model.js';
         email: 'hello@hello.com',
       },
     ];
-    for (const payload in payloads) {
+    for (const payload of payloads) {
       const res = await t.context.server.inject({
         method: 'post',
         url: '/api/auth/register',
@@ -102,7 +104,7 @@ import { User } from '../lib/models/user.model.js';
   })
 
   t.test('register with bad email', async t => {
-    for (const email in ["hello", "hello@", "hello@goodbye", "@hello.com"]) {
+    for (const email of ["hello", "hello@", "@goodbye"]) {
       const res = await t.context.server.inject({
         method: 'post',
         url: '/api/auth/register',

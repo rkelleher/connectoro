@@ -11,16 +11,21 @@ export function setupCg(context) {
     "PORT": 3001,
     "HTTP_SERVER_HOST": "localhost",
     "BCRYPT_SALT_ROUNDS": 10,
-    "JWT_ALGORITH": "HS256"
+    "JWT_ALGORITH": "HS256",
+    "LOGIN_EXPIRES_IN": "1d"
   }
-  context.cg = (key) => context.config[key];
+  context.cg = (key) => {
+    const val = context.config[key]
+    // console.log(key, val)
+    return val;
+  };
 }
 
 export async function setupTestDB(context) {
   // console.log('Creating new mongo memory server')
   context.mongod = new MongoMemoryServer();
-  context.config['DB_URI'] = await context.mongod.getConnectionString();
-  context.db = await buildDatabase(context.cg)
+  const uri = await context.mongod.getConnectionString();
+  context.db = await buildDatabase(context.cg, {uri})
 }
 
 export async function teardownTestDB(context) {

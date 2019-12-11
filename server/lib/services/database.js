@@ -1,19 +1,18 @@
 import mongoose from "mongoose";
 
-const MONGO_CONNECTING_STR = "Connecting to MongoDB...";
+const MONGO_CONNECTING_STR = "Connecting to MongoDB:";
 const MONGO_CONNECTED_STR = "MongoDB connected";
 const MONGO_DISCONNECT_STR = "MongoDB disconnected";
 const MONGO_FORCED_DISCONNECT_STR =
   "MongoDB was disconnected due to app termination";
 
 function buildURI(cg) {
+  const env = cg('NODE_ENV');
   const name = cg('DB_NAME');
 
   if (!name) {
-    throw new Error('DB_NAME has not been set');
+    throw new Error('DB_NAME has not been set.');
   }
-
-  const env = cg('NODE_ENV');
 
   if (env === 'production') {
     const user = cg('DB_USERNAME');
@@ -23,15 +22,14 @@ function buildURI(cg) {
     return `mongodb+srv://${user}:${pass}@${host}/${name}${params}`;
   } else if (env === 'development') {
     return `mongodb://localhost/${name}`;
-  } else if (env == 'testing') {
-    return cg('DB_URI');
   }
 }
 
-export async function buildDatabase(cg) {
-  console.log(MONGO_CONNECTING_STR);
+export async function buildDatabase(cg, opts) {
+  const uri = opts.uri || buildURI(cg);
 
-  const uri = buildURI(cg);
+  console.log(MONGO_CONNECTING_STR, uri);
+
   const db = mongoose.connect(uri, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
