@@ -1,29 +1,11 @@
 import t from 'tap';
-import {
-  setupTestDB, setupCg, setupTestServer, teardownTestDB,
-  stopTestServer, initializeTestServer, clearTestDB, addTestUser
-} from '../lib/testUtils.js';
+import { addTestAdminUser, setupAPITest } from '../lib/testUtils.js';
 import { User } from '../lib/models/user.model.js';
 
+// t.runOnly = true
+
 (async () => {
-  // t.runOnly = true
-
-  setupCg(t.context);
-  await setupTestDB(t.context);
-  await setupTestServer(t.context);
-
-  t.beforeEach(async () => {
-    return initializeTestServer(t.context);
-  });
-
-  t.afterEach(async () => {
-    await clearTestDB(t.context);
-    return stopTestServer(t.context);
-  });
-
-  t.tearDown(async () => {
-    return teardownTestDB(t.context);
-  })
+  await setupAPITest(t);
 
   t.test('register a new user', async t => {
     t.equal(await User.countDocuments(), 0);
@@ -143,7 +125,7 @@ import { User } from '../lib/models/user.model.js';
   });
 
   t.test('auth with email/pass', async t => {
-    await addTestUser(t.context, {
+    await addTestAdminUser(t.context, {
       displayName: 'tester1',
       email: 'tester1@blah.com',
       password: 'cheese'
@@ -164,7 +146,7 @@ import { User } from '../lib/models/user.model.js';
   });
 
   t.test('auth with email/pass, bad request', async t => {
-    await addTestUser(t.context, {
+    await addTestAdminUser(t.context, {
       displayName: 'tester1',
       email: 'tester1@blah.com',
       password: 'cheese'
@@ -188,7 +170,7 @@ import { User } from '../lib/models/user.model.js';
       const res = await t.context.server.inject({
         method: 'post',
         url: '/api/auth',
-        payload: payload
+        payload
       });
       t.equal(res.statusCode, 400);
     }
@@ -196,7 +178,7 @@ import { User } from '../lib/models/user.model.js';
   });
 
   t.test('auth with email/pass, wrong credentials', async t => {
-    await addTestUser(t.context, {
+    await addTestAdminUser(t.context, {
       displayName: 'tester1',
       email: 'tester1@blah.com',
       password: 'cheese'
@@ -225,7 +207,7 @@ import { User } from '../lib/models/user.model.js';
       const res = await t.context.server.inject({
         method: 'post',
         url: '/api/auth',
-        payload: payload
+        payload
       });
       t.equal(res.statusCode, 401);
     }

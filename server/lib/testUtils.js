@@ -4,8 +4,8 @@ import { buildDatabase } from "./services/database";
 import bcrypt from 'bcrypt';
 import { User } from "./models/user.model";
 
-export function setupCg(context) {
-  context.config = {
+export function setupCg(context, opts = {}) {
+  context.config = Object.assign({
     'NODE_ENV': 'testing',
     'JWT_SECRET': 'blah',
     "PORT": 3001,
@@ -13,7 +13,7 @@ export function setupCg(context) {
     "BCRYPT_SALT_ROUNDS": 10,
     "JWT_ALGORITH": "HS256",
     "LOGIN_EXPIRES_IN": "1d"
-  }
+  }, opts);
   context.cg = (key) => {
     const val = context.config[key]
     // console.log(key, val)
@@ -60,13 +60,34 @@ export async function stopTestServer(context) {
   return context.server.stop();
 }
 
-export async function addTestUser(context, userDetails) {
+export async function addTestAdminUser(context, userDetails) {
   const { displayName, email, password } = userDetails;
   const passwordHash = await bcrypt.hash(password, context.cg('BCRYPT_SALT_ROUNDS'));
   const user = new User({
     displayName,
     email,
-    passwordHash
+    passwordHash,
+    role: 'admin'
   });
   await user.save();
+}
+
+export async function setupAPITest(t) {
+  setupCg(t.context);
+  await setupTestDB(t.context);
+  await setupTestServer(t.context);
+
+  t.beforeEach(async () => {
+    return initializeTestServer(t.context);
+  });
+
+  t.afterEach(async () => {
+    await clearTestDB(t.context);
+    return stopTestServer(t.context);
+  });
+
+  t.tearDown(async () => {
+    return teardownTestDB(t.context);
+  })
+  return t;
 }

@@ -25,19 +25,19 @@ function buildURI(cg) {
   }
 }
 
-export async function buildDatabase(cg, opts) {
+export async function buildDatabase(cg, opts = {}) {
   const uri = opts.uri || buildURI(cg);
+
+  mongoose.set('debug', cg('DEBUG_MONGOOSE'));
 
   console.log(MONGO_CONNECTING_STR, uri);
 
   const db = mongoose.connect(uri, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    // this is the suggested config for testing w/ mongod-memory-server
-    // but I haven't run into any issues so far
-    // autoReconnect: true,
+    autoReconnect: true,
     // reconnectTries: Number.MAX_VALUE,
-    // reconnectInterval: 1000
+    reconnectInterval: 1000
   });
 
   mongoose.connection.on("connected", () => {
@@ -58,8 +58,8 @@ export async function buildDatabase(cg, opts) {
   process.on("unhandledRejection", error => {
     console.error(error);
 
-    connection &&
-      connection.close(() => {
+    if (mongoose.connection)
+      mongoose.connection.close(() => {
         console.log(MONGO_FORCED_DISCONNECT_STR);
         process.exit(1);
       });

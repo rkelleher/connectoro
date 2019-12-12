@@ -1,5 +1,34 @@
 import { User } from '../models/user.model.js';
 
+export async function findUserByEmail(email) {
+  const user = await User.findOne({email});
+  return user;
+}
+
+export async function findUserById(id) {
+  const user = await User.findById(id);
+  return user;
+}
+
+export async function createNewAdminUser({
+  displayName,
+  email,
+  passwordHash
+}) {
+  const user = new User({
+    displayName,
+    email,
+    passwordHash,
+    role: 'admin'
+  })
+  await user.save();
+  return user;
+}
+
+export async function removeUserByID(id) {
+  return User.deleteOne({_id: id});
+}
+
 export function getUserDetails(user) {
   return {
     role: "admin",

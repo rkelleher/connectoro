@@ -210,7 +210,7 @@
   dependencies:
     "@hapi/hoek" "8.x.x"
 
-"@hapi/boom@8.0.1", "@hapi/boom@^8.0.1":
+"@hapi/boom@8.0.1", "@hapi/boom@8.x.x", "@hapi/boom@^8.0.1":
   version "8.0.1"
   resolved "https://registry.yarnpkg.com/@hapi/boom/-/boom-8.0.1.tgz#13f1f2f2a3abfb0787c79e35e238c8aff6aa1661"
   integrity sha512-SnBM2GzEYEA6AGFKXBqNLWXR3uNBui0bkmklYXX1gYtevVhDTy2uakwkSauxvIWMtlANGRhzChYg95If3FWCwA==
@@ -313,7 +313,7 @@
     "@hapi/hoek" "8.x.x"
     "@hapi/joi" "16.x.x"
 
-"@hapi/hoek@8.x.x", "@hapi/hoek@^8.2.4", "@hapi/hoek@^8.3.0", "@hapi/hoek@^8.3.1":
+"@hapi/hoek@8.x.x", "@hapi/hoek@^8.2.4", "@hapi/hoek@^8.3.0", "@hapi/hoek@^8.3.1", "@hapi/hoek@^8.5.0":
   version "8.5.0"
   resolved "https://registry.yarnpkg.com/@hapi/hoek/-/hoek-8.5.0.tgz#2f9ce301c8898e1c3248b0a8564696b24d1a9a5a"
   integrity sha512-7XYT10CZfPsH7j9F1Jmg1+d0ezOux2oM2GfArAzLwWe4mE2Dr3hVjsAL6+TFY49RRJlCdJDMw3nJsLFroTc8Kw==
@@ -457,6 +457,15 @@
   integrity sha512-tQczYRTTeYBmvhsek/D49En/5khcShaBEmzrAaDjMrFXKJRuF8xA8+tlq1ETLBFwGd6Do6g2OC74rt11kzawzg==
   dependencies:
     "@hapi/boom" "7.x.x"
+    "@hapi/bourne" "1.x.x"
+    "@hapi/hoek" "8.x.x"
+
+"@hapi/wreck@^16.0.1":
+  version "16.0.1"
+  resolved "https://registry.yarnpkg.com/@hapi/wreck/-/wreck-16.0.1.tgz#95cd013b8166db17be88837d6d0a880d8e7cd6b3"
+  integrity sha512-fL6IwZ5nk1jBMLBPugt72u23rw8KnnyupLor7TZihgvAXTulxJprUe9YiCLuGbKsEBh2qDo31ixvLCSaxC2+xQ==
+  dependencies:
+    "@hapi/boom" "8.x.x"
     "@hapi/bourne" "1.x.x"
     "@hapi/hoek" "8.x.x"
 

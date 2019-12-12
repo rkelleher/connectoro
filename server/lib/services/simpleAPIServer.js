@@ -1,19 +1,30 @@
-import Hapi from "@hapi/hapi";
-import Joi from "@hapi/joi";
-import Boom from "@hapi/boom";
+import Hapi from '@hapi/hapi';
+import Joi from '@hapi/joi';
+import Boom from '@hapi/boom';
+import Hoek from '@hapi/hoek';
+const { assert } = Hoek;
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import hapiJWT from "hapi-auth-jwt2";
 import mongoose from 'mongoose';
 
-import { User } from '../models/user.model.js';
-import { getUserDetails, getUserDetailsById } from '../controllers/user.controller.js';
+import {
+  getUserDetails,
+  getUserDetailsById,
+  findUserByEmail,
+  createNewAdminUser,
+  removeUserByID,
+  findUserById
+} from '../controllers/user.controller.js';
+import {
+  createNewLinkedAccount
+} from "../controllers/account.controller.js";
 
 const ERR_NO_USER_WITH_EMAIL = 'ERR_NO_USER_WITH_EMAIL';
 const ERR_EMAIL_TAKEN = 'ERR_EMAIL_TAKEN';
 const ERR_WRONG_PASSWORD = 'ERR_WRONG_PASSWORD'
 
-function createToken(cg, userId) {
+function createUserToken(cg, userId) {
   return jwt.sign(
     {sub: userId},
     cg('JWT_SECRET'),
@@ -26,7 +37,7 @@ function createToken(cg, userId) {
 
 async function validateToken(decoded, request, h) {
   const userId = decoded.sub;
-  const user = await User.findById(userId);
+  const user = findUserById(userId);
   if (user) {
     request.headers.authenticatedUserId = userId;
     return {isValid: true};
@@ -36,14 +47,7 @@ async function validateToken(decoded, request, h) {
 };
 
 export async function buildSimpleAPIServer(cg, db) {
-
-  if (!db) {
-    throw new Error('No database object')
-  }
-
-  if (!cg('JWT_SECRET')) {
-    throw new Error('JWT Secret has not been set correctly')
-  }
+  assert(cg && db, 'Missing params');
 
   const server = Hapi.server({
     port: cg('PORT'),
@@ -57,8 +61,12 @@ export async function buildSimpleAPIServer(cg, db) {
 
   await server.register(hapiJWT);
 
+  const JWT_SECRET = cg('JWT_SECRET');
+
+  assert(JWT_SECRET, 'Missing JWT secret');
+
   server.auth.strategy("jwt", "jwt", {
-    key: cg('JWT_SECRET'),
+    key: JWT_SECRET,
     validate: validateToken,
     verifyOptions: {algorithms: [cg('JWT_ALGORITH')]},
     tokenType: "Bearer"
@@ -73,20 +81,20 @@ export async function buildSimpleAPIServer(cg, db) {
     handler: async (request, h) => {
       const {displayName, email, password} = request.payload;
       
-      if (await User.findOne({email})) {
+      if (await findUserByEmail(email)) {
         return Boom.badRequest(ERR_EMAIL_TAKEN);
       }
 
       const passwordHash = await bcrypt.hash(password, cg('BCRYPT_SALT_ROUNDS'));
 
-      const user = new User({
-        displayName,
-        email,
-        passwordHash
-      });
+      let user;
 
       try {
-        await user.save();
+        user = await createNewAdminUser({
+          displayName,
+          email,
+          passwordHash
+        });
       } catch(e) {
         if (e instanceof mongoose.Error.ValidationError) {
           return Boom.badRequest()
@@ -95,7 +103,17 @@ export async function buildSimpleAPIServer(cg, db) {
         }
       }
 
-      const token = createToken(cg, user.id);
+      // user was created successfully, now create and link an account 
+      // TODO can this be done more transaction-like?
+      try {
+        await createNewLinkedAccount(user);
+      } catch (e) {
+        console.log('Error creating linked account, deleting admin user...')
+        await removeUserByID(user.id);
+        throw e;
+      }
+
+      const token = createUserToken(cg, user.id);
       const userDetails = getUserDetails(user);
 
       return {
@@ -122,7 +140,7 @@ export async function buildSimpleAPIServer(cg, db) {
     handler: async (request, h) => {
       const {email, password} = request.payload;
 
-      const user = await User.findOne({email});
+      const user = await findUserByEmail(email);
 
       if (!user) {
         throw Boom.unauthorized(ERR_NO_USER_WITH_EMAIL);
@@ -134,7 +152,7 @@ export async function buildSimpleAPIServer(cg, db) {
         throw Boom.unauthorized(ERR_WRONG_PASSWORD);
       }
 
-      const token = createToken(cg, user.id);
+      const token = createUserToken(cg, user.id);
       const userDetails = getUserDetails(user);
 
       return {
@@ -153,7 +171,7 @@ export async function buildSimpleAPIServer(cg, db) {
     }
   });
 
-  // Login with JWT token
+  // Login with and renew JWT token
   server.route({
     method: "GET",
     path: "/api/auth/access-token",
@@ -161,7 +179,7 @@ export async function buildSimpleAPIServer(cg, db) {
       const userId = request.headers.authenticatedUserId;
       const user = await getUserDetailsById(userId);
       // give the user a fresh token
-      const token = createToken(cg, userId);
+      const token = createUserToken(cg, userId);
       return {user, token};
     }
   });
