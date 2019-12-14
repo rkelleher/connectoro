@@ -17,8 +17,8 @@ export async function createNewLinkedAccount(creator) {
 
 export async function addIntegration(account, integrationType) {
   account.integrations.push({
-    type: integrationType
-  })
+    integrationType
+  });
   await account.save();
   return account;
 }

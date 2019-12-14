@@ -5,7 +5,6 @@ import Hoek from '@hapi/hoek';
 const { assert } = Hoek;
 import bcrypt from 'bcrypt';
 import hapiJWT from "hapi-auth-jwt2";
-import mongoose from 'mongoose';
 
 import { createUserToken, validateToken } from './auth.js';
 import {
@@ -19,8 +18,10 @@ import {
 import {
   createNewLinkedAccount,
   getAccount,
-  buildAccountDetails 
+  buildAccountDetails, 
+  addIntegration
 } from "./controllers/account.controller.js";
+import { DBValidationError } from './services/database.js';
 
 const ERR_NO_USER_WITH_EMAIL = 'ERR_NO_USER_WITH_EMAIL';
 const ERR_EMAIL_TAKEN = 'ERR_EMAIL_TAKEN';
@@ -76,7 +77,7 @@ export async function buildSimpleAPIServer(cg, db) {
           passwordHash
         });
       } catch(e) {
-        if (e instanceof mongoose.Error.ValidationError) {
+        if (e instanceof DBValidationError) {
           return Boom.badRequest()
         } else {
           throw e;
@@ -189,6 +190,41 @@ export async function buildSimpleAPIServer(cg, db) {
       }
     }
   });
+
+  // Add an integration
+  server.route({
+    method: 'POST',
+    path: "/api/account/integration",
+    handler: async (request, h) => {
+      const userId = request.headers.authenticatedUserId;
+      const user = await getUser(userId);
+      if (user.role === 'admin') {
+        const account = await getAccount(user.account);
+        try {
+          await addIntegration(account, request.payload.type);
+          return {
+            integrations: account.integrations.toObject()
+          };
+        } catch (e) {
+          if (e instanceof DBValidationError) {
+            return Boom.badRequest()
+          } else {
+            throw e;
+          }
+        }
+      } else {
+        return Boom.unauthorized();
+      }
+    },
+    options: {
+      validate: {
+        payload: Joi.object({
+          type: Joi.string().required(),
+        })
+      }
+    }
+
+  })
 
   return server;
 }

@@ -96,6 +96,31 @@ export function createTestUserToken(context, userId) {
   return createUserToken(context.cg, userId);
 }
 
+export async function setupTester1(context, {
+  displayName = 'testuser1',
+  email = 'testuser1@test.test',
+  password = 'password1'
+} = {}) {
+  const user = await addTestAdminUser(context, {
+    displayName,
+    email,
+    password,
+  });
+  const token = createTestUserToken(context, user.id);
+  const account = await addTestAccount(context, {
+    email,
+    users: [user.id],
+    integrations: []
+  });
+  user.account = account.id;
+  await user.save();
+  return {
+    user,
+    token,
+    account
+  };
+}
+
 export async function setupAPITest(t) {
   setupCg(t.context);
   await setupTestDB(t.context);

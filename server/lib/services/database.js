@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 
+export const DBValidationError =  mongoose.Error.ValidationError;
+
 const MONGO_CONNECTING_STR = "Connecting to MongoDB:";
 const MONGO_CONNECTED_STR = "MongoDB connected";
 const MONGO_DISCONNECT_STR = "MongoDB disconnected";

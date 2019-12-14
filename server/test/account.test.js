@@ -1,5 +1,5 @@
 import t from 'tap';
-import { setupAPITest, addTestAccount, addTestAdminUser, createTestUserToken } from '../lib/testUtils.js';
+import { setupAPITest, setupTester1 } from '../lib/testUtils.js';
 import { Account } from '../lib/models/account.model.js';
 
 (async () => {
@@ -26,21 +26,11 @@ import { Account } from '../lib/models/account.model.js';
     t.equal(user.accountId, account.id);
   })
 
-  t.test('get account details by id', async t => {
+  t.test('get account details of an admin user', async t => {
     const userEmail = 'test33@test.test';
-    const user = await addTestAdminUser(t.context, {
-      displayName: 'tester',
-      email: userEmail,
-      password: 'password2'
+    const { user, token } = await setupTester1(t.context, {
+      email: userEmail
     });
-    const account = await addTestAccount(t.context, {
-      email: userEmail,
-      users: [user.id],
-      integrations: []
-    });
-    user.account = account.id;
-    await user.save();
-    const token = createTestUserToken(t.context, user.id);
     const res = await t.context.server.inject({
       method: 'get',
       url: `/api/account`,
@@ -57,5 +47,32 @@ import { Account } from '../lib/models/account.model.js';
     t.equal(users.length, 1)
     t.equal(integrations.length, 0)
   });
+
+  t.test('add an integration', async t => {
+    const { token, account } = await setupTester1(t.context);
+    t.equal(account.integrations.length, 0);
+    const res = await t.context.server.inject({
+      method: 'post',
+      url: `/api/account/integration`,
+      headers: {
+        'Authorization': 'Bearer ' + token
+      },
+      payload: {
+        type: 'LINNW'
+      }
+    });
+    t.equal(res.statusCode, 200);
+    t.type(res.payload, 'string')
+    const parsedPayload = JSON.parse(res.payload);
+    const { integrations } = parsedPayload;
+    t.equal(integrations.length, 1);
+    t.equal(integrations[0].integrationType, 'LINNW');
+    const newAccount = await Account.findById(account.id);
+    t.equal(newAccount.integrations.length, 1);
+  });
+
+  t.test('delete an integration')
+  t.test('update integration options')
+  t.test('update integration credentials')
 
 })()
