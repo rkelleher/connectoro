@@ -1,5 +1,5 @@
 import { buildDatabase } from './lib/services/database.js';
-import { buildSimpleAPIServer } from './lib/services/simpleAPIServer.js';
+import { buildSimpleAPIServer } from './lib/simpleAPIServer.js';
 import config from 'nconf';
 
 (async () => {

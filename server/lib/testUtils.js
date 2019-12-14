@@ -1,8 +1,10 @@
-import { MongoMemoryServer } from "mongodb-memory-server";
-import { buildSimpleAPIServer } from "./services/simpleAPIServer";
-import { buildDatabase } from "./services/database";
+import MongoMemoryServer from "mongodb-memory-server";
+import { buildSimpleAPIServer } from "./simpleAPIServer.js";
+import { buildDatabase } from "./services/database.js";
 import bcrypt from 'bcrypt';
-import { User } from "./models/user.model";
+import { User } from "./models/user.model.js";
+import { Account } from "./models/account.model.js";
+import { createUserToken } from "./auth.js";
 
 export function setupCg(context, opts = {}) {
   context.config = Object.assign({
@@ -23,7 +25,13 @@ export function setupCg(context, opts = {}) {
 
 export async function setupTestDB(context) {
   // console.log('Creating new mongo memory server')
-  context.mongod = new MongoMemoryServer();
+  // TODO fix this,
+  // looks like node-tap resolves modules incorrectly?
+  if (MongoMemoryServer.MongoMemoryServer) {
+    context.mongod = new MongoMemoryServer.MongoMemoryServer();
+  } else {
+    context.mongod = new MongoMemoryServer();
+  }
   const uri = await context.mongod.getConnectionString();
   context.db = await buildDatabase(context.cg, {uri})
 }
@@ -70,6 +78,22 @@ export async function addTestAdminUser(context, userDetails) {
     role: 'admin'
   });
   await user.save();
+  return user;
+}
+
+export async function addTestAccount(context, accountDetails) {
+  const { email, users, integrations } = accountDetails;
+  const account = new Account({
+    email,
+    users,
+    integrations
+  });
+  await account.save();
+  return account;
+}
+
+export function createTestUserToken(context, userId) {
+  return createUserToken(context.cg, userId);
 }
 
 export async function setupAPITest(t) {

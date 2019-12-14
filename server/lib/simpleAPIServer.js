@@ -4,47 +4,27 @@ import Boom from '@hapi/boom';
 import Hoek from '@hapi/hoek';
 const { assert } = Hoek;
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import hapiJWT from "hapi-auth-jwt2";
 import mongoose from 'mongoose';
 
+import { createUserToken, validateToken } from './auth.js';
 import {
-  getUserDetails,
+  buildUserDetails,
   getUserDetailsById,
-  findUserByEmail,
-  createNewAdminUser,
-  removeUserByID,
-  findUserById
-} from '../controllers/user.controller.js';
+  getUserByEmail,
+  createAdminUser,
+  removeUser,
+  getUser
+} from './controllers/user.controller.js';
 import {
-  createNewLinkedAccount
-} from "../controllers/account.controller.js";
+  createNewLinkedAccount,
+  getAccount,
+  buildAccountDetails 
+} from "./controllers/account.controller.js";
 
 const ERR_NO_USER_WITH_EMAIL = 'ERR_NO_USER_WITH_EMAIL';
 const ERR_EMAIL_TAKEN = 'ERR_EMAIL_TAKEN';
 const ERR_WRONG_PASSWORD = 'ERR_WRONG_PASSWORD'
-
-function createUserToken(cg, userId) {
-  return jwt.sign(
-    {sub: userId},
-    cg('JWT_SECRET'),
-    {
-      algorithm: cg('JWT_ALGORITH'),
-      expiresIn: cg('LOGIN_EXPIRES_IN')
-    }
-  );
-}
-
-async function validateToken(decoded, request, h) {
-  const userId = decoded.sub;
-  const user = findUserById(userId);
-  if (user) {
-    request.headers.authenticatedUserId = userId;
-    return {isValid: true};
-  } else {
-    return {isValid: false}
-  }
-};
 
 export async function buildSimpleAPIServer(cg, db) {
   assert(cg && db, 'Missing params');
@@ -81,7 +61,7 @@ export async function buildSimpleAPIServer(cg, db) {
     handler: async (request, h) => {
       const {displayName, email, password} = request.payload;
       
-      if (await findUserByEmail(email)) {
+      if (await getUserByEmail(email)) {
         return Boom.badRequest(ERR_EMAIL_TAKEN);
       }
 
@@ -90,7 +70,7 @@ export async function buildSimpleAPIServer(cg, db) {
       let user;
 
       try {
-        user = await createNewAdminUser({
+        user = await createAdminUser({
           displayName,
           email,
           passwordHash
@@ -109,12 +89,12 @@ export async function buildSimpleAPIServer(cg, db) {
         await createNewLinkedAccount(user);
       } catch (e) {
         console.log('Error creating linked account, deleting admin user...')
-        await removeUserByID(user.id);
+        await removeUser(user.id);
         throw e;
       }
 
       const token = createUserToken(cg, user.id);
-      const userDetails = getUserDetails(user);
+      const userDetails = buildUserDetails(user);
 
       return {
         token,
@@ -140,7 +120,7 @@ export async function buildSimpleAPIServer(cg, db) {
     handler: async (request, h) => {
       const {email, password} = request.payload;
 
-      const user = await findUserByEmail(email);
+      const user = await getUserByEmail(email);
 
       if (!user) {
         throw Boom.unauthorized(ERR_NO_USER_WITH_EMAIL);
@@ -153,7 +133,7 @@ export async function buildSimpleAPIServer(cg, db) {
       }
 
       const token = createUserToken(cg, user.id);
-      const userDetails = getUserDetails(user);
+      const userDetails = buildUserDetails(user);
 
       return {
         token,
@@ -177,10 +157,10 @@ export async function buildSimpleAPIServer(cg, db) {
     path: "/api/auth/access-token",
     handler: async (request, h) => {
       const userId = request.headers.authenticatedUserId;
-      const user = await getUserDetailsById(userId);
+      const userDetails = await getUserDetailsById(userId);
       // give the user a fresh token
       const token = createUserToken(cg, userId);
-      return {user, token};
+      return {user: userDetails, token};
     }
   });
 
@@ -191,6 +171,22 @@ export async function buildSimpleAPIServer(cg, db) {
     handler: async (request, h) => {
       // TODO save user updates
       throw new Boom.notImplemented();
+    }
+  });
+
+  // Get account details
+  server.route({
+    method: 'GET',
+    path: "/api/account",
+    handler: async (request, h) => {
+      const userId = request.headers.authenticatedUserId;
+      const user = await getUser(userId);
+      if (user.role === 'admin') {
+        const account = await getAccount(user.account);
+        return buildAccountDetails(account);
+      } else {
+        return Boom.unauthorized();
+      }
     }
   });
 

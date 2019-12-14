@@ -4,7 +4,21 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Server",
+            "name": "Run this file",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/${relativeFile}",
+            "runtimeArgs": ["--experimental-modules"],
+            "env": {
+                "NODE_ENV": "development"
+            }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Run server",
             "skipFiles": [
                 "<node_internals>/**"
             ],

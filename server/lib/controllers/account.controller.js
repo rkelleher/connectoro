@@ -1,5 +1,9 @@
 import { Account } from '../models/account.model.js';
 
+export async function getAccount(id) {
+  return Account.findById(id);
+}
+
 export async function createNewLinkedAccount(creator) {
   const account =  new Account({
     email: creator.email,
@@ -32,10 +36,10 @@ export async function removeCredential(account, integrationID, key) {
   return account;
 }
 
-export async function getAccountDetails(account) {
-  //
-}
-
-export async function getAccountById(id) {
-  //
+export function buildAccountDetails(account) {
+  return {
+    email: account.email,
+    integrations: account.integrations,
+    users: account.users
+  }
 }

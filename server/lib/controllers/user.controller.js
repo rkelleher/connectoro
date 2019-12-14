@@ -1,16 +1,16 @@
 import { User } from '../models/user.model.js';
 
-export async function findUserByEmail(email) {
+export async function getUser(userId) {
+  const user = await User.findById(userId);
+  return user;
+}
+
+export async function getUserByEmail(email) {
   const user = await User.findOne({email});
   return user;
 }
 
-export async function findUserById(id) {
-  const user = await User.findById(id);
-  return user;
-}
-
-export async function createNewAdminUser({
+export async function createAdminUser({
   displayName,
   email,
   passwordHash
@@ -25,13 +25,15 @@ export async function createNewAdminUser({
   return user;
 }
 
-export async function removeUserByID(id) {
-  return User.deleteOne({_id: id});
+export async function removeUser(userId) {
+  return User.deleteOne({_id: userId});
 }
 
-export function getUserDetails(user) {
+export function buildUserDetails(user) {
   return {
-    role: "admin",
+    id: user.id,
+    role: user.role,
+    accountId: user.account,
     data: {
       'displayName': user.displayName,
       'photoURL'   : 'assets/images/avatars/Abbott.jpg',
@@ -76,8 +78,13 @@ export function getUserDetails(user) {
   }
 }
 
-export async function getUserDetailsById(id) {
+export async function getUserDetailsById(userId) {
   // TODO use select() to fetch less data
-  const user = await User.findById(id);
-  return getUserDetails(user);
+  const user = await User.findById(userId);
+  return buildUserDetails(user);
+}
+
+export async function getUserAccount(userId) {
+  const user = await User.findById(userId).select('account');
+  return user.account;
 }
