@@ -19,7 +19,8 @@ import {
   createNewLinkedAccount,
   getAccount,
   buildAccountDetails, 
-  addIntegration
+  addIntegration,
+  deleteIntegration
 } from "./controllers/account.controller.js";
 import { DBValidationError } from './services/database.js';
 
@@ -207,7 +208,7 @@ export async function buildSimpleAPIServer(cg, db) {
           };
         } catch (e) {
           if (e instanceof DBValidationError) {
-            return Boom.badRequest()
+            return Boom.badRequest();
           } else {
             throw e;
           }
@@ -223,8 +224,41 @@ export async function buildSimpleAPIServer(cg, db) {
         })
       }
     }
+  });
 
-  })
+  // Delete an integration
+  server.route({
+    method: 'DELETE',
+    path: "/api/account/integration",
+    handler: async (request, h) => {
+      const userId = request.headers.authenticatedUserId;
+      const user = await getUser(userId);
+      if (user.role === 'admin') {
+        const account = await getAccount(user.account);
+        try {
+          await deleteIntegration(account, request.payload.id);
+          return {
+            integrations: account.integrations.toObject()
+          };
+        } catch (e) {
+          if (e instanceof DBValidationError) {
+            return Boom.badRequest();
+          } else {
+            throw e;
+          }
+        }
+      } else {
+        return Boom.unauthorized();
+      }
+    },
+    options: {
+      validate: {
+        payload: Joi.object({
+          id: Joi.string().required()
+        })
+      }
+    }
+  });
 
   return server;
 }

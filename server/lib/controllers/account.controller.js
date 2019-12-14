@@ -23,6 +23,14 @@ export async function addIntegration(account, integrationType) {
   return account;
 }
 
+export async function deleteIntegration(account, integrationId) {
+  account.integrations.pull({
+    _id: integrationId
+  });
+  await account.save();
+  return account;
+}
+
 export async function addCredential(account, integrationID, key, value) {
   const integration = account.integrations.id(integrationID);
   integration.credentials.set(key, value);

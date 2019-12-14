@@ -1,6 +1,6 @@
 import t from 'tap';
 import { setupAPITest, setupTester1 } from '../lib/testUtils.js';
-import { Account } from '../lib/models/account.model.js';
+import { Account, INTEGRATION_TYPES } from '../lib/models/account.model.js';
 
 (async () => {
   await setupAPITest(t);
@@ -71,7 +71,49 @@ import { Account } from '../lib/models/account.model.js';
     t.equal(newAccount.integrations.length, 1);
   });
 
-  t.test('delete an integration')
+  t.test('delete an integration', async t => {
+    const { token } = await setupTester1(t.context);
+    const res1 = await t.context.server.inject({
+      method: 'post',
+      url: `/api/account/integration`,
+      headers: {
+        'Authorization': 'Bearer ' + token
+      },
+      payload: {
+        type: INTEGRATION_TYPES[0]
+      }
+    });
+    t.equal(res1.statusCode, 200);
+    const res2 = await t.context.server.inject({
+      method: 'post',
+      url: `/api/account/integration`,
+      headers: {
+        'Authorization': 'Bearer ' + token
+      },
+      payload: {
+        type: INTEGRATION_TYPES[1]
+      }
+    });
+    t.equal(res2.statusCode, 200);
+    const { integrations } = JSON.parse(res2.payload);
+    t.equal(integrations.length, 2);
+    const integrationToRemove = integrations[0];
+    const res3 = await t.context.server.inject({
+      method: 'delete',
+      url: `/api/account/integration`,
+      headers: {
+        'Authorization': 'Bearer ' + token
+      },
+      payload: {
+        id: integrationToRemove._id
+      }
+    });
+    t.equal(res3.statusCode, 200);
+    const integrations2 = JSON.parse(res3.payload).integrations;
+    t.equal(integrations2.length, 1);
+    t.notEqual(integrations2[0]._id, integrationToRemove._id);
+  });
+
   t.test('update integration options')
   t.test('update integration credentials')
 
