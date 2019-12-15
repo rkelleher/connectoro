@@ -20,7 +20,8 @@ import {
   getAccount,
   buildAccountDetails, 
   addIntegration,
-  deleteIntegration
+  deleteIntegration,
+  updateIntegration
 } from "./controllers/account.controller.js";
 import { DBValidationError } from './services/database.js';
 
@@ -183,38 +184,36 @@ export async function buildSimpleAPIServer(cg, db) {
     handler: async (request, h) => {
       const userId = request.headers.authenticatedUserId;
       const user = await getUser(userId);
-      if (user.role === 'admin') {
-        const account = await getAccount(user.account);
-        return buildAccountDetails(account);
-      } else {
+      if (user.role !== 'admin') {
         return Boom.unauthorized();
-      }
+      } 
+      const account = await getAccount(user.account);
+      return buildAccountDetails(account);
     }
   });
 
   // Add an integration
   server.route({
     method: 'POST',
-    path: "/api/account/integration",
+    path: "/api/account/integrations",
     handler: async (request, h) => {
       const userId = request.headers.authenticatedUserId;
       const user = await getUser(userId);
-      if (user.role === 'admin') {
-        const account = await getAccount(user.account);
-        try {
-          await addIntegration(account, request.payload.type);
-          return {
-            integrations: account.integrations.toObject()
-          };
-        } catch (e) {
-          if (e instanceof DBValidationError) {
-            return Boom.badRequest();
-          } else {
-            throw e;
-          }
-        }
-      } else {
+      if (user.role !== 'admin') {
         return Boom.unauthorized();
+      } 
+      const account = await getAccount(user.account);
+      try {
+        await addIntegration(account, request.payload.type);
+        return {
+          integrations: account.integrations.toObject()
+        };
+      } catch (e) {
+        if (e instanceof DBValidationError) {
+          return Boom.badRequest();
+        } else {
+          throw e;
+        }
       }
     },
     options: {
@@ -229,32 +228,68 @@ export async function buildSimpleAPIServer(cg, db) {
   // Delete an integration
   server.route({
     method: 'DELETE',
-    path: "/api/account/integration",
+    path: "/api/account/integrations",
     handler: async (request, h) => {
       const userId = request.headers.authenticatedUserId;
       const user = await getUser(userId);
-      if (user.role === 'admin') {
-        const account = await getAccount(user.account);
-        try {
-          await deleteIntegration(account, request.payload.id);
-          return {
-            integrations: account.integrations.toObject()
-          };
-        } catch (e) {
-          if (e instanceof DBValidationError) {
-            return Boom.badRequest();
-          } else {
-            throw e;
-          }
-        }
-      } else {
+      if (user.role !== 'admin') {
         return Boom.unauthorized();
+      } 
+      const account = await getAccount(user.account);
+      try {
+        await deleteIntegration(account, request.payload.id);
+        return {
+          integrations: account.integrations.toObject()
+        };
+      } catch (e) {
+        if (e instanceof DBValidationError) {
+          return Boom.badRequest();
+        } else {
+          throw e;
+        }
       }
     },
     options: {
       validate: {
         payload: Joi.object({
           id: Joi.string().required()
+        })
+      }
+    }
+  });
+
+  // Update an integration
+  // Takes a changes object that gets merged in
+  // Gives back the full updated integration
+  server.route({
+    method: 'PATCH',
+    path: "/api/account/integrations",
+    handler: async (request, h) => {
+      const userId = request.headers.authenticatedUserId;
+      const user = await getUser(userId);
+      if (user.role !== 'admin') {
+        return Boom.unauthorized();
+      } 
+      const account = await getAccount(user.account);
+      const { id, changes } = request.payload;
+      try {
+        const integration = await updateIntegration(account, id, changes)
+        return {
+          integration: integration.toJSON()
+        };
+      } catch (e) {
+        if (e instanceof DBValidationError) {
+          return Boom.badRequest();
+        } else {
+          throw e;
+        }
+      }
+    },
+    options: {
+      validate: {
+        payload: Joi.object({
+          id: Joi.string().required(),
+          changes: Joi.object().required()
         })
       }
     }

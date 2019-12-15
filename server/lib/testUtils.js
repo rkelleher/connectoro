@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt';
 import { User } from "./models/user.model.js";
 import { Account } from "./models/account.model.js";
 import { createUserToken } from "./auth.js";
+import { addIntegration } from "./controllers/account.controller.js";
 
 export function setupCg(context, opts = {}) {
   context.config = Object.assign({
@@ -94,6 +95,13 @@ export async function addTestAccount(context, accountDetails) {
 
 export function createTestUserToken(context, userId) {
   return createUserToken(context.cg, userId);
+}
+
+export async function addTestIntegration(context, account, integrationType) {
+  await addIntegration(account, integrationType);
+  const integrations = account.integrations.toObject();
+  const id = integrations[integrations.length - 1]._id;
+  return { id };
 }
 
 export async function setupTester1(context, {

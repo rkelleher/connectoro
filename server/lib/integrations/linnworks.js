@@ -4,6 +4,15 @@
 import Wreck from '@hapi/wreck';
 import querystring from 'querystring';
 
+export const LINNW_INTEGRATION_TYPE = 'IN_LINNW';
+
+export const LINNW_CRED_TYPES = [
+  {
+    name: 'App Install Token',
+    key: 'INSTALL_TOKEN'
+  }
+];
+
 async function authenticate(appID, appSecret, appInstallToken) {
   const uri = 'https://api.linnworks.net/api/Auth/AuthorizeByApplication';
   const {res, payload} = await Wreck.post(uri, {
@@ -23,7 +32,7 @@ function buildAppInstallURL(appID) {
   return `https://apps.linnworks.net/Authorization/Authorize/${appID}`
 }
 
-function buildAccountOptions() {
+function buildIntegrationOptions() {
   //
 }
 

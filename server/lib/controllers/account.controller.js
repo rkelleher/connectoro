@@ -5,7 +5,7 @@ export async function getAccount(id) {
 }
 
 export async function createNewLinkedAccount(creator) {
-  const account =  new Account({
+  const account = new Account({
     email: creator.email,
     users: [creator._id]
   });
@@ -31,17 +31,23 @@ export async function deleteIntegration(account, integrationId) {
   return account;
 }
 
-export async function addCredential(account, integrationID, key, value) {
-  const integration = account.integrations.id(integrationID);
-  integration.credentials.set(key, value);
+export async function updateIntegration(account, integrationId, changes) {
+  const integration = account.integrations.id(integrationId);
+  if (changes.credentials) {
+    for (const k of Object.keys(changes.credentials)) {
+      const v = changes.credentials[k];
+      if (v === null) {
+        integration.credentials.delete(k);
+      } else {
+        if (!integration.credentials) {
+          integration.credentials = new Map();
+        }
+        integration.credentials.set(k, v);
+      }
+    }
+  }
   await account.save();
-  return account;
-}
-export async function removeCredential(account, integrationID, key) {
-  const integration = account.integrations.id(integrationID);
-  integration.credentials.delete(key);
-  await account.save();
-  return account;
+  return account.integrations.id(integrationId);
 }
 
 export function buildAccountDetails(account) {
