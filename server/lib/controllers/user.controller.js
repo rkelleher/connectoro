@@ -63,17 +63,12 @@ export function buildUserDetails(user) {
         },
         customScrollbars: true,
         theme           : {
-          main   : 'defaultDark',
+          main   : 'default',
           navbar : 'defaultDark',
           toolbar: 'defaultDark',
           footer : 'defaultDark'
         }
-      },
-      shortcuts    : [
-        'calendar',
-        'mail',
-        'contacts'
-      ]
+      }
     }
   }
 }

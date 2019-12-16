@@ -1,0 +1,2 @@
+
+export const EASYNC_INTEGRATION_TYPE = 'EASYNC';

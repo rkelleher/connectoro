@@ -1,9 +1,11 @@
 import mongoose from "mongoose";
 import "mongoose-type-email";
-import { LINNW_INTEGRATION_TYPE } from "../integrations/linnworks";
+import { LINNW_INTEGRATION_TYPE } from "../integrations/linnworks.js";
+import { EASYNC_INTEGRATION_TYPE } from "../integrations/easync.js";
 
 export const INTEGRATION_TYPES = [
-  LINNW_INTEGRATION_TYPE
+  LINNW_INTEGRATION_TYPE,
+  EASYNC_INTEGRATION_TYPE
 ];
 
 const IntegrationSchema = new mongoose.Schema({

@@ -4,7 +4,7 @@
 import Wreck from '@hapi/wreck';
 import querystring from 'querystring';
 
-export const LINNW_INTEGRATION_TYPE = 'IN_LINNW';
+export const LINNW_INTEGRATION_TYPE = 'LINNW';
 
 export const LINNW_CRED_TYPES = [
   {

@@ -60,7 +60,7 @@ import { Account, INTEGRATION_TYPES } from '../lib/models/account.model.js';
         'Authorization': 'Bearer ' + token
       },
       payload: {
-        type: 'LINNW'
+        type: INTEGRATION_TYPES[0]
       }
     });
     t.equal(res.statusCode, 200);
@@ -68,7 +68,7 @@ import { Account, INTEGRATION_TYPES } from '../lib/models/account.model.js';
     const parsedPayload = JSON.parse(res.payload);
     const { integrations } = parsedPayload;
     t.equal(integrations.length, 1);
-    t.equal(integrations[0].integrationType, 'LINNW');
+    t.equal(integrations[0].integrationType, INTEGRATION_TYPES[0]);
     const newAccount = await Account.findById(account.id);
     t.equal(newAccount.integrations.length, 1);
   });
@@ -93,7 +93,7 @@ import { Account, INTEGRATION_TYPES } from '../lib/models/account.model.js';
         'Authorization': 'Bearer ' + token
       },
       payload: {
-        type: INTEGRATION_TYPES[1]
+        type: INTEGRATION_TYPES[0]
       }
     });
     t.equal(res2.statusCode, 200);

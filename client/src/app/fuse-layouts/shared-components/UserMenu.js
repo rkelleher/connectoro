@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Avatar, Button, Icon, ListItemIcon, ListItemText, Popover, MenuItem, Typography} from '@material-ui/core';
+import {Button, Icon, ListItemIcon, ListItemText, Popover, MenuItem, Typography} from '@material-ui/core';
 import {useSelector, useDispatch} from 'react-redux';
 import * as authActions from 'app/auth/store/actions';
 import {Link} from 'react-router-dom';
@@ -80,18 +80,6 @@ function UserMenu(props)
                     </React.Fragment>
                 ) : (
                     <React.Fragment>
-                        <MenuItem component={Link} to="/pages/profile" onClick={userMenuClose}>
-                            <ListItemIcon className="min-w-40">
-                                <Icon>account_circle</Icon>
-                            </ListItemIcon>
-                            <ListItemText className="pl-0" primary="My Profile"/>
-                        </MenuItem>
-                        <MenuItem component={Link} to="/apps/mail" onClick={userMenuClose}>
-                            <ListItemIcon className="min-w-40">
-                                <Icon>mail</Icon>
-                            </ListItemIcon>
-                            <ListItemText className="pl-0" primary="Inbox"/>
-                        </MenuItem>
                         <MenuItem
                             onClick={() => {
                                 dispatch(authActions.logoutUser());
