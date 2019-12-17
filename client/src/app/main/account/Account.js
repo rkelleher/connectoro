@@ -158,6 +158,9 @@ function LinnworksIntegration({integration}) {
         }
     }, [form, integration])
 
+    const appId = integration.appId;
+    const appInstallURL = `https://apps.linnworks.net/Authorization/Authorize/${appId}`;
+
     const addCredential = (type, content) => {
         dispatch(Actions.closeDialog());
         dispatch(Actions.addCredential(integration._id, type, content));
@@ -220,6 +223,13 @@ function LinnworksIntegration({integration}) {
             <Button variant="contained" onClick={openDeleteDialog}>
                 Delete Integration
             </Button>
+            <p style={{marginTop: 20}}>
+                To complete Linnworks integration setup, install the Connectoro Linnworks App by visiting:
+                <br />
+                <a href={appInstallURL}>{appInstallURL}</a>
+                <br />
+                Once installation is complete, copy the App Install Token and add it as a credential to this integration.
+            </p>
             <Typography variant="h6" component="h6" style={{marginTop: 20}}>
                 Credentials
             </Typography>

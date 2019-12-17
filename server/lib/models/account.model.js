@@ -14,6 +14,10 @@ const IntegrationSchema = new mongoose.Schema({
     enum: INTEGRATION_TYPES,
     required: true
   },
+  // TODO generalize, this is specific to Linnworks
+  appId: {
+    type: String
+  },
   credentials: {
     type: Map,
     of: String

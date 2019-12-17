@@ -24,6 +24,7 @@ import {
   updateIntegration
 } from "./controllers/account.controller.js";
 import { DBValidationError } from './services/database.js';
+import { LINNW_INTEGRATION_TYPE } from './integrations/linnworks.js';
 
 const ERR_NO_USER_WITH_EMAIL = 'ERR_NO_USER_WITH_EMAIL';
 const ERR_EMAIL_TAKEN = 'ERR_EMAIL_TAKEN';
@@ -204,7 +205,14 @@ export async function buildSimpleAPIServer(cg, db) {
       } 
       const account = await getAccount(user.account);
       try {
-        await addIntegration(account, request.payload.type);
+        const type = request.payload.type;
+        if (type === LINNW_INTEGRATION_TYPE) {
+          await addIntegration(account, type, {
+            appId: cg('LINNW_APP_ID')
+          })
+        } else {
+          await addIntegration(account, type);
+        }
         return {
           integrations: account.integrations.toObject()
         };

@@ -15,10 +15,17 @@ export async function createNewLinkedAccount(creator) {
   return account;
 }
 
-export async function addIntegration(account, integrationType) {
-  account.integrations.push({
-    integrationType
-  });
+export async function addIntegration(account, integrationType, opts = {}) {
+  if (opts.appId) {
+    account.integrations.push({
+      integrationType,
+      appId: opts.appId
+    });
+  } else {
+    account.integrations.push({
+      integrationType
+    });
+  }
   await account.save();
   return account;
 }

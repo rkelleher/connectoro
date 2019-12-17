@@ -21,10 +21,6 @@ async function authenticate(appID, appSecret, appInstallToken) {
   return JSON.parse(payload);
 }
 
-function buildAppInstallURL(appID) {
-  return `https://apps.linnworks.net/Authorization/Authorize/${appID}`
-}
-
 function normalizeAddress() {
   // 
 }
