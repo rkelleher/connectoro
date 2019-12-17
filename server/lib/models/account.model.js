@@ -22,7 +22,7 @@ const IntegrationSchema = new mongoose.Schema({
     type: Map,
     of: Object
   }
-});
+}, {toObject: {flattenMaps: true}});
 
 const AccountSchema = new mongoose.Schema({
   email: {

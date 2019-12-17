@@ -274,8 +274,10 @@ export async function buildSimpleAPIServer(cg, db) {
       const { id, changes } = request.payload;
       try {
         const integration = await updateIntegration(account, id, changes)
+        const integrationsObj = account.integrations.toObject()
         return {
-          integration: integration.toJSON()
+          integration: integration.toJSON(),
+          integrations: integrationsObj
         };
       } catch (e) {
         if (e instanceof DBValidationError) {
