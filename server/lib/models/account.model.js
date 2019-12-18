@@ -22,7 +22,7 @@ const IntegrationSchema = new mongoose.Schema({
     type: Map,
     of: String
   },
-  optionChoices: {
+  options: {
     type: Map,
     of: Object
   }

@@ -40,6 +40,7 @@ export async function deleteIntegration(account, integrationId) {
 
 export async function updateIntegration(account, integrationId, changes) {
   const integration = account.integrations.id(integrationId);
+
   if (changes.credentials) {
     for (const k of Object.keys(changes.credentials)) {
       const v = changes.credentials[k];
@@ -53,6 +54,17 @@ export async function updateIntegration(account, integrationId, changes) {
       }
     }
   }
+
+  if (changes.options) {
+    for (const k of Object.keys(changes.options)) {
+      const v = changes.options[k];
+      if (!integration.options) {
+        integration.options = new Map();
+      }
+      integration.options.set(k, v);
+    }
+  }
+
   await account.save();
   return account.integrations.id(integrationId);
 }

@@ -267,8 +267,6 @@ export async function buildSimpleAPIServer(cg, db) {
   });
 
   // Update an integration
-  // Takes a changes object that gets merged in
-  // Gives back the full updated integration
   server.route({
     method: 'PATCH',
     path: "/api/account/integrations",

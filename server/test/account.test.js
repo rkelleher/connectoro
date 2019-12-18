@@ -206,5 +206,31 @@ import { Account, INTEGRATION_TYPES } from '../lib/models/account.model.js';
     t.equal(dbIntegration3.credentials.get(credKey2), undefined);
   });
 
-  t.test('update integration options')
+  t.test('set an integration option', async t => {
+    const key = 'someBool';
+    const val = false;
+    const { token, account } = await setupTester1(t.context);
+    const { id } = await addTestIntegration(t.context, account, INTEGRATION_TYPES[0]);
+    const { payload, statusCode} = await t.context.server.inject({
+      method: 'patch',
+      url: `/api/account/integrations`,
+      headers: {
+        'Authorization': 'Bearer ' + token
+      },
+      payload: {
+        id,
+        changes: {
+          credentials: {
+            aaa: 'bbb'
+          },
+          options: {
+            [key]: val
+          }
+        }
+      }
+    });
+    t.equal(statusCode, 200);
+    const { options } = JSON.parse(payload)['integration'];
+    t.equal(options[key], val);
+  });
 })()
