@@ -524,7 +524,7 @@ function NewIntegrationDialog({ submit }) {
                             value={option.integrationKey}
                             key={option.integrationKey}
                             control={<Radio />}
-                            label={option.label}
+                            label={option.integrationLabel}
                         />
                     ))}
                 </RadioGroup>

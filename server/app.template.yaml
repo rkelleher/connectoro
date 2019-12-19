@@ -4,12 +4,13 @@ env: standard
 
 env_variables:
   JWT_SECRET: "<%- JWT_SECRET %>"
-  EASYNC_API_TOKEN: "<%- EASYNC_API_TOKEN %>"
   DB_USERNAME: "<%- DB_USERNAME %>"
   DB_PASSWORD: "<%- DB_PASSWORD %>"
   DB_HOST: "<%- DB_HOST %>"
   DB_NAME: "<%- DB_NAME %>"
   DB_PARAM_STR: "<%- DB_PARAM_STR %>"
+  LINNW_APP_ID: "<%- LINNW_APP_ID %>"
+  LINNW_APP_SECRET: "<%- LINNW_APP_SECRET %>"
 
 handlers:
 - url: /api/.*
