@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import Hapi from '@hapi/hapi';
 import Joi from '@hapi/joi';
 import Boom from '@hapi/boom';
@@ -24,7 +25,7 @@ import {
   updateIntegration
 } from "./controllers/account.controller.js";
 import { DBValidationError } from './services/database.js';
-import { LINNW_INTEGRATION_TYPE } from './integrations/linnworks.js';
+import { LINNW_INTEGRATION_TYPE, makeLinnworksAPISession, getLinnworksOpenOrdersPaged } from './integrations/linnworks.js';
 
 const ERR_NO_USER_WITH_EMAIL = 'ERR_NO_USER_WITH_EMAIL';
 const ERR_EMAIL_TAKEN = 'ERR_EMAIL_TAKEN';
@@ -57,6 +58,55 @@ export async function buildSimpleAPIServer(cg, db) {
   });
 
   server.auth.default("jwt");
+
+  // Get linnworks orders
+  // TODO temporary until we process these server-side into native Orders
+  server.route({
+    method: "GET",
+    path: '/api/linnworks-orders',
+    handler: async (request, h) => {
+      const userId = request.headers.authenticatedUserId;
+
+      const user = await getUser(userId);
+
+      if (user.role !== 'admin') {
+        return Boom.unauthorized();
+      } 
+
+      const account = await getAccount(user.account);
+
+      if (account.integrations.length === 0) {
+        return {};
+      }
+
+      for (const integration of account.integrations) {
+        if (integration.integrationType === LINNW_INTEGRATION_TYPE) {
+          const { appId, credentials, options, session } = integration;
+          const appInstallToken = credentials && credentials.get('INSTALL_TOKEN');
+          if (!appInstallToken) {
+            throw Boom.badRequest('No Linnworks Install Token');
+          }
+
+          // TODO move somewhere else
+          if (!session) {
+            const appSecret = cg('LINNW_APP_SECRET');
+            const linnworksSession = await makeLinnworksAPISession(
+              appId,
+              appSecret,
+              appInstallToken
+            );
+            integration.session = linnworksSession;
+            await account.save();
+          }
+
+          const sessionToken = integration.session.Token;
+          const locationId = '00000000-0000-0000-0000-000000000000';
+          const someOrders = await getLinnworksOpenOrdersPaged(sessionToken, locationId, 11, 1);
+          return { raw: someOrders };
+        }
+      }
+    }
+  })
 
   // Create a new user
   server.route({
@@ -187,7 +237,7 @@ export async function buildSimpleAPIServer(cg, db) {
       const user = await getUser(userId);
       if (user.role !== 'admin') {
         return Boom.unauthorized();
-      } 
+      }
       const account = await getAccount(user.account);
       return buildAccountDetails(account);
     }

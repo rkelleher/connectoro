@@ -199,14 +199,11 @@ function Option({ optionKey, label, choices, form, handleChange, setInForm }) {
 }
 
 function IntegrationOptions({ integration, options }) {
-    console.log("intg opts", integration.options);
     const dispatch = useDispatch();
 
     const isSaving = useSelector(({ account }) => account.isSavingIntegration);
-    console.log("saving?", isSaving);
 
     const { form, handleChange, setForm, setInForm } = useForm(null);
-    console.log("form", form);
 
     useEffect(() => {
         if (integration && !form) {

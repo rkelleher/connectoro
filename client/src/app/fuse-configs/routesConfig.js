@@ -6,8 +6,10 @@ import { LoginConfig } from "app/main/login/LoginConfig";
 import { LogoutConfig } from "app/main/logout/LogoutConfig";
 import { RegisterConfig } from "app/main/register/RegisterConfig";
 import { AccountPageConfig } from "app/main/account/AccountPageConfig";
+import { OrdersConfig } from "app/main/orders/OrdersConfig";
 
 const routeConfigs = [
+    OrdersConfig,
     DashboardConfig,
     AccountPageConfig,
     LoginConfig,

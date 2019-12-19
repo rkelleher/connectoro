@@ -15,6 +15,8 @@ const IntegrationSchema = new mongoose.Schema({
     required: true
   },
   // TODO generalize, this is specific to Linnworks
+  session: {},
+  // TODO generalize, this is specific to Linnworks
   appId: {
     type: String
   },
