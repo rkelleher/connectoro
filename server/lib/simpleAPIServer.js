@@ -7,6 +7,7 @@ const { assert } = Hoek;
 import bcrypt from 'bcrypt';
 import hapiJWT from "hapi-auth-jwt2";
 
+import { DBValidationError } from './services/database.js';
 import { createUserToken, validateToken } from './auth.js';
 import {
   buildUserDetails,
@@ -22,10 +23,27 @@ import {
   buildAccountDetails, 
   addIntegration,
   deleteIntegration,
-  updateIntegration
+  updateIntegration,
+  getIntegrationCredential,
+  getIntegrationByType
 } from "./controllers/account.controller.js";
-import { DBValidationError } from './services/database.js';
-import { LINNW_INTEGRATION_TYPE, makeLinnworksAPISession, getLinnworksOpenOrdersPaged } from './integrations/linnworks.js';
+import {
+  getOrdersForAccount,
+  getOrderByInputId,
+  createOrders,
+  getOrder
+} from './controllers/order.controller.js';
+import {
+  LINNW_INTEGRATION_TYPE,
+  makeLinnworksAPISession,
+  getLinnworksOpenOrdersPaged,
+  convertLinnworksOrder
+} from './integrations/linnworks.js';
+import {
+  EASYNC_INTEGRATION_TYPE,
+  buildEasyncOrderReq,
+  EASYNC_TOKEN_CREDENTIAL_KEY
+} from './integrations/easync.js';
 
 const ERR_NO_USER_WITH_EMAIL = 'ERR_NO_USER_WITH_EMAIL';
 const ERR_EMAIL_TAKEN = 'ERR_EMAIL_TAKEN';
@@ -59,11 +77,55 @@ export async function buildSimpleAPIServer(cg, db) {
 
   server.auth.default("jwt");
 
-  // Get linnworks orders
-  // TODO temporary until we process these server-side into native Orders
+  server.route({
+    method: "POST",
+    path: '/api/test-send-order',
+    handler: async (request, h) => {
+      const { orderId } = request.payload;
+      const userId = request.headers.authenticatedUserId;
+      const user = await getUser(userId);
+      if (user.role !== 'admin') {
+        return Boom.unauthorized();
+      }
+      const order = await getOrder(orderId);
+      if (!order) {
+        return Boom.badRequest('No order found');
+      }
+      const account = await getAccount(user.account);
+      const integration = await getIntegrationByType(account, EASYNC_INTEGRATION_TYPE);
+      const token = getIntegrationCredential(integration, EASYNC_TOKEN_CREDENTIAL_KEY);
+      if (!token) {
+        throw Boom.badRequest('No Easync api token!');
+      }
+      const req = buildEasyncOrderReq(order, { token });
+      return { req };
+    },
+    options: {
+      validate: {
+        payload: Joi.object({
+          orderId: Joi.string().required(),
+        })
+      }
+    }
+  });
+
   server.route({
     method: "GET",
-    path: '/api/linnworks-orders',
+    path: '/api/orders',
+    handler: async (request, h) => {
+      const userId = request.headers.authenticatedUserId;
+      const user = await getUser(userId);
+      if (user.role !== 'admin') {
+        return Boom.unauthorized();
+      }
+      const orders = await getOrdersForAccount(user.account);
+      return orders;
+    }
+  });
+
+  server.route({
+    method: "POST",
+    path: '/api/collect-orders',
     handler: async (request, h) => {
       const userId = request.headers.authenticatedUserId;
 
@@ -100,9 +162,24 @@ export async function buildSimpleAPIServer(cg, db) {
           }
 
           const sessionToken = integration.session.Token;
-          const locationId = '00000000-0000-0000-0000-000000000000';
-          const someOrders = await getLinnworksOpenOrdersPaged(sessionToken, locationId, 11, 1);
-          return { raw: someOrders };
+          const locationId = (options && options.defaultLocation) || '00000000-0000-0000-0000-000000000000';
+          const someOrders = await getLinnworksOpenOrdersPaged(sessionToken, locationId, 15, 1);
+
+          let orderDocs = [];
+          for (const inputOrder of someOrders["Data"]) {
+            const inputId = inputOrder["OrderId"];
+            const existingOrder = await getOrderByInputId(inputId);
+            if (!existingOrder) {
+              const orderDoc = convertLinnworksOrder(user.account, inputId, inputOrder);
+              orderDocs.push(orderDoc);
+            }
+          }
+
+          if (orderDocs.length > 0) {
+            createOrders(orderDocs);
+          }
+
+          return { numOrdersAdded: orderDocs.length };
         }
       }
     }

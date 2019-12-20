@@ -6,6 +6,16 @@ import querystring from 'querystring';
 
 export const LINNW_INTEGRATION_TYPE = 'LINNW';
 
+// NEXT
+export function convertLinnworksOrder(accountId, inputId, inputOrder) {
+  return {
+    accountId,
+    inputId,
+    inputOrder,
+    inputIntegrationType: LINNW_INTEGRATION_TYPE
+  }
+}
+
 // returns: https://apps.linnworks.net/Api/Class/API_Core-Modules-Sessions-Base-BaseSession
 export async function makeLinnworksAPISession(appID, appSecret, appInstallToken) {
   const uri = 'https://api.linnworks.net/api/Auth/AuthorizeByApplication';

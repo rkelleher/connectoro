@@ -30,6 +30,15 @@ export async function addIntegration(account, integrationType, opts = {}) {
   return account;
 }
 
+export async function getIntegrationByType(account, integrationType) {
+  return account.integrations.find(x => x.integrationType === integrationType)
+}
+
+export function getIntegrationCredential(integration, key) {
+  const credential = integration.credentials && integration.credentials.get(key);
+  return credential;
+}
+
 export async function deleteIntegration(account, integrationId) {
   account.integrations.pull({
     _id: integrationId
