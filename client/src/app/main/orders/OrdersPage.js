@@ -3,7 +3,7 @@ import { FusePageCarded } from "@fuse";
 import OrdersHeader from "./OrdersHeader";
 import OrdersTable from "./OrdersTable";
 
-function Orders() {
+function OrdersPage() {
     return (
         <FusePageCarded
             classes={{
@@ -17,4 +17,4 @@ function Orders() {
     );
 }
 
-export default Orders;
+export default OrdersPage;

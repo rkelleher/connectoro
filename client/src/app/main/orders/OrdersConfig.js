@@ -1,12 +1,12 @@
 import { authRoles } from "app/auth";
-import Orders from "./Orders";
+import OrdersPage from "./OrdersPage";
 
 export const OrdersConfig = {
     auth: authRoles.admin,
     routes: [
         {
             path: "/orders",
-            component: Orders
+            component: OrdersPage
         }
     ]
 };
