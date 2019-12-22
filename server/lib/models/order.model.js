@@ -1,12 +1,13 @@
 import mongoose from "mongoose";
 
 // TODO move relevant specs into the integration files
-import { EASYNC_INTEGRATION_TYPE } from "../integrations/easync.js";
+import { EASYNC_INTEGRATION_TYPE, orderProductDataShape } from "../integrations/easync.js";
 import { LINNW_INTEGRATION_TYPE } from "../integrations/linnworks.js";
 
 const ExampleOrder = {
   _id: 'abcdefg',
-  products: [
+  accountId: 'hijklmn',
+  orderProducts: [
     {
       quantity: 1,
       productId: "abc123",
@@ -50,14 +51,7 @@ const OrderProductSchema = new mongoose.Schema({
   productId: mongoose.Schema.Types.ObjectId,
   quantity: Number,
   integrationData: {
-    [EASYNC_INTEGRATION_TYPE]: {
-      selectionCriteria: {
-        conditionIn: [String],
-        handlingDaysMax: Number,
-        maxItemPrice: Number,
-        isPrime: Boolean
-      }
-    }
+    [EASYNC_INTEGRATION_TYPE]: orderProductDataShape
   }
 });
 

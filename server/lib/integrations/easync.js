@@ -48,6 +48,20 @@ const ExampleEasyncOrderReqObj = {
   }
 };
 
+export const orderProductDataShape = {
+  selectionCriteria: {
+    conditionIn: [String],
+    handlingDaysMax: Number,
+    maxItemPrice: Number,
+    isPrime: Boolean
+  }
+};
+
+export const productDataShape = {
+  amazonIds: {},
+  defaults: orderProductDataShape
+};
+
 export function getCountryCode(country) {
   // http://www.theodora.com/country_digraphs.html
   return find(countryCodes, x => x.name === country).alpha2;
@@ -73,7 +87,7 @@ function getASIN(order, orderProduct) {
   return get(orderProduct, [
     "integrationData",
     "EASYNC",
-    "ids",
+    "amazonIds",
     getRetailerCode(order),
     "ASIN"
   ]);
