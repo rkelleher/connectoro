@@ -45,7 +45,7 @@ export function buildUserDetails(user) {
             scroll : 'content',
             navbar : {
               display : true,
-              folded  : true,
+              folded  : false,
               position: 'left'
             },
             toolbar: {
@@ -54,7 +54,7 @@ export function buildUserDetails(user) {
               position: 'below'
             },
             footer : {
-              display : true,
+              display : false,
               style   : 'fixed',
               position: 'below'
             },

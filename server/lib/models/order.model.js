@@ -1,25 +1,63 @@
 import mongoose from "mongoose";
 
-const PaymentMethodSchema = new mongoose.Schema({
-  nameOnCard: String,
-  number: String,
-  securityCode: String,
-  expirationMonth: Number,
-  expirationYear: Number,
-  useGift: Boolean
-});
+// TODO move relevant specs into the integration files
+import { EASYNC_INTEGRATION_TYPE } from "../integrations/easync.js";
+import { LINNW_INTEGRATION_TYPE } from "../integrations/linnworks.js";
 
-const ProductSchema = new mongoose.Schema({
-  productId: String, // retailer's id
+const ExampleOrder = {
+  _id: 'abcdefg',
+  products: [
+    {
+      quantity: 1,
+      productId: "abc123",
+      integrationData: {
+        'EASYNC': {
+          selectionCriteria: {
+            conditionIn: ['New'],
+            handlingDaysMax: 4,
+            maxItemPrice: 9900,
+            isPrime: true
+          }
+        }
+      }
+    }
+  ],
+  shippingAddress: {
+    firstName: "khurram",
+    lastName: "shahzad",
+    addressLine1: "107 Bonnyton Road",
+    addressLine2: "",
+    zipCode: "KA1 2NB",
+    city: "Kilmarnock",
+    state: "East Ayrshire",
+    country: "United Kingdom",
+    phoneNumber: "7563406968"
+  },
+  integrationData: {
+    'EASYNC': {
+      shippingMethod: 'free',
+      isGift: true,
+      maxOrderPrice: 9900,
+      clientNotes: {
+        "our_internal_order_id": "384460"
+      },
+      isFBE: true
+    }
+  }
+};
+
+const OrderProductSchema = new mongoose.Schema({
+  productId: mongoose.Schema.Types.ObjectId,
   quantity: Number,
-
-  sellerSelectionCriteria: {
-    addon: Boolean,
-    conditionIn: [String],
-    handlingDaysMax: Number,
-    maxItemPrice: Number,
-    minSellerNumRatings: Number,
-    prime: Boolean,
+  integrationData: {
+    [EASYNC_INTEGRATION_TYPE]: {
+      selectionCriteria: {
+        conditionIn: [String],
+        handlingDaysMax: Number,
+        maxItemPrice: Number,
+        isPrime: Boolean
+      }
+    }
   }
 });
 
@@ -31,43 +69,31 @@ const AddressSchema = new mongoose.Schema({
   zipCode: String,
   city: String,
   state: String,
-  // http://www.theodora.com/country_digraphs.html
-  countryCode: String,
+  countryName: String,
   phoneNumber: String,
 });
-
-const RetailerCredentialSchema = new mongoose.Schema({
-  email: String,
-  password: String
-});
-
 
 const OrderSchema = new mongoose.Schema({
   accountId: {
     type: mongoose.Schema.Types.ObjectId,
     index: true
   },
-
-  inputId: {
-    type: String,
-    index: true
-  },
-  inputOrder: Object,
-  inputIntegrationType: String,
-
-  retailer: String,
-  products: [ProductSchema],
+  orderProducts: [OrderProductSchema],
   shippingAddress: AddressSchema,
-  shippingMethod: String,
-  billingAddress: AddressSchema,
-  paymentMethod: PaymentMethodSchema,
-  retailerCredentials: RetailerCredentialSchema,
-
-  giftMessage: String,
-  isGift: Boolean,
-  maxPrice: Number,
-  clientPrice: Object,
-  fbe: Boolean
+  integrationData: {
+    [EASYNC_INTEGRATION_TYPE]: {
+      retailer: String,
+      giftMessage: String,
+      isGift: Boolean,
+      maxOrderPrice: Number,
+      isFBE: Boolean,
+      isPrime: Boolean,
+      clientNotes: String
+    },
+    [LINNW_INTEGRATION_TYPE]: {
+      inputOrder: {}
+    }
+  }
 });
 
 export const Order = mongoose.model("Order", OrderSchema);

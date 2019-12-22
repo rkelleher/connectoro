@@ -6,13 +6,13 @@ import querystring from 'querystring';
 
 export const LINNW_INTEGRATION_TYPE = 'LINNW';
 
-// NEXT
-export function convertLinnworksOrder(accountId, inputId, inputOrder) {
+export function convertLinnworksOrder(inputOrder) {
   return {
-    accountId,
-    inputId,
-    inputOrder,
-    inputIntegrationType: LINNW_INTEGRATION_TYPE
+    integrationData: {
+      LINNW_INTEGRATION_TYPE: {
+        inputOrder,
+      }
+    }
   }
 }
 

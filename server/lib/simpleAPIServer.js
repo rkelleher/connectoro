@@ -111,6 +111,28 @@ export async function buildSimpleAPIServer(cg, db) {
 
   server.route({
     method: "GET",
+    path: '/api/orders/{orderId}',
+    handler: async (request, h) => {
+      const { orderId } = request.params;
+      const userId = request.headers.authenticatedUserId;
+      const user = await getUser(userId);
+      if (user.role !== 'admin') {
+        return Boom.unauthorized();
+      }
+      const order = await getOrder(orderId);
+      return order;
+    },
+    options: {
+      validate: {
+        params: Joi.object({
+          orderId: Joi.string().required(),
+        })
+      }
+    }
+  });
+
+  server.route({
+    method: "GET",
     path: '/api/orders',
     handler: async (request, h) => {
       const userId = request.headers.authenticatedUserId;
@@ -120,6 +142,45 @@ export async function buildSimpleAPIServer(cg, db) {
       }
       const orders = await getOrdersForAccount(user.account);
       return orders;
+    }
+  });
+
+  server.route({
+    method: "POST",
+    path: '/api/orders',
+    handler: async (request, h) => {
+      const userId = request.headers.authenticatedUserId;
+      const user = await getUser(userId);
+      if (user.role !== 'admin') {
+        return Boom.unauthorized();
+      }
+      //NEXT
+    }
+  });
+
+  server.route({
+    method: "GET",
+    path: '/api/products',
+    handler: async (request, h) => {
+      const userId = request.headers.authenticatedUserId;
+      const user = await getUser(userId);
+      if (user.role !== 'admin') {
+        return Boom.unauthorized();
+      }
+      //NEXT
+    }
+  });
+
+  server.route({
+    method: "POST",
+    path: '/api/products',
+    handler: async (request, h) => {
+      const userId = request.headers.authenticatedUserId;
+      const user = await getUser(userId);
+      if (user.role !== 'admin') {
+        return Boom.unauthorized();
+      }
+      //NEXT
     }
   });
 
@@ -170,7 +231,10 @@ export async function buildSimpleAPIServer(cg, db) {
             const inputId = inputOrder["OrderId"];
             const existingOrder = await getOrderByInputId(inputId);
             if (!existingOrder) {
-              const orderDoc = convertLinnworksOrder(user.account, inputId, inputOrder);
+              const orderDoc = {
+                inputId,
+                ...convertLinnworksOrder(inputOrder)
+              };
               orderDocs.push(orderDoc);
             }
           }

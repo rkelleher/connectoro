@@ -19,26 +19,6 @@ import OrdersTableHead from "./OrdersTableHead";
 import * as Actions from "app/store/actions";
 import { useDispatch, useSelector } from "react-redux";
 
-function OrderDetailsDialog({ title, data }) {
-    const dispatch = useDispatch();
-    return (
-        <>
-            <DialogTitle>{title}</DialogTitle>
-            <DialogContent dividers>
-                <JSONPretty id="json-pretty" data={data}></JSONPretty>
-            </DialogContent>
-            <DialogActions>
-                <Button
-                    onClick={() => dispatch(Actions.closeDialog())}
-                    color="primary"
-                >
-                    Close
-                </Button>
-            </DialogActions>
-        </>
-    );
-}
-
 function OrdersTable(props) {
     const dispatch = useDispatch();
     const orders = useSelector(({ orders }) => orders.data);
@@ -83,19 +63,7 @@ function OrdersTable(props) {
     }
 
     function handleClick(item) {
-        // props.history.push(
-        //     "/apps/e-commerce/orders/" + item.id + "/" + item.handle
-        // );
-        dispatch(
-            Actions.openDialog({
-                children: (
-                    <OrderDetailsDialog
-                        data={item}
-                        title="Linnworks Order Details"
-                    />
-                )
-            })
-        );
+        props.history.push(`/orders/${item.id}`);
     }
 
     function handleCheck(event, id) {
