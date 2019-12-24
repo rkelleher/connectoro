@@ -114,7 +114,10 @@ export async function buildSimpleAPIServer(cg, db) {
       if (!token) {
         throw Boom.badRequest("No Easync api token!");
       }
-      const req = buildEasyncOrderReq(order, { token });
+      const req = buildEasyncOrderReq(order, {
+        token,
+        idempotencyKey: 'TODO'
+      });
       return { req };
     },
     options: {

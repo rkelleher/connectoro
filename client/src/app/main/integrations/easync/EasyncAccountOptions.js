@@ -31,6 +31,9 @@ export default ({ data }) => {
                     <EasyncProductOptions
                         data={orderProductData}
                         isSaving={productOptionsIsSaving}
+                        saveAction={
+                                Actions.saveAccountEasyncProductSelectionCriteriaOptions
+                        }
                     />
                 </div>
             </div>

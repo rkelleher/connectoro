@@ -11,16 +11,16 @@ import {
 import { FuseScrollbars, FuseUtils } from "@fuse";
 import { withRouter } from "react-router-dom";
 import _ from "@lodash";
-import OrdersTableHead from "./OrdersTableHead";
+import ProductsTableHead from "./ProductsTableHead";
 import * as Actions from "app/store/actions";
 import { useDispatch, useSelector } from "react-redux";
 
-function OrdersTable(props) {
+function ProductsTable(props) {
     const dispatch = useDispatch();
-    const orders = useSelector(({ orders }) => orders.data);
+    const products = useSelector(({ products }) => products.data);
 
     const [selected, setSelected] = useState([]);
-    const [data, setData] = useState(orders);
+    const [data, setData] = useState(products);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [order, setOrder] = useState({
@@ -29,12 +29,12 @@ function OrdersTable(props) {
     });
 
     useEffect(() => {
-        dispatch(Actions.getOrders());
+        dispatch(Actions.getProducts());
     }, [dispatch]);
 
     useEffect(() => {
-        setData(orders);
-    }, [orders]);
+        setData(products);
+    }, [products]);
 
     function handleRequestSort(event, property) {
         const id = property;
@@ -52,14 +52,14 @@ function OrdersTable(props) {
 
     function handleSelectAllClick(event) {
         if (event.target.checked) {
-            setSelected(data.map(n => n._id));
+            setSelected(data.map(n => n.id));
             return;
         }
         setSelected([]);
     }
 
     function handleClick(item) {
-        props.history.push(`/orders/${item._id}`);
+        props.history.push(`/products/${item._id}`);
     }
 
     function handleCheck(event, id) {
@@ -94,7 +94,7 @@ function OrdersTable(props) {
         <div className="w-full flex flex-col">
             <FuseScrollbars className="flex-grow overflow-x-auto">
                 <Table className="min-w-xl" aria-labelledby="tableTitle">
-                    <OrdersTableHead
+                    <ProductsTableHead
                         numSelected={selected.length}
                         order={order}
                         onSelectAllClick={handleSelectAllClick}
@@ -126,7 +126,7 @@ function OrdersTable(props) {
                                 )
                                 .map(n => {
                                     const isSelected =
-                                        selected.indexOf(n._id) !== -1;
+                                        selected.indexOf(n.id) !== -1;
                                     return (
                                         <TableRow
                                             className="h-64 cursor-pointer"
@@ -148,7 +148,7 @@ function OrdersTable(props) {
                                                         event.stopPropagation()
                                                     }
                                                     onChange={event =>
-                                                        handleCheck(event, n._id)
+                                                        handleCheck(event, n.id)
                                                     }
                                                 />
                                             </TableCell>
@@ -158,27 +158,6 @@ function OrdersTable(props) {
                                                 scope="row"
                                             >
                                                 {n._id}
-                                            </TableCell>
-
-                                            <TableCell
-                                                component="th"
-                                                scope="row"
-                                            >
-                                                {n.numItems}
-                                            </TableCell>
-
-                                            <TableCell
-                                                component="th"
-                                                scope="row"
-                                            >
-                                                {n.customerFullName}
-                                            </TableCell>
-
-                                            <TableCell
-                                                component="th"
-                                                scope="row"
-                                            >
-                                                {new Date(n.date).toUTCString()}
                                             </TableCell>
                                         </TableRow>
                                     );
@@ -205,4 +184,4 @@ function OrdersTable(props) {
     );
 }
 
-export default withRouter(OrdersTable);
+export default withRouter(ProductsTable);

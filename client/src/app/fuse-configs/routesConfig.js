@@ -8,8 +8,12 @@ import { RegisterConfig } from "app/main/register/RegisterConfig";
 import { AccountPageConfig } from "app/main/account/AccountPageConfig";
 import { OrdersConfig } from "app/main/orders/OrdersConfig";
 import { OrderConfig } from "app/main/order/OrderConfig";
+import { ProductConfig } from "app/main/product/ProductConfig";
+import { ProductsConfig } from "app/main/products/ProductsConfig";
 
 const routeConfigs = [
+    ProductConfig,
+    ProductsConfig,
     OrderConfig,
     OrdersConfig,
     DashboardConfig,

@@ -100,7 +100,11 @@ export const productDataShape = {
 
 export function getCountryCode(country) {
   // http://www.theodora.com/country_digraphs.html
-  return find(countryCodes, x => x.name === country).alpha2;
+  Object.keys(countryCodes).forEach(x => {
+    if (countryCodes[x].name === country) {
+      return countryCodes[x].alpha2;
+    }
+  })
 }
 
 // TODO more codes
@@ -176,8 +180,7 @@ export function buildEasyncOrderReq(order, reqOptions) {
 
   const orderOptions = get(order, [
     "integrationData",
-    EASYNC_INTEGRATION_TYPE,
-    "orderOptions"
+    EASYNC_INTEGRATION_TYPE
   ]);
   const {
     shippingMethod,

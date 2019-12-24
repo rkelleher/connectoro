@@ -7,6 +7,13 @@ const navigationConfig = [
         url: "/dashboard"
     },
     {
+        id: "products",
+        title: "Products",
+        type: "item",
+        icon: "whatshot",
+        url: "/products"
+    },
+    {
         id: "orders",
         title: "Orders",
         type: "item",

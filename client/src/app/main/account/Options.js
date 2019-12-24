@@ -5,12 +5,13 @@ import { useForm } from "@fuse/hooks";
 import { Option } from "./Option";
 import { Button } from "@material-ui/core";
 
-export function Options({ data, saveAction, isSaving, getArrayChoices }) {
+export function Options({ data, saveAction, saveActionParam, isSaving, getArrayChoices }) {
     const dispatch = useDispatch();
     const { form, handleChange, setForm, setInForm } = useForm(null);
+    console.log(data, form)
 
     useEffect(() => {
-        if (data && !form) {
+        if ((data && !form) || data._id !== form._id) {
             setForm(data);
         }
     }, [data, form, setForm]);
@@ -23,6 +24,7 @@ export function Options({ data, saveAction, isSaving, getArrayChoices }) {
             return true;
         }
         for (const k of Object.keys(form)) {
+            console.log(k, form[k], data[k])
             if (!isEqual(form[k], data[k])) {
                 return true;
             }
@@ -31,7 +33,11 @@ export function Options({ data, saveAction, isSaving, getArrayChoices }) {
     };
 
     const handleSubmit = () => {
-        dispatch(saveAction(form));
+        if (saveActionParam) {
+            dispatch(saveAction(form, saveActionParam));
+        } else {
+            dispatch(saveAction(form));
+        }
     };
 
     return (
@@ -69,7 +75,7 @@ export function Options({ data, saveAction, isSaving, getArrayChoices }) {
                                                 "string": "str",
                                                 "boolean": "bool",
                                                 "number": "int",
-                                                "object": getArrayChoices && getArrayChoices(key) || []
+                                                "object": (getArrayChoices && getArrayChoices(key)) || []
                                             }[typeof data[key]]
                                         }
                                     />

@@ -10,7 +10,7 @@ function getSelectionCriteriaArrayChoices(key) {
     }
 }
 
-export default ({ data, isSaving }) => {
+export default ({ data, isSaving, saveAction, saveActionParam }) => {
     const selectionCriteria = data.selectionCriteria;
     return (
         <div>
@@ -20,9 +20,8 @@ export default ({ data, isSaving }) => {
                     <div>
                         <Options
                             data={selectionCriteria}
-                            saveAction={
-                                Actions.saveAccountEasyncProductSelectionCriteriaOptions
-                            }
+                            saveAction={saveAction}
+                            saveActionParam={saveActionParam}
                             isSaving={isSaving}
                             getArrayChoices={getSelectionCriteriaArrayChoices}
                         />

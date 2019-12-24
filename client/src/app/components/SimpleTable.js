@@ -14,9 +14,9 @@ export default ({ data, options }) => {
                 <tbody>
                     {data.map(row => (
                         <tr>
-                            {row.map(node => (
-                                <th>{node}</th>
-                            ))}
+                            {row.map(node => {
+                                return <th>{node.props ? <node /> : node}</th>;
+                            })}
                         </tr>
                     ))}
                 </tbody>
