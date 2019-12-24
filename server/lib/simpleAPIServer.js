@@ -1,14 +1,17 @@
-import _ from 'lodash';
-import Hapi from '@hapi/hapi';
-import Joi from '@hapi/joi';
-import Boom from '@hapi/boom';
-import Hoek from '@hapi/hoek';
+import _ from "lodash";
+
+const get = _.get;
+
+import Hapi from "@hapi/hapi";
+import Joi from "@hapi/joi";
+import Boom from "@hapi/boom";
+import Hoek from "@hapi/hoek";
 const { assert } = Hoek;
-import bcrypt from 'bcrypt';
+import bcrypt from "bcrypt";
 import hapiJWT from "hapi-auth-jwt2";
 
-import { DBValidationError } from './services/database.js';
-import { createUserToken, validateToken } from './auth.js';
+import { DBValidationError } from "./services/database.js";
+import { createUserToken, validateToken } from "./auth.js";
 import {
   buildUserDetails,
   getUserDetailsById,
@@ -16,11 +19,10 @@ import {
   createAdminUser,
   removeUser,
   getUser
-} from './controllers/user.controller.js';
+} from "./controllers/user.controller.js";
 import {
   createNewLinkedAccount,
   getAccount,
-  buildAccountDetails, 
   addIntegration,
   deleteIntegration,
   updateIntegration,
@@ -32,31 +34,39 @@ import {
   getOrderByInputId,
   createOrders,
   getOrder
-} from './controllers/order.controller.js';
+} from "./controllers/order.controller.js";
 import {
   LINNW_INTEGRATION_TYPE,
   makeLinnworksAPISession,
   getLinnworksOpenOrdersPaged,
   convertLinnworksOrder
-} from './integrations/linnworks.js';
+} from "./integrations/linnworks.js";
 import {
   EASYNC_INTEGRATION_TYPE,
   buildEasyncOrderReq,
   EASYNC_TOKEN_CREDENTIAL_KEY
-} from './integrations/easync.js';
+} from "./integrations/easync.js";
+import {
+  createProduct,
+  getProductsForAccount
+} from "./controllers/product.controller.js";
+import { INTEGRATION_TYPES } from "./models/account.model.js";
+import { recursiveMongooseUpdate } from "./utils.js";
+import { Order } from "./models/order.model.js";
+import { Product } from "./models/product.model.js";
 
-const ERR_NO_USER_WITH_EMAIL = 'ERR_NO_USER_WITH_EMAIL';
-const ERR_EMAIL_TAKEN = 'ERR_EMAIL_TAKEN';
-const ERR_WRONG_PASSWORD = 'ERR_WRONG_PASSWORD'
+const ERR_NO_USER_WITH_EMAIL = "ERR_NO_USER_WITH_EMAIL";
+const ERR_EMAIL_TAKEN = "ERR_EMAIL_TAKEN";
+const ERR_WRONG_PASSWORD = "ERR_WRONG_PASSWORD";
 
 export async function buildSimpleAPIServer(cg, db) {
-  assert(cg && db, 'Missing params');
+  assert(cg && db, "Missing params");
 
   const server = Hapi.server({
-    port: cg('PORT'),
-    host: cg('HTTP_SERVER_HOST'),
+    port: cg("PORT"),
+    host: cg("HTTP_SERVER_HOST"),
     routes: {
-      cors: cg('NODE_ENV') === 'development'
+      cors: cg("NODE_ENV") === "development"
     }
   });
 
@@ -64,38 +74,45 @@ export async function buildSimpleAPIServer(cg, db) {
 
   await server.register(hapiJWT);
 
-  const JWT_SECRET = cg('JWT_SECRET');
+  const JWT_SECRET = cg("JWT_SECRET");
 
-  assert(JWT_SECRET, 'Missing JWT secret');
+  assert(JWT_SECRET, "Missing JWT secret");
 
   server.auth.strategy("jwt", "jwt", {
     key: JWT_SECRET,
     validate: validateToken,
-    verifyOptions: {algorithms: [cg('JWT_ALGORITH')]},
+    verifyOptions: { algorithms: [cg("JWT_ALGORITH")] },
     tokenType: "Bearer"
   });
 
   server.auth.default("jwt");
 
+  // Test send order
   server.route({
     method: "POST",
-    path: '/api/test-send-order',
+    path: "/api/test-send-order",
     handler: async (request, h) => {
       const { orderId } = request.payload;
       const userId = request.headers.authenticatedUserId;
       const user = await getUser(userId);
-      if (user.role !== 'admin') {
+      if (user.role !== "admin") {
         return Boom.unauthorized();
       }
       const order = await getOrder(orderId);
       if (!order) {
-        return Boom.badRequest('No order found');
+        return Boom.badRequest("No order found");
       }
       const account = await getAccount(user.account);
-      const integration = await getIntegrationByType(account, EASYNC_INTEGRATION_TYPE);
-      const token = getIntegrationCredential(integration, EASYNC_TOKEN_CREDENTIAL_KEY);
+      const integration = await getIntegrationByType(
+        account,
+        EASYNC_INTEGRATION_TYPE
+      );
+      const token = getIntegrationCredential(
+        integration,
+        EASYNC_TOKEN_CREDENTIAL_KEY
+      );
       if (!token) {
-        throw Boom.badRequest('No Easync api token!');
+        throw Boom.badRequest("No Easync api token!");
       }
       const req = buildEasyncOrderReq(order, { token });
       return { req };
@@ -103,41 +120,87 @@ export async function buildSimpleAPIServer(cg, db) {
     options: {
       validate: {
         payload: Joi.object({
-          orderId: Joi.string().required(),
+          orderId: Joi.string().required()
         })
       }
     }
   });
 
+  // Get order
   server.route({
     method: "GET",
-    path: '/api/orders/{orderId}',
+    path: "/api/orders/{id}",
     handler: async (request, h) => {
-      const { orderId } = request.params;
       const userId = request.headers.authenticatedUserId;
       const user = await getUser(userId);
-      if (user.role !== 'admin') {
+      if (user.role !== "admin") {
         return Boom.unauthorized();
       }
-      const order = await getOrder(orderId);
-      return order;
+      let order;
+      try {
+        order = await Order.findById(request.params.id);
+      } catch (error) {
+        console.error(error);
+      }
+      if (!order) {
+        return Boom.badRequest();
+      }
+      if (!order.accountId.equals(user.account)) {
+        return Boom.unauthorized();
+      }
+      return order.toObject();
     },
     options: {
       validate: {
         params: Joi.object({
-          orderId: Joi.string().required(),
+          id: Joi.string().required()
         })
       }
     }
   });
 
+  // Delete order
   server.route({
-    method: "GET",
-    path: '/api/orders',
+    method: "DELETE",
+    path: "/api/orders/{id}",
     handler: async (request, h) => {
       const userId = request.headers.authenticatedUserId;
       const user = await getUser(userId);
-      if (user.role !== 'admin') {
+      if (user.role !== "admin") {
+        return Boom.unauthorized();
+      }
+      let order;
+      try {
+        order = await Order.findById(request.params.id);
+      } catch (error) {
+        console.error(error);
+      }
+      if (!order) {
+        return Boom.badRequest();
+      }
+      if (!order.accountId.equals(user.account)) {
+        return Boom.unauthorized();
+      }
+      await order.remove();
+      return {};
+    },
+    options: {
+      validate: {
+        params: Joi.object({
+          id: Joi.string().required()
+        })
+      }
+    }
+  });
+
+  // Get orders
+  server.route({
+    method: "GET",
+    path: "/api/orders",
+    handler: async (request, h) => {
+      const userId = request.headers.authenticatedUserId;
+      const user = await getUser(userId);
+      if (user.role !== "admin") {
         return Boom.unauthorized();
       }
       const orders = await getOrdersForAccount(user.account);
@@ -145,56 +208,337 @@ export async function buildSimpleAPIServer(cg, db) {
     }
   });
 
+  // Add order
   server.route({
     method: "POST",
-    path: '/api/orders',
+    path: "/api/orders",
     handler: async (request, h) => {
       const userId = request.headers.authenticatedUserId;
       const user = await getUser(userId);
-      if (user.role !== 'admin') {
+      if (user.role !== "admin") {
         return Boom.unauthorized();
       }
-      //NEXT
+      const account = await getAccount(user.account);
+
+      let integrationData = {};
+      for (const integrationType of INTEGRATION_TYPES) {
+        if (integrationType === EASYNC_INTEGRATION_TYPE) {
+          integrationData[integrationType] = get(account, [
+            "integrationData",
+            EASYNC_INTEGRATION_TYPE,
+            "orderData"
+          ]);
+        }
+      }
+      const order = new Order({
+        accountId: user.account,
+        integrationData
+      })
+      await order.save()
+      return order.toObject();
     }
   });
 
+  // Update order
+  server.route({
+    method: "PATCH",
+    path: "/api/orders/{id}",
+    handler: async (request, h) => {
+      const userId = request.headers.authenticatedUserId;
+      const user = await getUser(userId);
+      if (user.role !== "admin") {
+        return Boom.unauthorized();
+      }
+      const changes = request.payload.changes;
+      let order;
+      try {
+        order = await Order.findById(request.params.id);
+      } catch (error) {
+        console.error(error);
+      }
+      if (!order) {
+        return Boom.badRequest();
+      }
+      if (!order.accountId.equals(user.account)) {
+        return Boom.unauthorized();
+      }
+      for (const changeKey of Object.keys(changes)) {
+        if (changeKey === "integrationData") {
+          recursiveMongooseUpdate(
+            changes.integrationData,
+            order.integrationData
+          );
+        }
+        if (changeKey === "orderProducts") {
+          recursiveMongooseUpdate(
+            changes.orderProducts,
+            order.orderProducts
+          );
+        }
+        if (changeKey === "shippingAddress") {
+          recursiveMongooseUpdate(
+            changes.shippingAddress,
+            order.shippingAddress
+          );
+        }
+      }
+      order.save();
+      return order.toObject();
+    },
+    options: {
+      validate: {
+        params: Joi.object({
+          id: Joi.string().required()
+        }),
+        payload: Joi.object({
+          changes: Joi.object().required()
+        })
+      }
+    }
+  });
+
+  // Add orderProduct
+  server.route({
+    method: "POST",
+    path: "/api/orders/{orderId}/products",
+    handler: async (request, h) => {
+      const userId = request.headers.authenticatedUserId;
+      const user = await getUser(userId);
+      if (user.role !== "admin") {
+        return Boom.unauthorized();
+      }
+
+      let order;
+      try {
+        order = await Order.findById(request.params.orderId);
+      } catch (error) {
+        console.error(error);
+      }
+      if (!order) {
+        return Boom.badRequest();
+      }
+      if (!order.accountId.equals(user.account)) {
+        return Boom.unauthorized();
+      }
+
+      let product;
+      try {
+        product = await Product.findById(request.payload.productId);
+      } catch (error) {
+        console.error(error);
+      }
+      if (!product) {
+        return Boom.badRequest();
+      }
+      if (!product.accountId.equals(user.account)) {
+        return Boom.unauthorized();
+      }
+
+      order.orderProducts.push({
+        productId: request.payload.productId,
+        quantity: 1,
+        integrationData: {
+          [EASYNC_INTEGRATION_TYPE]: {
+            selectionCriteria: get(product, [
+              "integrationData",
+              EASYNC_INTEGRATION_TYPE,
+              "orderProductData",
+              "selectionCriteria"
+            ])
+          }
+        }
+      });
+      order.save();
+      return order.toObject();
+    },
+    options: {
+      validate: {
+        params: Joi.object({
+          orderId: Joi.string().required()
+        }),
+        payload: Joi.object({
+          productId: Joi.string().required()
+        })
+      }
+    }
+  });
+
+  // Get products
   server.route({
     method: "GET",
-    path: '/api/products',
+    path: "/api/products",
     handler: async (request, h) => {
       const userId = request.headers.authenticatedUserId;
       const user = await getUser(userId);
-      if (user.role !== 'admin') {
+      if (user.role !== "admin") {
         return Boom.unauthorized();
       }
-      //NEXT
+      const products = getProductsForAccount(user.account);
+      return products;
     }
   });
 
+  // Get product
   server.route({
-    method: "POST",
-    path: '/api/products',
+    method: "GET",
+    path: "/api/products/{id}",
     handler: async (request, h) => {
       const userId = request.headers.authenticatedUserId;
       const user = await getUser(userId);
-      if (user.role !== 'admin') {
+      if (user.role !== "admin") {
         return Boom.unauthorized();
       }
-      //NEXT
+      let product;
+      try {
+        product = await Product.findById(request.params.id);
+      } catch (error) {
+        console.error(error);
+      }
+      if (!product) {
+        return Boom.badRequest();
+      }
+      if (!product.accountId.equals(user.account)) {
+        return Boom.unauthorized();
+      }
+      return product.toObject();
+    },
+    options: {
+      validate: {
+        params: Joi.object({
+          id: Joi.string().required()
+        })
+      }
     }
   });
 
+  // Delete product
+  server.route({
+    method: "DELETE",
+    path: "/api/products/{id}",
+    handler: async (request, h) => {
+      const userId = request.headers.authenticatedUserId;
+      const user = await getUser(userId);
+      if (user.role !== "admin") {
+        return Boom.unauthorized();
+      }
+      let product;
+      try {
+        product = await Product.findById(request.params.id);
+      } catch (error) {
+        console.error(error);
+      }
+      if (!product) {
+        return Boom.badRequest();
+      }
+      if (!product.accountId.equals(user.account)) {
+        return Boom.unauthorized();
+      }
+      await product.remove();
+      return {};
+    },
+    options: {
+      validate: {
+        params: Joi.object({
+          id: Joi.string().required()
+        })
+      }
+    }
+  });
+
+  // Add product
   server.route({
     method: "POST",
-    path: '/api/collect-orders',
+    path: "/api/products",
+    handler: async (request, h) => {
+      const userId = request.headers.authenticatedUserId;
+      const user = await getUser(userId);
+      if (user.role !== "admin") {
+        return Boom.unauthorized();
+      }
+      const account = await getAccount(user.account);
+
+      let integrationData = {};
+      for (const integrationType of INTEGRATION_TYPES) {
+        if (integrationType === EASYNC_INTEGRATION_TYPE) {
+          integrationData[integrationType] = {
+            orderProductData: get(account, [
+              "integrationData",
+              EASYNC_INTEGRATION_TYPE,
+              "orderProductData"
+            ])
+          };
+        }
+      }
+
+      const product = await createProduct({
+        accountId: user.account,
+        integrationData
+      });
+      return product.toObject();
+    }
+  });
+
+  // Update product
+  server.route({
+    method: "PATCH",
+    path: "/api/products/{id}",
+    handler: async (request, h) => {
+      const userId = request.headers.authenticatedUserId;
+      const user = await getUser(userId);
+      if (user.role !== "admin") {
+        return Boom.unauthorized();
+      }
+      const changes = request.payload.changes;
+      let product;
+      try {
+        product = await Product.findById(request.params.id);
+      } catch (error) {
+        console.error(error);
+      }
+      if (!product) {
+        return Boom.badRequest();
+      }
+      if (!product.accountId.equals(user.account)) {
+        return Boom.unauthorized();
+      }
+      for (const changeKey of Object.keys(changes)) {
+        if (changeKey === "integrationData") {
+          recursiveMongooseUpdate(
+            changes.integrationData,
+            product.integrationData
+          );
+        }
+        if (changeKey === "title") {
+          product.title = changes.title;
+        }
+      }
+      product.save();
+      return product.toObject();
+    },
+    options: {
+      validate: {
+        params: Joi.object({
+          id: Joi.string().required()
+        }),
+        payload: Joi.object({
+          changes: Joi.object().required()
+        })
+      }
+    }
+  });
+
+  // Test collect orders
+  server.route({
+    method: "POST",
+    path: "/api/collect-orders",
     handler: async (request, h) => {
       const userId = request.headers.authenticatedUserId;
 
       const user = await getUser(userId);
 
-      if (user.role !== 'admin') {
+      if (user.role !== "admin") {
         return Boom.unauthorized();
-      } 
+      }
 
       const account = await getAccount(user.account);
 
@@ -205,14 +549,15 @@ export async function buildSimpleAPIServer(cg, db) {
       for (const integration of account.integrations) {
         if (integration.integrationType === LINNW_INTEGRATION_TYPE) {
           const { appId, credentials, options, session } = integration;
-          const appInstallToken = credentials && credentials.get('INSTALL_TOKEN');
+          const appInstallToken =
+            credentials && credentials.get("INSTALL_TOKEN");
           if (!appInstallToken) {
-            throw Boom.badRequest('No Linnworks Install Token');
+            throw Boom.badRequest("No Linnworks Install Token");
           }
 
           // TODO move somewhere else
           if (!session) {
-            const appSecret = cg('LINNW_APP_SECRET');
+            const appSecret = cg("LINNW_APP_SECRET");
             const linnworksSession = await makeLinnworksAPISession(
               appId,
               appSecret,
@@ -223,8 +568,15 @@ export async function buildSimpleAPIServer(cg, db) {
           }
 
           const sessionToken = integration.session.Token;
-          const locationId = (options && options.defaultLocation) || '00000000-0000-0000-0000-000000000000';
-          const someOrders = await getLinnworksOpenOrdersPaged(sessionToken, locationId, 15, 1);
+          const locationId =
+            (options && options.defaultLocation) ||
+            "00000000-0000-0000-0000-000000000000";
+          const someOrders = await getLinnworksOpenOrdersPaged(
+            sessionToken,
+            locationId,
+            15,
+            1
+          );
 
           let orderDocs = [];
           for (const inputOrder of someOrders["Data"]) {
@@ -247,20 +599,23 @@ export async function buildSimpleAPIServer(cg, db) {
         }
       }
     }
-  })
+  });
 
-  // Create a new user
+  // Add user & linked account
   server.route({
     method: "POST",
     path: "/api/auth/register",
     handler: async (request, h) => {
-      const {displayName, email, password} = request.payload;
-      
+      const { displayName, email, password } = request.payload;
+
       if (await getUserByEmail(email)) {
         return Boom.badRequest(ERR_EMAIL_TAKEN);
       }
 
-      const passwordHash = await bcrypt.hash(password, cg('BCRYPT_SALT_ROUNDS'));
+      const passwordHash = await bcrypt.hash(
+        password,
+        cg("BCRYPT_SALT_ROUNDS")
+      );
 
       let user;
 
@@ -270,20 +625,20 @@ export async function buildSimpleAPIServer(cg, db) {
           email,
           passwordHash
         });
-      } catch(e) {
+      } catch (e) {
         if (e instanceof DBValidationError) {
-          return Boom.badRequest()
+          return Boom.badRequest();
         } else {
           throw e;
         }
       }
 
-      // user was created successfully, now create and link an account 
+      // user was created successfully, now create and link an account
       // TODO can this be done more transaction-like?
       try {
         await createNewLinkedAccount(user);
       } catch (e) {
-        console.log('Error creating linked account, deleting admin user...')
+        console.log("Error creating linked account, deleting admin user...");
         await removeUser(user.id);
         throw e;
       }
@@ -300,9 +655,13 @@ export async function buildSimpleAPIServer(cg, db) {
       auth: false,
       validate: {
         payload: Joi.object({
-          displayName: Joi.string().min(2).required(),
+          displayName: Joi.string()
+            .min(2)
+            .required(),
           email: Joi.string().required(),
-          password: Joi.string().min(6).required(),
+          password: Joi.string()
+            .min(6)
+            .required()
         })
       }
     }
@@ -313,7 +672,7 @@ export async function buildSimpleAPIServer(cg, db) {
     method: "POST",
     path: "/api/auth",
     handler: async (request, h) => {
-      const {email, password} = request.payload;
+      const { email, password } = request.payload;
 
       const user = await getUserByEmail(email);
 
@@ -355,52 +714,74 @@ export async function buildSimpleAPIServer(cg, db) {
       const userDetails = await getUserDetailsById(userId);
       // give the user a fresh token
       const token = createUserToken(cg, userId);
-      return {user: userDetails, token};
+      return { user: userDetails, token };
     }
   });
 
-  // Update user details
+  // Get account
   server.route({
-    method: "POST",
-    path: "/api/auth/user/update",
-    handler: async (request, h) => {
-      // TODO save user updates
-      throw new Boom.notImplemented();
-    }
-  });
-
-  // Get account details
-  server.route({
-    method: 'GET',
+    method: "GET",
     path: "/api/account",
     handler: async (request, h) => {
       const userId = request.headers.authenticatedUserId;
       const user = await getUser(userId);
-      if (user.role !== 'admin') {
+      if (user.role !== "admin") {
         return Boom.unauthorized();
       }
       const account = await getAccount(user.account);
-      return buildAccountDetails(account);
+      return account.toObject();
+    }
+  });
+
+  // Update account
+  server.route({
+    method: "PATCH",
+    path: "/api/account",
+    handler: async (request, h) => {
+      const userId = request.headers.authenticatedUserId;
+      const user = await getUser(userId);
+      if (user.role !== "admin") {
+        return Boom.unauthorized();
+      }
+      const account = await getAccount(user.account);
+      const changes = request.payload.changes;
+      for (const changeKey of Object.keys(changes)) {
+        if (changeKey === "integrationData") {
+          recursiveMongooseUpdate(
+            changes.integrationData,
+            account.integrationData
+          );
+        }
+      }
+      account.save();
+      return account.toObject();
+    },
+    options: {
+      validate: {
+        payload: Joi.object({
+          changes: Joi.object().required()
+        })
+      }
     }
   });
 
   // Add an integration
   server.route({
-    method: 'POST',
+    method: "POST",
     path: "/api/account/integrations",
     handler: async (request, h) => {
       const userId = request.headers.authenticatedUserId;
       const user = await getUser(userId);
-      if (user.role !== 'admin') {
+      if (user.role !== "admin") {
         return Boom.unauthorized();
-      } 
+      }
       const account = await getAccount(user.account);
       try {
         const type = request.payload.type;
         if (type === LINNW_INTEGRATION_TYPE) {
           await addIntegration(account, type, {
-            appId: cg('LINNW_APP_ID')
-          })
+            appId: cg("LINNW_APP_ID")
+          });
         } else {
           await addIntegration(account, type);
         }
@@ -418,7 +799,7 @@ export async function buildSimpleAPIServer(cg, db) {
     options: {
       validate: {
         payload: Joi.object({
-          type: Joi.string().required(),
+          type: Joi.string().required()
         })
       }
     }
@@ -426,14 +807,14 @@ export async function buildSimpleAPIServer(cg, db) {
 
   // Delete an integration
   server.route({
-    method: 'DELETE',
+    method: "DELETE",
     path: "/api/account/integrations",
     handler: async (request, h) => {
       const userId = request.headers.authenticatedUserId;
       const user = await getUser(userId);
-      if (user.role !== 'admin') {
+      if (user.role !== "admin") {
         return Boom.unauthorized();
-      } 
+      }
       const account = await getAccount(user.account);
       try {
         await deleteIntegration(account, request.payload.id);
@@ -459,19 +840,19 @@ export async function buildSimpleAPIServer(cg, db) {
 
   // Update an integration
   server.route({
-    method: 'PATCH',
+    method: "PATCH",
     path: "/api/account/integrations",
     handler: async (request, h) => {
       const userId = request.headers.authenticatedUserId;
       const user = await getUser(userId);
-      if (user.role !== 'admin') {
+      if (user.role !== "admin") {
         return Boom.unauthorized();
-      } 
+      }
       const account = await getAccount(user.account);
       const { id, changes } = request.payload;
       try {
-        const integration = await updateIntegration(account, id, changes)
-        const integrationsObj = account.integrations.toObject()
+        const integration = await updateIntegration(account, id, changes);
+        const integrationsObj = account.integrations.toObject();
         return {
           integration: integration.toJSON(),
           integrations: integrationsObj

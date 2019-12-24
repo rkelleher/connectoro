@@ -5,6 +5,10 @@ export const START_ACCOUNT_FETCH = "[ACCOUNT] START FETCH";
 export const SET_INTEGRATIONS = "[ACCOUNT] SET INTEGRATIONS";
 export const SAVING_INTEGRATION_OPTS = "[ACCOUNT] SAVING INTG OPTS";
 export const FINISHED_SAVING_INTEGRATION_OPTS = "[ACCOUNT] FIN SAVE INTG OPTS";
+export const SAVING_ACC_EASYNC_ORDER_OPTS = "[ACCOUNT] SAVING ACC EASYC ORDER OPTS";
+export const SAVED_ACC_EASYNC_ORDER_OPTS = "[ACCOUNT] SAVED ACC EASYC ORDER OPTS";
+export const SAVING_ACC_EASYNC_PRODUCT_OPTS = "[ACCOUNT] SAVING ACC EASYC PRODUCT OPTS";
+export const SAVED_ACC_EASYNC_PRODUCT_OPTS = "[ACCOUNT] SAVED ACC EASYC PRODUCT OPTS";
 
 export function getAccountDetails() {
     return async dispatch => {
@@ -92,5 +96,57 @@ export function saveIntegrationOptions(id, form) {
                 payload: integrations
             });
         }
+    };
+}
+
+export function saveAccountEasyncOrderOptions(orderData) {
+    return async dispatch => {
+        dispatch({
+            type: SAVING_ACC_EASYNC_ORDER_OPTS
+        });
+        const changes = {
+            "integrationData": {
+                "EASYNC": {
+                    "orderData": orderData 
+                }
+            }
+        };
+        const account = await accountService.updateAccount(changes);
+        if (account) {
+            dispatch({
+                type: SET_ACCOUNT,
+                payload: account
+            });
+        }
+        return dispatch({
+            type: SAVED_ACC_EASYNC_ORDER_OPTS
+        });
+    };
+}
+
+export function saveAccountEasyncProductSelectionCriteriaOptions(form) {
+    return async dispatch => {
+        dispatch({
+            type: SAVING_ACC_EASYNC_PRODUCT_OPTS
+        });
+        const changes = {
+            "integrationData": {
+                "EASYNC": {
+                    "orderProductData": {
+                        "selectionCriteria": form
+                    } 
+                }
+            }
+        };
+        const account = await accountService.updateAccount(changes);
+        if (account) {
+            dispatch({
+                type: SET_ACCOUNT,
+                payload: account
+            });
+        }
+        return dispatch({
+            type: SAVED_ACC_EASYNC_PRODUCT_OPTS
+        });
     };
 }

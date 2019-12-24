@@ -28,5 +28,5 @@ import config from 'nconf';
 
   await apiServer.start();
 
-  console.log("Server running on %s", apiServer.info.uri);
+  console.log("Connectoro API Server running on %s", apiServer.info.uri);
 })()

@@ -51,32 +51,34 @@ export function Option({
         );
     } else if (choices.map) {
         return (
-            <FuseChipSelect
-                // className="w-full my-16"
-                value={
-                    form[optionKey] &&
-                    form[optionKey].map(x => ({ value: x, label: x }))
-                }
-                onChange={chosen =>
-                    setInForm(
-                        optionKey,
-                        chosen.map(({ value }) => value)
-                    )
-                }
-                placeholder={`Select ${label}`}
-                textFieldProps={{
-                    label,
-                    InputLabelProps: {
-                        shrink: true
-                    },
-                    variant: "standard"
-                }}
-                options={choices.map(choice => ({
-                    value: choice,
-                    label: choice
-                }))}
-                isMulti
-            />
+            <div style={{minWidth: 300}}>
+                <FuseChipSelect
+                    // className="w-full my-16"
+                    value={
+                        form[optionKey] &&
+                        form[optionKey].map(x => ({ value: x, label: x }))
+                    }
+                    onChange={chosen =>
+                        setInForm(
+                            optionKey,
+                            chosen.map(({ value }) => value)
+                        )
+                    }
+                    placeholder={`Select ${label}`}
+                    textFieldProps={{
+                        label,
+                        InputLabelProps: {
+                            shrink: true
+                        },
+                        variant: "standard"
+                    }}
+                    options={choices.map(choice => ({
+                        value: choice,
+                        label: choice
+                    }))}
+                    isMulti
+                />
+            </div>
         );
     }
     return (

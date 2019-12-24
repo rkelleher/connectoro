@@ -1,17 +1,17 @@
-import { Account } from '../models/account.model.js';
+import { Account } from "../models/account.model.js";
 
-export async function getAccount(id) {
-  return Account.findById(id);
+export async function getAccount(accountId) {
+  return Account.findById(accountId);
 }
 
-export async function createNewLinkedAccount(creator) {
+export async function createNewLinkedAccount(user) {
   const account = new Account({
-    email: creator.email,
-    users: [creator._id]
+    email: user.email,
+    users: [user._id]
   });
-  creator.account = account._id;
+  user.account = account._id;
   await account.save();
-  await creator.save();
+  await user.save();
   return account;
 }
 
@@ -31,11 +31,12 @@ export async function addIntegration(account, integrationType, opts = {}) {
 }
 
 export async function getIntegrationByType(account, integrationType) {
-  return account.integrations.find(x => x.integrationType === integrationType)
+  return account.integrations.find(x => x.integrationType === integrationType);
 }
 
 export function getIntegrationCredential(integration, key) {
-  const credential = integration.credentials && integration.credentials.get(key);
+  const credential =
+    integration.credentials && integration.credentials.get(key);
   return credential;
 }
 
@@ -64,24 +65,6 @@ export async function updateIntegration(account, integrationId, changes) {
     }
   }
 
-  if (changes.options) {
-    for (const k of Object.keys(changes.options)) {
-      const v = changes.options[k];
-      if (!integration.options) {
-        integration.options = new Map();
-      }
-      integration.options.set(k, v);
-    }
-  }
-
   await account.save();
   return account.integrations.id(integrationId);
-}
-
-export function buildAccountDetails(account) {
-  return {
-    email: account.email,
-    integrations: account.integrations,
-    users: account.users
-  }
 }

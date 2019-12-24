@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import "mongoose-type-email";
 import { LINNW_INTEGRATION_TYPE } from "../integrations/linnworks.js";
-import { EASYNC_INTEGRATION_TYPE } from "../integrations/easync.js";
+import { EASYNC_INTEGRATION_TYPE, accountDataShape } from "../integrations/easync.js";
 
 export const INTEGRATION_TYPES = [
   LINNW_INTEGRATION_TYPE,
@@ -17,16 +17,10 @@ const IntegrationSchema = new mongoose.Schema({
   // TODO generalize, this is specific to Linnworks
   session: {},
   // TODO generalize, this is specific to Linnworks
-  appId: {
-    type: String
-  },
+  appId: String,
   credentials: {
     type: Map,
     of: String
-  },
-  options: {
-    type: Map,
-    of: Object
   }
 }, {toObject: {flattenMaps: true}});
 
@@ -48,7 +42,10 @@ const AccountSchema = new mongoose.Schema({
       ref: 'User'
     }],
     required: true
+  },
+  integrationData: {
+    [EASYNC_INTEGRATION_TYPE]: accountDataShape
   }
-});
+}, {toObject: {flattenMaps: true}});
 
 export const Account = mongoose.model("Account", AccountSchema);

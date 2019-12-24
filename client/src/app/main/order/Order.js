@@ -6,7 +6,7 @@ import { FuseAnimate, FusePageCarded } from "@fuse";
 import { Link } from "react-router-dom";
 import * as Actions from "app/store/actions";
 import { useDispatch, useSelector } from "react-redux";
-import SimpleTable from "../SimpleTable";
+import SimpleTable from "app/components/SimpleTable";
 
 const OrderHeader = order => {
     return (

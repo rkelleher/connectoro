@@ -21,11 +21,13 @@ import {
     CardActionArea,
     Link,
     Divider,
-    Icon} from "@material-ui/core";
+    Icon
+} from "@material-ui/core";
 import { FusePageCarded, FuseLoading } from "@fuse";
 import { useForm } from "@fuse/hooks";
-import ConfirmationDialog from "../ConfirmationDialog";
+import ConfirmationDialog from "app/components/ConfirmationDialog";
 import { Option } from "./Option";
+import EasyncAccountOptions from "../integrations/easync/EasyncAccountOptions";
 
 const useStyles = makeStyles(theme => {
     return {
@@ -64,123 +66,12 @@ const integrationTypes = [
                 label: "API Token",
                 credentialKey: "API_TOKEN"
             }
-        ],
-        options: [
-            {
-                optionKey: "isPrime",
-                label: "Prime",
-                choices: "bool"
-            },
-            {
-                optionKey: "isGift",
-                label: "Gift",
-                choices: "bool"
-            },
-            {
-                optionKey: "isFBE",
-                label: "Fulfillment By Easync",
-                choices: "bool"
-            },
-            {
-                optionKey: "itemHandlingDaysMax",
-                label: "Max Handling Days",
-                choices: "int"
-            },
-            {
-                optionKey: "itemMaxPrice",
-                label: "Max Item Price (cents)",
-                choices: "int"
-            },
-            {
-                optionKey: "maxPrice",
-                label: "Max Order Price (cents)",
-                choices: "int"
-            },
-            {
-                optionKey: "clientNotes",
-                label: "Client Notes",
-                choices: "str"
-            },
-            {
-                optionKey: "shippingMethod",
-                label: "Shipping Method",
-                choices: []
-            },
-            {
-                optionKey: "itemConditionIn",
-                label: "Item Conditions",
-                choices: ["New"]
-            }
         ]
     }
 ];
 
 function getIntegrationTypeDetails(key) {
     return integrationTypes.find(t => t.integrationKey === key);
-}
-
-function IntegrationOptions({ integration, options }) {
-    const dispatch = useDispatch();
-
-    const isSaving = useSelector(({ account }) => account.isSavingIntegration);
-
-    const { form, handleChange, setForm, setInForm } = useForm(null);
-
-    useEffect(() => {
-        if (integration && !form) {
-            setForm(integration.options || {});
-        }
-    }, [integration, form, setForm]);
-
-    const canBeSubmitted = () => {
-        if (isSaving || !form || Object.keys(form).length === 0) {
-            return false;
-        }
-        if (!integration.options) {
-            return true;
-        }
-        for (const k of Object.keys(form)) {
-            if (!isEqual(form[k], integration.options[k])) {
-                return true;
-            }
-        }
-        return false;
-    };
-
-    const handleSubmit = event => {
-        event.preventDefault();
-        dispatch(Actions.saveIntegrationOptions(integration._id, form));
-    };
-
-    return (
-        <>
-            <Typography variant="h6" component="h6" style={{ marginTop: 20 }}>
-                Options
-            </Typography>
-            <form noValidate onSubmit={handleSubmit}>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    type="submit"
-                    disabled={!canBeSubmitted()}
-                >
-                    {isSaving ? "Saving..." : "Save Option Changes"}
-                </Button>
-                {form &&
-                    options.map(option => (
-                        <div
-                            style={{ display: "block", marginTop: 10 }}
-                            key={option.optionKey}
-                        >
-                            <Option
-                                {...option}
-                                {...{ form, handleChange, setInForm }}
-                            />
-                        </div>
-                    ))}
-            </form>
-        </>
-    );
 }
 
 function AddCredentialDialog({ submit, options, title, submitText }) {
@@ -375,7 +266,6 @@ function EasyncIntegrationSettings(props) {
         <>
             <IntegrationSettingHeader {...props} />
             <IntegrationSettings {...props} />
-            <IntegrationOptions {...props} />
         </>
     );
 }
@@ -396,7 +286,6 @@ function LinnworksIntegrationSettings(props) {
                 add it as a credential to this integration.
             </p>
             <IntegrationSettings {...props} />
-            <IntegrationOptions {...props} />
         </>
     );
 }
@@ -551,28 +440,45 @@ function SettingsTab() {
     const classes = useStyles();
     const email = useSelector(({ account }) => account.email);
     const users = useSelector(({ account }) => account.users);
+    const accountId = useSelector(({ account }) => account._id)
+    const integrationData = useSelector(
+        ({ account }) => account.integrationData
+    );
     return (
         <>
-            <Typography variant="h5" component="h2">
-                Account Details
-            </Typography>
-            <TextField
-                disabled
-                id="outlined-disabled"
-                label="Email"
-                defaultValue={email}
-                className={classes.textField}
-                margin="normal"
-                variant="outlined"
-            />
-            <Typography variant="h5" component="h2">
-                Account Users
-            </Typography>
-            <ul>
-                {users.map(user => (
-                    <li key={user}>{user}</li>
-                ))}
-            </ul>
+            <div style={{margin: 10}}>
+                <TextField
+                    disabled
+                    id="outlined-disabled"
+                    label="Account Email"
+                    defaultValue={email}
+                    className={classes.textField}
+                    margin="normal"
+                    variant="outlined"
+                />
+            </div>
+            <div style={{margin: 10}}>
+                <div className="pb-16 flex items-center">
+                    <Typography className="h2" color="textSecondary">
+                        Users
+                    </Typography>
+                </div>
+                <ul>
+                    {users.map(user => (
+                        <li key={user}>{user}</li>
+                    ))}
+                </ul>
+            </div>
+            {integrationData && (
+                <div style={{margin: 10}}>
+                    {integrationData["EASYNC"] && (
+                        <EasyncAccountOptions
+                            data={integrationData["EASYNC"]}
+                            accountId={accountId}
+                        />
+                    )}
+                </div>
+            )}
         </>
     );
 }

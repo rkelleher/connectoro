@@ -51,15 +51,51 @@ const ExampleEasyncOrderReqObj = {
 export const orderProductDataShape = {
   selectionCriteria: {
     conditionIn: [String],
-    handlingDaysMax: Number,
-    maxItemPrice: Number,
-    isPrime: Boolean
+    handlingDaysMax: {
+      type: Number,
+      default: 0
+    },
+    maxItemPrice: {
+      type: Number,
+      default: 0
+    },
+    isPrime: {
+      type: Boolean,
+      default: false
+    }
   }
 };
 
+export const orderDataShape = {
+  isGift: {
+    type: Boolean,
+    default: false
+  },
+  isFBE: {
+    type: Boolean,
+    default: false
+  },
+  maxOrderPrice: {
+    type: Number,
+    default: 0
+  },
+  clientNotes: {
+    type: String,
+    default: ""
+  }
+}
+
+export const accountDataShape = {
+  orderProductData: orderProductDataShape,
+  orderData: orderDataShape
+};
+
 export const productDataShape = {
-  amazonIds: {},
-  defaults: orderProductDataShape
+  amazonIds: {
+    type: Object,
+    default: () => ({})
+  },
+  orderProductData: orderProductDataShape
 };
 
 export function getCountryCode(country) {
@@ -151,37 +187,32 @@ export function buildEasyncOrderReq(order, reqOptions) {
     isFBE
   } = orderOptions;
 
+  if (!idempotencyKey) {
+    throw new Error("idempotency key required");
+  }
+  if (!orderProducts) {
+    throw new Error("orderProducts required");
+  }
+  if (!shippingAddress) {
+    throw new Error("shippingAddress required");
+  }
+
   const uri = "http://core.easync.io/api/v1/orders";
 
   let payload = {};
 
-  if (idempotencyKey !== undefined) {
-    payload["idempotency_key"] = idempotencyKey;
-  }
+  payload["idempotency_key"] = idempotencyKey;
+  payload["retailer"] = getRetailerCode(order);
+  payload["products"] = map(orderProducts, orderProduct =>
+    buildOrderProductObj(order, orderProduct)
+  );
+  payload["shipping_address"] = buildAddressObj(shippingAddress);
+
   if (webhooks !== undefined) {
     payload["webhooks"] = buildWebhooksObj(webhooks);
   }
-  if (retailer !== undefined) {
-    payload["retailer"] = getRetailerCode(order);
-  }
-  if (orderProducts !== undefined) {
-    payload["products"] = map(orderProducts, orderProduct =>
-      buildOrderProductObj(order, orderProduct)
-    );
-  }
-  if (shippingAddress !== undefined) {
-    payload["shipping_address"] = buildAddressObj(shippingAddress);
-  }
   if (shippingMethod !== undefined) {
     payload["shipping_method"] = shippingMethod;
-  }
-  if (paymentMethod !== undefined) {
-    payload["payment_method"] = buildPaymentMethodObj(paymentMethod);
-  }
-  if (retailerCredentials !== undefined) {
-    payload["retailer_credentials"] = buildRetailerCredentialObj(
-      retailerCredentials
-    );
   }
   if (isGift !== undefined) {
     payload["is_gift"] = isGift;

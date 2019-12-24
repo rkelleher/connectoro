@@ -1,20 +1,22 @@
 import mongoose from "mongoose";
 
-// TODO move relevant specs into the integration files
-import { EASYNC_INTEGRATION_TYPE, orderProductDataShape } from "../integrations/easync.js";
-import { LINNW_INTEGRATION_TYPE } from "../integrations/linnworks.js";
+import {
+  EASYNC_INTEGRATION_TYPE,
+  orderProductDataShape,
+  orderDataShape
+} from "../integrations/easync.js";
 
 const ExampleOrder = {
-  _id: 'abcdefg',
-  accountId: 'hijklmn',
+  _id: "abcdefg",
+  accountId: "hijklmn",
   orderProducts: [
     {
       quantity: 1,
       productId: "abc123",
       integrationData: {
-        'EASYNC': {
+        "EASYNC": {
           selectionCriteria: {
-            conditionIn: ['New'],
+            conditionIn: ["New"],
             handlingDaysMax: 4,
             maxItemPrice: 9900,
             isPrime: true
@@ -35,8 +37,8 @@ const ExampleOrder = {
     phoneNumber: "7563406968"
   },
   integrationData: {
-    'EASYNC': {
-      shippingMethod: 'free',
+    "EASYNC": {
+      shippingMethod: "free",
       isGift: true,
       maxOrderPrice: 9900,
       clientNotes: {
@@ -49,22 +51,52 @@ const ExampleOrder = {
 
 const OrderProductSchema = new mongoose.Schema({
   productId: mongoose.Schema.Types.ObjectId,
-  quantity: Number,
+  quantity: {
+    type: Number,
+    default: 1
+  },
   integrationData: {
     [EASYNC_INTEGRATION_TYPE]: orderProductDataShape
   }
 });
 
 const AddressSchema = new mongoose.Schema({
-  firstName: String,
-  lastName: String,
-  addressLine1: String,
-  addressLine2: String,
-  zipCode: String,
-  city: String,
-  state: String,
-  countryName: String,
-  phoneNumber: String,
+  firstName: {
+    type: String,
+    default: ""
+  },
+  lastName: {
+    type: String,
+    default: ""
+  },
+  addressLine1: {
+    type: String,
+    default: ""
+  },
+  addressLine2: {
+    type: String,
+    default: ""
+  },
+  zipCode: {
+    type: String,
+    default: ""
+  },
+  city: {
+    type: String,
+    default: ""
+  },
+  state: {
+    type: String,
+    default: ""
+  },
+  countryName: {
+    type: String,
+    default: ""
+  },
+  phoneNumber: {
+    type: String,
+    default: ""
+  }
 });
 
 const OrderSchema = new mongoose.Schema({
@@ -73,20 +105,12 @@ const OrderSchema = new mongoose.Schema({
     index: true
   },
   orderProducts: [OrderProductSchema],
-  shippingAddress: AddressSchema,
+  shippingAddress: {
+    type: AddressSchema,
+    default: () => ({})
+  },
   integrationData: {
-    [EASYNC_INTEGRATION_TYPE]: {
-      retailer: String,
-      giftMessage: String,
-      isGift: Boolean,
-      maxOrderPrice: Number,
-      isFBE: Boolean,
-      isPrime: Boolean,
-      clientNotes: String
-    },
-    [LINNW_INTEGRATION_TYPE]: {
-      inputOrder: {}
-    }
+    [EASYNC_INTEGRATION_TYPE]: orderDataShape
   }
 });
 

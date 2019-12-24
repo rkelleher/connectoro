@@ -3,6 +3,8 @@ import * as Actions from "../actions/account.actions";
 const initialState = {
     isFetching: false,
     isSavingIntegration: false,
+    isSavingEasyncOrderOptions: false,
+    isSavingEasyncProductOptions: false,
     email: "",
     integrations: [],
     users: []
@@ -28,9 +30,33 @@ const account = function(state = initialState, action) {
                 isSavingIntegration: false
             };
         }
+        case Actions.SAVING_ACC_EASYNC_ORDER_OPTS: {
+            return {
+                ...state,
+                isSavingEasyncOrderOptions: true
+            }
+        }
+        case Actions.SAVED_ACC_EASYNC_ORDER_OPTS: {
+            return {
+                ...state,
+                isSavingEasyncOrderOptions: false
+            }
+        }
+        case Actions.SAVING_ACC_EASYNC_PRODUCT_OPTS: {
+            return {
+                ...state,
+                isSavingEasyncProductOptions: true
+            }
+        }
+        case Actions.SAVED_ACC_EASYNC_PRODUCT_OPTS: {
+            return {
+                ...state,
+                isSavingEasyncProductOptions: false
+            }
+        }
         case Actions.SET_ACCOUNT: {
             return {
-                ...initialState,
+                ...state,
                 ...action.payload,
                 isFetching: false
             };

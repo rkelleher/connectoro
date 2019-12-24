@@ -1,18 +1,26 @@
-import {useCallback, useState} from 'react';
-import _ from '@lodash';
+import { useCallback, useState } from "react";
+import _ from "@lodash";
 
-function useForm(initialState, onSubmit)
-{
+function useForm(initialState, onSubmit) {
     const [form, setForm] = useState(initialState);
 
-    const handleChange = useCallback((event) => {
+    const handleChange = useCallback(event => {
         event.persist();
-        setForm(form => _.setIn({...form}, event.target.name, event.target.type === 'checkbox' ? event.target.checked : event.target.value));
+        setForm(form =>
+            _.setIn(
+                { ...form },
+                event.target.name,
+                event.target.type === "checkbox"
+                    ? event.target.checked
+                    : event.target.type === "number"
+                    ? parseInt(event.target.value)
+                    : event.target.value
+            )
+        );
     }, []);
 
     const resetForm = useCallback(() => {
-        if ( !_.isEqual(initialState, form) )
-        {
+        if (!_.isEqual(initialState, form)) {
             setForm(initialState);
         }
     }, [form, initialState]);
@@ -21,16 +29,17 @@ function useForm(initialState, onSubmit)
         setForm(form => _.setIn(form, name, value));
     }, []);
 
-    const handleSubmit = useCallback((event) => {
-        if ( event )
-        {
-            event.preventDefault();
-        }
-        if ( onSubmit )
-        {
-            onSubmit();
-        }
-    }, [onSubmit]);
+    const handleSubmit = useCallback(
+        event => {
+            if (event) {
+                event.preventDefault();
+            }
+            if (onSubmit) {
+                onSubmit();
+            }
+        },
+        [onSubmit]
+    );
 
     return {
         form,
@@ -39,7 +48,7 @@ function useForm(initialState, onSubmit)
         resetForm,
         setForm,
         setInForm
-    }
+    };
 }
 
 export default useForm;

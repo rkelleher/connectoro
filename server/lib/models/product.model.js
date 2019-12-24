@@ -1,27 +1,36 @@
 import mongoose from "mongoose";
 
-// TODO move relevant specs into integration file
-import { EASYNC_INTEGRATION_TYPE, productDataShape } from "../integrations/easync";
+import {
+  EASYNC_INTEGRATION_TYPE,
+  productDataShape
+} from "../integrations/easync.js";
 
 const ProductExample = {
   _id: "abcdefg",
   title: "Example Product",
   integrationData: {
-    'EASYNC': {
+    "EASYNC": {
       amazonIds: {
-        "amazon_uk": 'ABC123'
+        "amazon_uk": "ABC123"
       }
     }
   }
 };
 
 const ProductShape = {
-  title: String,
+  accountId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true
+  },
+  title: {
+    type: String,
+    default: ""
+  },
   integrationData: {
     [EASYNC_INTEGRATION_TYPE]: productDataShape
   }
 };
 
-const ProductSchema = new mongoose.Schema(ProductShape);
+const ProductSchema = new mongoose.Schema(ProductShape, { minimize: false });
 
 export const Product = mongoose.model("Product", ProductSchema);
