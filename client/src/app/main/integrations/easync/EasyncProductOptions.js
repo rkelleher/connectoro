@@ -1,6 +1,5 @@
 import React from "react";
 import { Options } from "app/components/Options";
-import * as Actions from "app/store/actions";
 
 function getSelectionCriteriaArrayChoices(key) {
     if (key === "conditionIn") {

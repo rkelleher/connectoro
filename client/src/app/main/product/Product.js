@@ -1,7 +1,6 @@
-import _ from "lodash";
 import React, { useEffect, useState } from "react";
 import JSONPretty from "react-json-pretty";
-import { Icon, Tab, Tabs, Tooltip, Typography } from "@material-ui/core";
+import { Icon, Tab, Tabs, Typography } from "@material-ui/core";
 import { FuseAnimate, FusePageCarded } from "@fuse";
 import { Link } from "react-router-dom";
 import * as Actions from "app/store/actions";

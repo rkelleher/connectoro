@@ -7,7 +7,7 @@ import {
     TableRow,
     Checkbox
 } from "@material-ui/core";
-import { FuseScrollbars, FuseUtils } from "@fuse";
+import { FuseScrollbars } from "@fuse";
 import { withRouter } from "react-router-dom";
 import _ from "@lodash";
 import OrdersTableHead from "./OrdersTableHead";

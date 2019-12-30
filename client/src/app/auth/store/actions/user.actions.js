@@ -1,8 +1,6 @@
 import history from '@history';
 import {setDefaultSettings, setInitialSettings} from 'app/store/actions/fuse';
 import _ from '@lodash';
-import store from 'app/store';
-import * as Actions from 'app/store/actions';
 import jwtService from 'app/services/jwtService';
 
 export const SET_USER_DATA = '[USER] SET DATA';
@@ -106,23 +104,4 @@ export function logoutUser()
             type: USER_LOGGED_OUT
         })
     }
-}
-
-/**
- * Update User Data
- */
-function updateUserData(user)
-{
-    if ( !user.role || user.role.length === 0 )// is guest
-    {
-        return;
-    }
-
-    jwtService.updateUserData(user)
-        .then(() => {
-            store.dispatch(Actions.showMessage({message: "User data saved with api"}));
-        })
-        .catch(error => {
-            store.dispatch(Actions.showMessage({message: error.message}));
-        });
 }

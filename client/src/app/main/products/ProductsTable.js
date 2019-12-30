@@ -5,10 +5,9 @@ import {
     TableCell,
     TablePagination,
     TableRow,
-    Checkbox,
-    Button
+    Checkbox
 } from "@material-ui/core";
-import { FuseScrollbars, FuseUtils } from "@fuse";
+import { FuseScrollbars } from "@fuse";
 import { withRouter } from "react-router-dom";
 import _ from "@lodash";
 import ProductsTableHead from "./ProductsTableHead";

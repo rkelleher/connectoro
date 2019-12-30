@@ -1,4 +1,3 @@
-import _ from "lodash";
 import history from '@history';
 import axios from "axios";
 

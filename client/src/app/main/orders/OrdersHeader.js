@@ -2,7 +2,7 @@ import React from "react";
 import { Typography, Button } from "@material-ui/core";
 import { FuseAnimate } from "@fuse";
 import * as Actions from "app/store/actions";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
 function OrdersHeader(props) {
     const dispatch = useDispatch();

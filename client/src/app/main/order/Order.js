@@ -5,7 +5,6 @@ import {
     Icon,
     Tab,
     Tabs,
-    Tooltip,
     Typography,
     Button,
     TextField

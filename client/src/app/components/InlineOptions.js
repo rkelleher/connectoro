@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useForm } from "@fuse/hooks";
 import { Option } from "./Option";
-import { Button, IconButton } from "@material-ui/core";
+import { IconButton } from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 import SaveIcon from "@material-ui/icons/Save";
 import CloseIcon from "@material-ui/icons/Close";
