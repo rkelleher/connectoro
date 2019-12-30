@@ -1,4 +1,3 @@
-import isEqual from "lodash/isEqual";
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { makeStyles } from "@material-ui/styles";
@@ -26,7 +25,6 @@ import {
 import { FusePageCarded, FuseLoading } from "@fuse";
 import { useForm } from "@fuse/hooks";
 import ConfirmationDialog from "app/components/ConfirmationDialog";
-import { Option } from "./Option";
 import EasyncAccountOptions from "../integrations/easync/EasyncAccountOptions";
 
 const useStyles = makeStyles(theme => {

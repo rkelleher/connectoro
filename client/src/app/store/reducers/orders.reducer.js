@@ -15,13 +15,6 @@ const ordersReducer = function (state = initialState, action) {
                 data: action.payload
             };
         }
-        case Actions.SET_ORDERS_SEARCH_TEXT:
-        {
-            return {
-                ...state,
-                searchText: action.searchText
-            };
-        }
         default:
         {
             return state;

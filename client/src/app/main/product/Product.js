@@ -6,10 +6,10 @@ import { FuseAnimate, FusePageCarded } from "@fuse";
 import { Link } from "react-router-dom";
 import * as Actions from "app/store/actions";
 import { useDispatch, useSelector } from "react-redux";
-import SimpleTable from "app/components/SimpleTable";
 import EasyncProductOptions from "../integrations/easync/EasyncProductOptions";
+import { Options } from "app/components/Options";
 
-const ProductHeader = ({id}) => {
+const ProductHeader = ({ id }) => {
     return (
         <div className="flex flex-1 w-full items-center justify-between">
             <div className="flex flex-1 flex-col items-center sm:items-start">
@@ -38,26 +38,44 @@ const ProductHeader = ({id}) => {
     );
 };
 
-const ProductData = product => {
+const ProductData = ({ product }) => {
     return (
-        <div>
-            <div className="pb-48">
-                <div className="pb-16 flex items-center">
-                    <Typography className="h2" color="textSecondary">
-                        Product Data
-                    </Typography>
-                </div>
-                <JSONPretty
-                    id="json-pretty"
-                    data={product}
-                ></JSONPretty>
+        <div className="pb-48">
+            <div className="pb-16 flex items-center">
+                <Typography className="h2" color="textSecondary">
+                    Product Data
+                </Typography>
             </div>
+            <JSONPretty id="json-pretty" data={product}></JSONPretty>
+        </div>
+    );
+};
+
+const ProductEasyncOptions = ({ product }) => {
+    const isSavingEasync = useSelector(
+        ({ product }) => product.isSavingEasyncSelectionCriteria
+    );
+    return (
+        <div className="pb-48">
+            <div className="pb-16 flex items-center">
+                <Typography className="h2" color="textSecondary">
+                    Default Order Options
+                </Typography>
+            </div>
+            <EasyncProductOptions
+                data={product["integrationData"]["EASYNC"]["orderProductData"]}
+                isSaving={isSavingEasync}
+                saveAction={Actions.saveProductEasyncSelectionCriteriaOptions}
+                saveActionParam={product._id}
+            />
         </div>
     );
 };
 
 const ProductDetails = ({ product }) => {
-    const isSaving = useSelector(({product}) => product.isSavingEasyncSelectionCriteria)
+    const isSavingDetails = useSelector(
+        ({ product }) => product.isSavingDetails
+    );
     return (
         <div>
             <div className="pb-48">
@@ -66,17 +84,10 @@ const ProductDetails = ({ product }) => {
                         Details
                     </Typography>
                 </div>
-            </div>
-            <div className="pb-48">
-                <div className="pb-16 flex items-center">
-                    <Typography className="h2" color="textSecondary">
-                        Easync S
-                    </Typography>
-                </div>
-                <EasyncProductOptions
-                    data={product["integrationData"]["EASYNC"]["orderProductData"]}
-                    isSaving={isSaving}
-                    saveAction={Actions.saveProductEasyncSelectionCriteriaOptions}
+                <Options
+                    data={{ title: product.title }}
+                    isSaving={isSavingDetails}
+                    saveAction={Actions.saveProductDetails}
                     saveActionParam={product._id}
                 />
             </div>
@@ -115,7 +126,8 @@ function Product(props) {
                     scrollButtons="auto"
                     classes={{ root: "w-full h-64" }}
                 >
-                    <Tab className="h-64 normal-case" label="Product" />
+                    <Tab className="h-64 normal-case" label="Details" />
+                    <Tab className="h-64 normal-case" label="Easync" />
                     <Tab className="h-64 normal-case" label="Data" />
                 </Tabs>
             }
@@ -123,7 +135,10 @@ function Product(props) {
                 product && (
                     <div className="p-16 sm:p-24 max-w-2xl w-full">
                         {tabValue === 0 && <ProductDetails product={product} />}
-                        {tabValue === 1 && <ProductData product={product} />}
+                        {tabValue === 1 && (
+                            <ProductEasyncOptions product={product} />
+                        )}
+                        {tabValue === 2 && <ProductData product={product} />}
                     </div>
                 )
             }

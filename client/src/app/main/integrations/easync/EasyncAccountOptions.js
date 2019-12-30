@@ -1,8 +1,8 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import * as Actions from "app/store/actions";
-import EasyncOrderOptions from "./EasyncOrderOptions";
 import EasyncProductOptions from "./EasyncProductOptions";
+import { Options } from "app/components/Options";
 
 export default ({ data }) => {
     const { orderData, orderProductData } = data;
@@ -20,7 +20,7 @@ export default ({ data }) => {
             <div>
                 <h3>Default Order Options</h3>
                 <div>
-                    <EasyncOrderOptions
+                    <Options
                         data={orderData}
                         saveAction={Actions.saveAccountEasyncOrderOptions}
                         isSaving={orderOptionsIsSaving}

@@ -26,10 +26,10 @@ const rows = [
         sort: true
     },
     {
-        id: "numItems",
+        id: "numProd",
         align: "left",
         disablePadding: false,
-        label: "Items",
+        label: "Products",
         sort: true
     },
     {

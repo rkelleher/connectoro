@@ -28,7 +28,11 @@ const ProductShape = {
   },
   integrationData: {
     [EASYNC_INTEGRATION_TYPE]: productDataShape
-  }
+  },
+  createdDate: {
+    type: Date,
+    default: Date.now
+  },
 };
 
 const ProductSchema = new mongoose.Schema(ProductShape, { minimize: false });

@@ -5,8 +5,7 @@ import {
     TableCell,
     TablePagination,
     TableRow,
-    Checkbox,
-    Button
+    Checkbox
 } from "@material-ui/core";
 import { FuseScrollbars, FuseUtils } from "@fuse";
 import { withRouter } from "react-router-dom";
@@ -164,21 +163,21 @@ function OrdersTable(props) {
                                                 component="th"
                                                 scope="row"
                                             >
-                                                {n.numItems}
+                                                {n.orderProducts.length}
                                             </TableCell>
 
                                             <TableCell
                                                 component="th"
                                                 scope="row"
                                             >
-                                                {n.customerFullName}
+                                                {`${n.shippingAddress.firstName} ${n.shippingAddress.lastName}`}
                                             </TableCell>
 
                                             <TableCell
                                                 component="th"
                                                 scope="row"
                                             >
-                                                {new Date(n.date).toUTCString()}
+                                                {new Date(n.createdDate).toUTCString()}
                                             </TableCell>
                                         </TableRow>
                                     );

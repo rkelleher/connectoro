@@ -52,7 +52,7 @@ function ProductsTable(props) {
 
     function handleSelectAllClick(event) {
         if (event.target.checked) {
-            setSelected(data.map(n => n.id));
+            setSelected(data.map(n => n._id));
             return;
         }
         setSelected([]);
@@ -126,7 +126,7 @@ function ProductsTable(props) {
                                 )
                                 .map(n => {
                                     const isSelected =
-                                        selected.indexOf(n.id) !== -1;
+                                        selected.indexOf(n._id) !== -1;
                                     return (
                                         <TableRow
                                             className="h-64 cursor-pointer"
@@ -148,7 +148,7 @@ function ProductsTable(props) {
                                                         event.stopPropagation()
                                                     }
                                                     onChange={event =>
-                                                        handleCheck(event, n.id)
+                                                        handleCheck(event, n._id)
                                                     }
                                                 />
                                             </TableCell>
@@ -156,8 +156,16 @@ function ProductsTable(props) {
                                             <TableCell
                                                 component="th"
                                                 scope="row"
+                                                className="w-52"
                                             >
                                                 {n._id}
+                                            </TableCell>
+
+                                            <TableCell
+                                                component="th"
+                                                scope="row"
+                                            >
+                                                {n.title}
                                             </TableCell>
                                         </TableRow>
                                     );

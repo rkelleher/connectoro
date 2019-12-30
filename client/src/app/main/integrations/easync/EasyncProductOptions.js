@@ -1,5 +1,5 @@
 import React from "react";
-import { Options } from "app/main/account/Options";
+import { Options } from "app/components/Options";
 import * as Actions from "app/store/actions";
 
 function getSelectionCriteriaArrayChoices(key) {
@@ -10,7 +10,7 @@ function getSelectionCriteriaArrayChoices(key) {
     }
 }
 
-export default ({ data, isSaving, saveAction, saveActionParam }) => {
+export default ({ data, isSaving, saveAction, saveActionParam, saveActionParam2 }) => {
     const selectionCriteria = data.selectionCriteria;
     return (
         <div>
@@ -22,6 +22,7 @@ export default ({ data, isSaving, saveAction, saveActionParam }) => {
                             data={selectionCriteria}
                             saveAction={saveAction}
                             saveActionParam={saveActionParam}
+                            saveActionParam2={saveActionParam2}
                             isSaving={isSaving}
                             getArrayChoices={getSelectionCriteriaArrayChoices}
                         />

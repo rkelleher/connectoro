@@ -245,17 +245,18 @@ export async function buildSimpleAPIServer(cg, db) {
   // Update order
   server.route({
     method: "PATCH",
-    path: "/api/orders/{id}",
+    path: "/api/orders/{orderId}",
     handler: async (request, h) => {
+      const { orderId } = request.params;
+      const { changes } = request.payload;
       const userId = request.headers.authenticatedUserId;
       const user = await getUser(userId);
       if (user.role !== "admin") {
         return Boom.unauthorized();
       }
-      const changes = request.payload.changes;
       let order;
       try {
-        order = await Order.findById(request.params.id);
+        order = await Order.findById(orderId);
       } catch (error) {
         console.error(error);
       }
@@ -272,12 +273,6 @@ export async function buildSimpleAPIServer(cg, db) {
             order.integrationData
           );
         }
-        if (changeKey === "orderProducts") {
-          recursiveMongooseUpdate(
-            changes.orderProducts,
-            order.orderProducts
-          );
-        }
         if (changeKey === "shippingAddress") {
           recursiveMongooseUpdate(
             changes.shippingAddress,
@@ -291,7 +286,7 @@ export async function buildSimpleAPIServer(cg, db) {
     options: {
       validate: {
         params: Joi.object({
-          id: Joi.string().required()
+          orderId: Joi.string().required()
         }),
         payload: Joi.object({
           changes: Joi.object().required()
@@ -305,6 +300,8 @@ export async function buildSimpleAPIServer(cg, db) {
     method: "POST",
     path: "/api/orders/{orderId}/products",
     handler: async (request, h) => {
+      const { orderId } = request.params;
+      const { productId } = request.payload;
       const userId = request.headers.authenticatedUserId;
       const user = await getUser(userId);
       if (user.role !== "admin") {
@@ -313,7 +310,7 @@ export async function buildSimpleAPIServer(cg, db) {
 
       let order;
       try {
-        order = await Order.findById(request.params.orderId);
+        order = await Order.findById(orderId);
       } catch (error) {
         console.error(error);
       }
@@ -326,7 +323,7 @@ export async function buildSimpleAPIServer(cg, db) {
 
       let product;
       try {
-        product = await Product.findById(request.payload.productId);
+        product = await Product.findById(productId);
       } catch (error) {
         console.error(error);
       }
@@ -338,7 +335,7 @@ export async function buildSimpleAPIServer(cg, db) {
       }
 
       order.orderProducts.push({
-        productId: request.payload.productId,
+        productId: productId,
         quantity: 1,
         integrationData: {
           [EASYNC_INTEGRATION_TYPE]: {
@@ -361,6 +358,120 @@ export async function buildSimpleAPIServer(cg, db) {
         }),
         payload: Joi.object({
           productId: Joi.string().required()
+        })
+      }
+    }
+  });
+
+  // Delete orderProduct
+  server.route({
+    method: "DELETE",
+    path: "/api/orders/{orderId}/products/{orderProductId}",
+    handler: async (request, h) => {
+      const { orderId, orderProductId } = request.params;
+      const userId = request.headers.authenticatedUserId;
+      const user = await getUser(userId);
+      if (user.role !== "admin") {
+        return Boom.unauthorized();
+      }
+
+      let order;
+      try {
+        order = await Order.findById(orderId);
+      } catch (error) {
+        console.error(error);
+      }
+      if (!order) {
+        return Boom.badRequest();
+      }
+      if (!order.accountId.equals(user.account)) {
+        return Boom.unauthorized();
+      }
+
+      let orderProduct;
+      try {
+        orderProduct = await order.orderProducts.id(orderProductId);
+      } catch (error) {
+        console.error(error);
+      }
+      if (!orderProduct) {
+        return Boom.badRequest();
+      }
+
+      orderProduct.remove();
+      order.save();
+      return order.toObject();
+    },
+    options: {
+      validate: {
+        params: Joi.object({
+          orderId: Joi.string().required(),
+          orderProductId: Joi.string().required()
+        })
+      }
+    }
+  });
+
+  // Update orderProduct
+  server.route({
+    method: "PATCH",
+    path: "/api/orders/{orderId}/products/{orderProductId}",
+    handler: async (request, h) => {
+      const { changes } = request.payload;
+      const { orderId, orderProductId } = request.params;
+
+      const userId = request.headers.authenticatedUserId;
+      const user = await getUser(userId);
+      if (user.role !== "admin") {
+        return Boom.unauthorized();
+      }
+
+      let order;
+      try {
+        order = await Order.findById(orderId);
+      } catch (error) {
+        console.error(error);
+      }
+      if (!order) {
+        return Boom.badRequest();
+      }
+      if (!order.accountId.equals(user.account)) {
+        return Boom.unauthorized();
+      }
+
+      let orderProduct;
+      try {
+        orderProduct = await order.orderProducts.id(orderProductId);
+      } catch (error) {
+        console.error(error);
+      }
+      if (!orderProduct) {
+        return Boom.badRequest();
+      }
+
+      for (const changeKey of Object.keys(changes)) {
+        if (changeKey === "integrationData") {
+          recursiveMongooseUpdate(
+            changes.integrationData,
+            orderProduct.integrationData
+          );
+        }
+        if (changeKey === "quantity") {
+          orderProduct.quantity = changes.quantity;
+        }
+      }
+
+      order.save();
+      return order.toObject();
+    },
+    options: {
+      validate: {
+        params: Joi.object({
+          orderId: Joi.string().required(),
+          orderProductId: Joi.string().required()
+        }),
+        payload: Joi.object({
+          changes: Joi.object().required()
         })
       }
     }

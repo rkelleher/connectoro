@@ -1,16 +1,24 @@
 import _ from "lodash";
 import React, { useEffect, useState } from "react";
 import JSONPretty from "react-json-pretty";
-import { Icon, Tab, Tabs, Tooltip, Typography, Button } from "@material-ui/core";
+import {
+    Icon,
+    Tab,
+    Tabs,
+    Tooltip,
+    Typography,
+    Button,
+    TextField
+} from "@material-ui/core";
 import { FuseAnimate, FusePageCarded } from "@fuse";
 import { Link } from "react-router-dom";
 import * as Actions from "app/store/actions";
 import { useDispatch, useSelector } from "react-redux";
-import SimpleTable from "app/components/SimpleTable";
-import EasyncOrderOptions from "../integrations/easync/EasyncOrderOptions";
-import { Options } from "../account/Options";
+import { Options } from "app/components/Options";
+import { InlineOptions } from "app/components/InlineOptions";
+import EasyncProductOptions from "../integrations/easync/EasyncProductOptions";
 
-const OrderHeader = ({order}) => {
+const OrderHeader = ({ order }) => {
     const dispatch = useDispatch();
     return (
         <div className="flex flex-1 w-full items-center justify-between">
@@ -86,7 +94,7 @@ const OrderData = order => {
     );
 };
 
-const ProductLink = ({productId}) => (
+const ProductLink = ({ productId }) => (
     <Typography
         component={Link}
         to={"/products/" + productId}
@@ -100,73 +108,187 @@ const ProductLink = ({productId}) => (
     </Typography>
 );
 
-const ProductsTable = ({ orderProducts }) => {
-    return orderProducts && (
-        <div className="pb-48">
-            <div className="pb-16 flex items-center">
-                <Typography className="h2" color="textSecondary">
-                    Products
-                </Typography>
-            </div>
-            <div className="table-responsive">
-                <table className="simple">
-                    <thead>
-                        <tr>
-                            <th>Quantity</th>
-                            <th>ID</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {orderProducts.map(orderProduct => (
-                            <tr key={orderProduct._id}>
-                                <td>
-                                    <span>{orderProduct.quantity}</span>
-                                </td>
-                                <td>
-                                    <span>{orderProduct._id}</span>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+const ProductActionButton = props => {
+    const { label } = props;
+    return (
+        <Button variant="contained" style={{ marginRight: 5 }} {...props}>
+            {label}
+        </Button>
+    );
+};
+
+// const OrderProductEasyncOptionsDialog = ({orderProduct}) => {
+//     const dispatch = useDispatch();
+//     return (
+//         <>
+//             <DialogTitle>{title}</DialogTitle>
+//             <DialogContent dividers>
+//             </DialogContent>
+//             <DialogActions>
+//                 <Button onClick={() => dispatch(closeDialog())} color="primary">
+//                     Cancel
+//                 </Button>
+//                 <Button onClick={() => submit(chosenOption)} color="secondary">
+//                     Save
+//                 </Button>
+//             </DialogActions>
+//         </>
+//     );
+// }
+
+const AddProductForm = ({ order }) => {
+    const orderId = order._id;
+    const dispatch = useDispatch();
+    const isAddingProduct = useSelector(({ order }) => order.isAddingProduct);
+    const [productId, setProductId] = useState("");
+    return (
+        <div>
+            <TextField
+                label="Product ID"
+                value={productId}
+                onChange={e => setProductId(e.target.value)}
+                variant="outlined"
+            />
+            <Button
+                style={{margin: 10}}
+                variant="contained"
+                disabled={isAddingProduct}
+                onClick={() =>
+                    dispatch(Actions.addProductToOrder(orderId, productId))
+                }
+            >
+                {isAddingProduct ? "..." : "add product to order"}
+            </Button>
         </div>
     );
 };
 
-const OrderDetails = ({order}) => {
-    const easyncOptionsSaving = useSelector(({order}) => order.easyncOptionsSaving)
-    const isSavingCustomer = useSelector(({order}) => order.savingOrderCustomer);
+const OrderProductRow = ({ order, orderProduct }) => {
+    const dispatch = useDispatch();
+    const isRemoving = useSelector(
+        ({ order }) => order.removingOrderProducts[orderProduct._id]
+    );
+    const isSavingEasync = useSelector(
+        ({ order }) => order.savingOrderProductsEasync[orderProduct._id]
+    );
+    const isEditingQty = useSelector(
+        ({ order }) => order.editingOrderProductQtys[orderProduct._id]
+    );
+    const isSavingQty = useSelector(
+        ({ order }) => order.savingOrderProductQtys[orderProduct._id]
+    );
     return (
-        <div>
-            <ProductsTable {...order} />
-
-            <div className="pb-48">
-                <div className="pb-16 flex items-center">
-                    <Typography className="h2" color="textSecondary">
-                        Customer
-                    </Typography>
-                </div>
-                <Options 
-                  data={_.omit(order.shippingAddress, ["_id"])}
-                  isSaving={isSavingCustomer}
-                  saveAction={Actions.saveOrderCustomer}
-                  saveActionParam={order._id}
+        <tr>
+            <td>
+                <InlineOptions
+                    data={{
+                        quantity: orderProduct.quantity
+                    }}
+                    actionParam={{orderId: order._id, orderProductId: orderProduct._id}}
+                    saveAction={Actions.saveOrderProductQuantity}
+                    editAction={Actions.editOrderProductQuantity}
+                    cancelEditAction={Actions.cancelEditOrderProductQuantity}
+                    isEditing={isEditingQty}
+                    isSaving={isSavingQty}
                 />
-            </div>
-            <div className="pb-48">
-                <div className="pb-16 flex items-center">
-                    <Typography className="h2" color="textSecondary">
-                        Easync Options
-                    </Typography>
-                </div>
-                <EasyncOrderOptions
-                    data={order["integrationData"]["EASYNC"]}
-                    saveAction={Actions.saveOrderEasyncOptions}
+            </td>
+            <td>
+                <ProductLink productId={orderProduct.productId} />
+            </td>
+            <td>
+                <EasyncProductOptions
+                    data={orderProduct["integrationData"]["EASYNC"]}
+                    isSaving={isSavingEasync}
+                    saveAction={Actions.saveOrderProductEasyncSelectionCriteriaOptions}
                     saveActionParam={order._id}
-                    isSaving={easyncOptionsSaving}
+                    saveActionParam2={orderProduct._id}
                 />
+            </td>
+            <td>
+                <ProductActionButton
+                    label={isRemoving ? "..." : "remove"}
+                    disabled={isRemoving}
+                    onClick={() =>
+                        dispatch(
+                            Actions.removeProductFromOrder(
+                                order._id,
+                                orderProduct._id
+                            )
+                        )
+                    }
+                />
+            </td>
+        </tr>
+    );
+};
+
+const OrderProducts = ({ order }) => {
+    const { orderProducts } = order;
+    return (
+        orderProducts && (
+            <div className="pb-48">
+                <AddProductForm order={order} />
+
+                <div className="table-responsive">
+                    <table className="simple">
+                        <thead>
+                            <tr>
+                                <th className="w-48">Quantity</th>
+                                <th className="w-48">Product ID</th>
+                                <th>Easync</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {orderProducts.map(orderProduct => (
+                                <OrderProductRow
+                                    key={orderProduct._id}
+                                    order={order}
+                                    orderProduct={orderProduct}
+                                />
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
+        )
+    );
+};
+
+const OrderCustomer = ({ order }) => {
+    const isSaving = useSelector(({ order }) => order.savingOrderCustomer);
+    return (
+        <div className="pb-48">
+            <div className="pb-16 flex items-center">
+                <Typography className="h2" color="textSecondary">
+                    Customer
+                </Typography>
+            </div>
+            <Options
+                data={_.omit(order.shippingAddress, ["_id"])}
+                isSaving={isSaving}
+                saveAction={Actions.saveOrderCustomer}
+                saveActionParam={order._id}
+            />
+        </div>
+    );
+};
+
+const OrderOptions = ({ order }) => {
+    const isSaving = useSelector(({ order }) => order.easyncOptionsSaving);
+    return (
+        <div className="pb-48">
+            <div className="pb-16 flex items-center">
+                <Typography className="h2" color="textSecondary">
+                    Easync Options
+                </Typography>
+            </div>
+            <Options
+                data={order["integrationData"]["EASYNC"]}
+                saveAction={Actions.saveOrderEasyncOptions}
+                saveActionParam={order._id}
+                isSaving={isSaving}
+            />
         </div>
     );
 };
@@ -202,15 +324,19 @@ function Order(props) {
                     scrollButtons="auto"
                     classes={{ root: "w-full h-64" }}
                 >
-                    <Tab className="h-64 normal-case" label="Order" />
+                    <Tab className="h-64 normal-case" label="Products" />
+                    <Tab className="h-64 normal-case" label="Customer" />
+                    <Tab className="h-64 normal-case" label="Options" />
                     <Tab className="h-64 normal-case" label="Data" />
                 </Tabs>
             }
             content={
                 order && (
                     <div className="p-16 sm:p-24 max-w-2xl w-full">
-                        {tabValue === 0 && <OrderDetails order={order} />}
-                        {tabValue === 1 && <OrderData order={order} />}
+                        {tabValue === 0 && <OrderProducts order={order} />}
+                        {tabValue === 1 && <OrderCustomer order={order} />}
+                        {tabValue === 2 && <OrderOptions order={order} />}
+                        {tabValue === 3 && <OrderData order={order} />}
                     </div>
                 )
             }

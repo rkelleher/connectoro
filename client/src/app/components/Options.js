@@ -5,10 +5,16 @@ import { useForm } from "@fuse/hooks";
 import { Option } from "./Option";
 import { Button } from "@material-ui/core";
 
-export function Options({ data, saveAction, saveActionParam, isSaving, getArrayChoices }) {
+export function Options({
+    data,
+    saveAction,
+    saveActionParam,
+    saveActionParam2,
+    isSaving,
+    getArrayChoices
+}) {
     const dispatch = useDispatch();
     const { form, handleChange, setForm, setInForm } = useForm(null);
-    console.log(data, form)
 
     useEffect(() => {
         if ((data && !form) || data._id !== form._id) {
@@ -24,7 +30,6 @@ export function Options({ data, saveAction, saveActionParam, isSaving, getArrayC
             return true;
         }
         for (const k of Object.keys(form)) {
-            console.log(k, form[k], data[k])
             if (!isEqual(form[k], data[k])) {
                 return true;
             }
@@ -32,18 +37,15 @@ export function Options({ data, saveAction, saveActionParam, isSaving, getArrayC
         return false;
     };
 
+    // TODO collapse into saveActionParam and just use objects
     const handleSubmit = () => {
-        if (saveActionParam) {
-            dispatch(saveAction(form, saveActionParam));
-        } else {
-            dispatch(saveAction(form));
-        }
+        dispatch(saveAction(form, saveActionParam, saveActionParam2));
     };
 
     return (
         form && (
-            <div>
-                <div>
+            <div style={{ maxWidth: 500 }}>
+                <div style={{ margin: 10 }}>
                     <Button
                         variant="contained"
                         color="primary"
@@ -61,7 +63,7 @@ export function Options({ data, saveAction, saveActionParam, isSaving, getArrayC
                                     key={key}
                                     style={{
                                         margin: 10,
-                                        display: "inline-block"
+                                        display: "block"
                                     }}
                                 >
                                     <Option
@@ -75,7 +77,10 @@ export function Options({ data, saveAction, saveActionParam, isSaving, getArrayC
                                                 "string": "str",
                                                 "boolean": "bool",
                                                 "number": "int",
-                                                "object": (getArrayChoices && getArrayChoices(key)) || []
+                                                "object":
+                                                    (getArrayChoices &&
+                                                        getArrayChoices(key)) ||
+                                                    []
                                             }[typeof data[key]]
                                         }
                                     />

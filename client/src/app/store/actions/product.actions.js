@@ -1,26 +1,55 @@
 import axios from "axios";
+import * as Actions from "app/store/actions";
 
 export const GET_PRODUCT = "[PRODUCT] GET PRODUCT";
 export const GOT_PRODUCT = "[PRODUCT] GOT PRODUCT";
+export const SAVING_PRODUCT = "[PRODUCT] SAVING PRODUCT";
+export const SAVED_PRODUCT = "[PRODUCT] SAVED PRODUCT";
 export const SAVING_PRODUCT_EASYNC = "[PRODUCT] SAVING PRODUCT EASYNC";
 export const SAVED_PRODUCT_EASYNC = "[PRODUCT] SAVED PRODUCT EASYNC";
 export const SET_PRODUCT = "[PRODUCT] SET PRODUCT";
 
-export function getProduct({productId}) {
+export function getProduct({ productId }) {
     const request = axios.get(`/api/products/${productId}`);
     const process = product => {
         return product;
     };
     return async dispatch => {
         dispatch({
-            type: GET_PRODUCT,
+            type: GET_PRODUCT
         });
         const response = await request;
         return dispatch({
             type: GOT_PRODUCT,
             payload: process(response.data)
         });
-    }
+    };
+}
+
+export function saveProductDetails(form, productId) {
+    return async dispatch => {
+        dispatch({
+            type: SAVING_PRODUCT
+        });
+        const { data } = await axios.patch(`/api/products/${productId}`, {
+            changes: form
+        });
+        if (data) {
+            dispatch({
+                type: SET_PRODUCT,
+                payload: data
+            });
+        } else {
+            dispatch(
+                Actions.showMessage({
+                    message: "Could not save Product, please try again"
+                })
+            );
+        }
+        return dispatch({
+            type: SAVED_PRODUCT
+        });
+    };
 }
 
 export function saveProductEasyncSelectionCriteriaOptions(form, productId) {
@@ -33,7 +62,7 @@ export function saveProductEasyncSelectionCriteriaOptions(form, productId) {
                 "EASYNC": {
                     "orderProductData": {
                         "selectionCriteria": form
-                    } 
+                    }
                 }
             }
         };

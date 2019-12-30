@@ -24,6 +24,13 @@ const rows = [
         disablePadding: false,
         label: "ID",
         sort: true
+    },
+    {
+        id: "title",
+        align: "left",
+        disablePadding: false,
+        label: "Title",
+        sort: true
     }
 ];
 

@@ -111,7 +111,11 @@ const OrderSchema = new mongoose.Schema({
   },
   integrationData: {
     [EASYNC_INTEGRATION_TYPE]: orderDataShape
-  }
+  },
+  createdDate: {
+    type: Date,
+    default: Date.now
+  },
 });
 
 export const Order = mongoose.model("Order", OrderSchema);
