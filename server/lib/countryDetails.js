@@ -1,3 +1,4 @@
+// TODO move into DB?
 export default [
 	{"numeric":"004","alpha2":"AF","alpha3":"AFG","name":"Afghanistan"},
 	{"numeric":"248","alpha2":"AX","alpha3":"ALA","name":"Åland Islands"},
@@ -233,8 +234,8 @@ export default [
 	{"numeric":"800","alpha2":"UG","alpha3":"UGA","name":"Uganda"},
 	{"numeric":"804","alpha2":"UA","alpha3":"UKR","name":"Ukraine"},
 	{"numeric":"784","alpha2":"AE","alpha3":"ARE","name":"United Arab Emirates"},
-	{"numeric":"826","alpha2":"GB","alpha3":"GBR","name":"United Kingdom of Great Britain and Northern Ireland"},
-	{"numeric":"840","alpha2":"US","alpha3":"USA","name":"United States of America"},
+	{"numeric":"826","alpha2":"GB","alpha3":"GBR","name":"United Kingdom"},
+	{"numeric":"840","alpha2":"US","alpha3":"USA","name":"United States"},
 	{"numeric":"581","alpha2":"UM","alpha3":"UMI","name":"United States Minor Outlying Islands"},
 	{"numeric":"858","alpha2":"UY","alpha3":"URY","name":"Uruguay"},
 	{"numeric":"860","alpha2":"UZ","alpha3":"UZB","name":"Uzbekistan"},

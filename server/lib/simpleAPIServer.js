@@ -43,9 +43,9 @@ import {
 } from "./integrations/linnworks.js";
 import {
   EASYNC_INTEGRATION_TYPE,
-  buildEasyncOrderReq,
-  EASYNC_TOKEN_CREDENTIAL_KEY
-} from "./integrations/easync.js";
+  EASYNC_TOKEN_CREDENTIAL_KEY,
+} from "./integrations/easync/easync.js";
+import buildEasyncOrderPayload from "./integrations/easync/buildEasyncOrderPayload.js";
 import {
   createProduct,
   getProductsForAccount
@@ -114,11 +114,8 @@ export async function buildSimpleAPIServer(cg, db) {
       if (!token) {
         throw Boom.badRequest("No Easync api token!");
       }
-      const req = buildEasyncOrderReq(order, {
-        token,
-        idempotencyKey: 'TODO'
-      });
-      return { req };
+      const easyncReq = buildEasyncOrderPayload({ order });
+      return { easyncReq };
     },
     options: {
       validate: {
@@ -236,8 +233,8 @@ export async function buildSimpleAPIServer(cg, db) {
       const order = new Order({
         accountId: user.account,
         integrationData
-      })
-      await order.save()
+      });
+      await order.save();
       return order.toObject();
     }
   });
@@ -280,7 +277,7 @@ export async function buildSimpleAPIServer(cg, db) {
           );
         }
       }
-      order.save();
+      await order.save();
       return order.toObject();
     },
     options: {
@@ -348,7 +345,7 @@ export async function buildSimpleAPIServer(cg, db) {
           }
         }
       });
-      order.save();
+      await order.save();
       return order.toObject();
     },
     options: {
@@ -399,7 +396,7 @@ export async function buildSimpleAPIServer(cg, db) {
       }
 
       orderProduct.remove();
-      order.save();
+      await order.save();
       return order.toObject();
     },
     options: {
@@ -461,7 +458,7 @@ export async function buildSimpleAPIServer(cg, db) {
         }
       }
 
-      order.save();
+      await order.save();
       return order.toObject();
     },
     options: {
@@ -622,11 +619,17 @@ export async function buildSimpleAPIServer(cg, db) {
             product.integrationData
           );
         }
+        if (changeKey === "externalIds") {
+          product.externalIds = {
+            ...product.externalIds,
+            ...changes.externalIds
+          };
+        }
         if (changeKey === "title") {
           product.title = changes.title;
         }
       }
-      product.save();
+      await product.save();
       return product.toObject();
     },
     options: {
@@ -867,7 +870,7 @@ export async function buildSimpleAPIServer(cg, db) {
           );
         }
       }
-      account.save();
+      await account.save();
       return account.toObject();
     },
     options: {

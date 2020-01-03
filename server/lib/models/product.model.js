@@ -2,22 +2,15 @@ import mongoose from "mongoose";
 
 import {
   EASYNC_INTEGRATION_TYPE,
-  productDataShape
-} from "../integrations/easync.js";
-
-const ProductExample = {
-  _id: "abcdefg",
-  title: "Example Product",
-  integrationData: {
-    "EASYNC": {
-      amazonIds: {
-        "amazon_uk": "ABC123"
-      }
-    }
-  }
-};
+  easyncProductDataShape
+} from "../integrations/easync/easync.js";
 
 const ProductShape = {
+  createdDate: {
+    type: Date,
+    default: Date.now
+  },
+  description: "",
   accountId: {
     type: mongoose.Schema.Types.ObjectId,
     required: true
@@ -26,12 +19,12 @@ const ProductShape = {
     type: String,
     default: ""
   },
-  integrationData: {
-    [EASYNC_INTEGRATION_TYPE]: productDataShape
+  externalIds: {
+    type: Object,
+    default: () => ({})
   },
-  createdDate: {
-    type: Date,
-    default: Date.now
+  integrationData: {
+    [EASYNC_INTEGRATION_TYPE]: easyncProductDataShape
   },
 };
 

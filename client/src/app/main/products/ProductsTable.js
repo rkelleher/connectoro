@@ -157,7 +157,7 @@ function ProductsTable(props) {
                                                 scope="row"
                                                 className="w-52"
                                             >
-                                                {n._id}
+                                                {_.get(n, ["externalIds", "SKU"])}
                                             </TableCell>
 
                                             <TableCell

@@ -2,52 +2,12 @@ import mongoose from "mongoose";
 
 import {
   EASYNC_INTEGRATION_TYPE,
-  orderProductDataShape,
-  orderDataShape
-} from "../integrations/easync.js";
-
-const ExampleOrder = {
-  _id: "abcdefg",
-  accountId: "hijklmn",
-  orderProducts: [
-    {
-      quantity: 1,
-      productId: "abc123",
-      integrationData: {
-        "EASYNC": {
-          selectionCriteria: {
-            conditionIn: ["New"],
-            handlingDaysMax: 4,
-            maxItemPrice: 9900,
-            isPrime: true
-          }
-        }
-      }
-    }
-  ],
-  shippingAddress: {
-    firstName: "khurram",
-    lastName: "shahzad",
-    addressLine1: "107 Bonnyton Road",
-    addressLine2: "",
-    zipCode: "KA1 2NB",
-    city: "Kilmarnock",
-    state: "East Ayrshire",
-    country: "United Kingdom",
-    phoneNumber: "7563406968"
-  },
-  integrationData: {
-    "EASYNC": {
-      shippingMethod: "free",
-      isGift: true,
-      maxOrderPrice: 9900,
-      clientNotes: {
-        "our_internal_order_id": "384460"
-      },
-      isFBE: true
-    }
-  }
-};
+  easyncOrderData,
+  easyncOrderProductData,
+  syncEasyncOrderData,
+  syncEasyncOrderProductData
+} from "../integrations/easync/easync.js";
+import { Product } from "./product.model.js";
 
 const OrderProductSchema = new mongoose.Schema({
   productId: mongoose.Schema.Types.ObjectId,
@@ -56,7 +16,7 @@ const OrderProductSchema = new mongoose.Schema({
     default: 1
   },
   integrationData: {
-    [EASYNC_INTEGRATION_TYPE]: orderProductDataShape
+    [EASYNC_INTEGRATION_TYPE]: easyncOrderProductData
   }
 });
 
@@ -74,6 +34,10 @@ const AddressSchema = new mongoose.Schema({
     default: ""
   },
   addressLine2: {
+    type: String,
+    default: ""
+  },
+  addressLine3: {
     type: String,
     default: ""
   },
@@ -105,17 +69,28 @@ const OrderSchema = new mongoose.Schema({
     index: true
   },
   orderProducts: [OrderProductSchema],
+  orderStatus: String,
   shippingAddress: {
     type: AddressSchema,
     default: () => ({})
   },
   integrationData: {
-    [EASYNC_INTEGRATION_TYPE]: orderDataShape
+    [EASYNC_INTEGRATION_TYPE]: easyncOrderData
   },
   createdDate: {
     type: Date,
     default: Date.now
-  },
+  }
 });
+
+// TODO check that easync is an active integration?
+OrderSchema.pre('save', async function() {
+  const order = this;
+  syncEasyncOrderData(order);
+  order.orderProducts.forEach(async orderProduct => {
+    const product = await Product.findById(orderProduct.productId);
+    syncEasyncOrderProductData(order, product, orderProduct);
+  })
+})
 
 export const Order = mongoose.model("Order", OrderSchema);

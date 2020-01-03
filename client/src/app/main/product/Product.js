@@ -7,8 +7,9 @@ import * as Actions from "app/store/actions";
 import { useDispatch, useSelector } from "react-redux";
 import EasyncProductOptions from "../integrations/easync/EasyncProductOptions";
 import { Options } from "app/components/Options";
+import { ProductIdentifierTable } from "./ProductExternalIdsTable";
 
-const ProductHeader = ({ id }) => {
+const ProductHeader = ({ title }) => {
     return (
         <div className="flex flex-1 w-full items-center justify-between">
             <div className="flex flex-1 flex-col items-center sm:items-start">
@@ -28,7 +29,7 @@ const ProductHeader = ({ id }) => {
                 <div className="flex flex-col min-w-0 items-center sm:items-start">
                     <FuseAnimate animation="transition.slideLeftIn" delay={300}>
                         <Typography className="text-16 sm:text-20 truncate">
-                            {"Product " + id}
+                            {"Product Details: " + (title || "Untitled Product")}
                         </Typography>
                     </FuseAnimate>
                 </div>
@@ -78,11 +79,6 @@ const ProductDetails = ({ product }) => {
     return (
         <div>
             <div className="pb-48">
-                <div className="pb-16 flex items-center">
-                    <Typography className="h2" color="textSecondary">
-                        Details
-                    </Typography>
-                </div>
                 <Options
                     data={{ title: product.title }}
                     isSaving={isSavingDetails}
@@ -114,7 +110,7 @@ function Product(props) {
                 content: "flex",
                 header: "min-h-72 h-72 sm:h-136 sm:min-h-136"
             }}
-            header={product && <ProductHeader id={product._id} />}
+            header={product && <ProductHeader {...product} />}
             contentToolbar={
                 <Tabs
                     value={tabValue}
@@ -125,7 +121,8 @@ function Product(props) {
                     scrollButtons="auto"
                     classes={{ root: "w-full h-64" }}
                 >
-                    <Tab className="h-64 normal-case" label="Details" />
+                    <Tab className="h-64 normal-case" label="General" />
+                    <Tab className="h-64 normal-case" label="Identifiers" />
                     <Tab className="h-64 normal-case" label="Easync" />
                     <Tab className="h-64 normal-case" label="Data" />
                 </Tabs>
@@ -135,9 +132,12 @@ function Product(props) {
                     <div className="p-16 sm:p-24 max-w-2xl w-full">
                         {tabValue === 0 && <ProductDetails product={product} />}
                         {tabValue === 1 && (
+                            <ProductIdentifierTable product={product} />
+                        )}
+                        {tabValue === 2 && (
                             <ProductEasyncOptions product={product} />
                         )}
-                        {tabValue === 2 && <ProductData product={product} />}
+                        {tabValue === 3 && <ProductData product={product} />}
                     </div>
                 )
             }

@@ -22,7 +22,7 @@ const rows = [
         id: "id",
         align: "left",
         disablePadding: false,
-        label: "ID",
+        label: "SKU",
         sort: true
     },
     {

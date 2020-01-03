@@ -45,16 +45,6 @@ export function Options({
     return (
         form && (
             <div style={{ maxWidth: 500 }}>
-                <div style={{ margin: 10 }}>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        disabled={!canBeSubmitted()}
-                        onClick={handleSubmit}
-                    >
-                        {isSaving ? "Saving..." : "Save Changes"}
-                    </Button>
-                </div>
                 <div>
                     {Object.keys(data) &&
                         Object.keys(data).map(key => {
@@ -87,6 +77,17 @@ export function Options({
                                 </div>
                             );
                         })}
+                </div>
+
+                <div style={{ margin: 10 }}>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        disabled={!canBeSubmitted()}
+                        onClick={handleSubmit}
+                    >
+                        {isSaving ? "Saving..." : "Save Changes"}
+                    </Button>
                 </div>
             </div>
         )

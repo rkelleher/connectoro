@@ -116,25 +116,6 @@ const ProductActionButton = props => {
     );
 };
 
-// const OrderProductEasyncOptionsDialog = ({orderProduct}) => {
-//     const dispatch = useDispatch();
-//     return (
-//         <>
-//             <DialogTitle>{title}</DialogTitle>
-//             <DialogContent dividers>
-//             </DialogContent>
-//             <DialogActions>
-//                 <Button onClick={() => dispatch(closeDialog())} color="primary">
-//                     Cancel
-//                 </Button>
-//                 <Button onClick={() => submit(chosenOption)} color="secondary">
-//                     Save
-//                 </Button>
-//             </DialogActions>
-//         </>
-//     );
-// }
-
 const AddProductForm = ({ order }) => {
     const orderId = order._id;
     const dispatch = useDispatch();
@@ -323,19 +304,21 @@ function Order(props) {
                     scrollButtons="auto"
                     classes={{ root: "w-full h-64" }}
                 >
-                    <Tab className="h-64 normal-case" label="Products" />
-                    <Tab className="h-64 normal-case" label="Customer" />
-                    <Tab className="h-64 normal-case" label="Options" />
+                    <Tab className="h-64 normal-case" label="Order" />
                     <Tab className="h-64 normal-case" label="Data" />
                 </Tabs>
             }
             content={
                 order && (
                     <div className="p-16 sm:p-24 max-w-2xl w-full">
-                        {tabValue === 0 && <OrderProducts order={order} />}
-                        {tabValue === 1 && <OrderCustomer order={order} />}
-                        {tabValue === 2 && <OrderOptions order={order} />}
-                        {tabValue === 3 && <OrderData order={order} />}
+                        {tabValue === 0 && (
+                            <>
+                                <OrderOptions order={order} />
+                                <OrderCustomer order={order} />
+                                <OrderProducts order={order} />
+                            </>
+                        )}
+                        {tabValue === 1 && <OrderData order={order} />}
                     </div>
                 )
             }
