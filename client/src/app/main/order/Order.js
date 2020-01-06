@@ -93,7 +93,7 @@ const OrderData = order => {
     );
 };
 
-const ProductLink = ({ productId }) => (
+const ProductLink = ({ productId, children }) => (
     <Typography
         component={Link}
         to={"/products/" + productId}
@@ -103,7 +103,7 @@ const ProductLink = ({ productId }) => (
             textDecoration: "underline"
         }}
     >
-        {productId}
+        {children}
     </Typography>
 );
 
@@ -173,7 +173,9 @@ const OrderProductRow = ({ order, orderProduct }) => {
                 />
             </td>
             <td>
-                <ProductLink productId={orderProduct.productId} />
+                <ProductLink productId={orderProduct.productId}>
+                    {_.get(orderProduct, ["product", "externalIds", "SKU"])}
+                </ProductLink>
             </td>
             <td>
                 <EasyncProductOptions
@@ -214,7 +216,7 @@ const OrderProducts = ({ order }) => {
                         <thead>
                             <tr>
                                 <th className="w-48">Quantity</th>
-                                <th className="w-48">Product ID</th>
+                                <th className="w-48">SKU</th>
                                 <th>Easync</th>
                                 <th>Actions</th>
                             </tr>

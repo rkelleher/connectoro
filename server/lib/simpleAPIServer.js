@@ -30,10 +30,11 @@ import {
   getIntegrationByType
 } from "./controllers/account.controller.js";
 import {
-  getOrdersForAccount,
+  buildPopulatedOrdersForAccount,
   getOrderByInputId,
   createOrders,
-  getOrder
+  getOrder,
+  buildPopulatedOrder
 } from "./controllers/order.controller.js";
 import {
   LINNW_INTEGRATION_TYPE,
@@ -129,8 +130,9 @@ export async function buildSimpleAPIServer(cg, db) {
   // Get order
   server.route({
     method: "GET",
-    path: "/api/orders/{id}",
+    path: "/api/orders/{orderId}",
     handler: async (request, h) => {
+      const { orderId } = request.params;
       const userId = request.headers.authenticatedUserId;
       const user = await getUser(userId);
       if (user.role !== "admin") {
@@ -138,7 +140,7 @@ export async function buildSimpleAPIServer(cg, db) {
       }
       let order;
       try {
-        order = await Order.findById(request.params.id);
+        order = await Order.findById(orderId);
       } catch (error) {
         console.error(error);
       }
@@ -148,12 +150,12 @@ export async function buildSimpleAPIServer(cg, db) {
       if (!order.accountId.equals(user.account)) {
         return Boom.unauthorized();
       }
-      return order.toObject();
+      return await buildPopulatedOrder(orderId);
     },
     options: {
       validate: {
         params: Joi.object({
-          id: Joi.string().required()
+          orderId: Joi.string().required()
         })
       }
     }
@@ -203,7 +205,7 @@ export async function buildSimpleAPIServer(cg, db) {
       if (user.role !== "admin") {
         return Boom.unauthorized();
       }
-      const orders = await getOrdersForAccount(user.account);
+      const orders = await buildPopulatedOrdersForAccount(user.account);
       return orders;
     }
   });
@@ -235,7 +237,7 @@ export async function buildSimpleAPIServer(cg, db) {
         integrationData
       });
       await order.save();
-      return order.toObject();
+      return await buildPopulatedOrder(order._id);
     }
   });
 
@@ -278,7 +280,7 @@ export async function buildSimpleAPIServer(cg, db) {
         }
       }
       await order.save();
-      return order.toObject();
+      return await buildPopulatedOrder(orderId);
     },
     options: {
       validate: {
@@ -346,7 +348,7 @@ export async function buildSimpleAPIServer(cg, db) {
         }
       });
       await order.save();
-      return order.toObject();
+      return await buildPopulatedOrder(orderId);
     },
     options: {
       validate: {
@@ -397,7 +399,7 @@ export async function buildSimpleAPIServer(cg, db) {
 
       orderProduct.remove();
       await order.save();
-      return order.toObject();
+      return await buildPopulatedOrder(orderId);
     },
     options: {
       validate: {
@@ -459,7 +461,7 @@ export async function buildSimpleAPIServer(cg, db) {
       }
 
       await order.save();
-      return order.toObject();
+      return await buildPopulatedOrder(orderId);
     },
     options: {
       validate: {
