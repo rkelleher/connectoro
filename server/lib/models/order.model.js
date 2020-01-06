@@ -2,10 +2,10 @@ import mongoose from "mongoose";
 
 import {
   EASYNC_INTEGRATION_TYPE,
-  easyncOrderData,
-  easyncOrderProductData,
-  syncEasyncOrderData,
-  syncEasyncOrderProductData
+  easyncOrderDataShape,
+  easyncOrderProductDataShape,
+  buildEasyncOrderData,
+  buildEasyncOrderProductData
 } from "../integrations/easync/easync.js";
 import { Product } from "./product.model.js";
 
@@ -16,7 +16,7 @@ const OrderProductSchema = new mongoose.Schema({
     default: 1
   },
   integrationData: {
-    [EASYNC_INTEGRATION_TYPE]: easyncOrderProductData
+    [EASYNC_INTEGRATION_TYPE]: easyncOrderProductDataShape
   }
 });
 
@@ -75,7 +75,7 @@ const OrderSchema = new mongoose.Schema({
     default: () => ({})
   },
   integrationData: {
-    [EASYNC_INTEGRATION_TYPE]: easyncOrderData
+    [EASYNC_INTEGRATION_TYPE]: easyncOrderDataShape
   },
   createdDate: {
     type: Date,
@@ -84,13 +84,31 @@ const OrderSchema = new mongoose.Schema({
 });
 
 // TODO check that easync is an active integration?
-OrderSchema.pre('save', async function() {
+// TODO what's a safer appoach to keeping this data in sync?
+OrderSchema.pre("save", async function() {
   const order = this;
-  syncEasyncOrderData(order);
+  order["integrationData"][EASYNC_INTEGRATION_TYPE] = buildEasyncOrderData(
+    order
+  );
   order.orderProducts.forEach(async orderProduct => {
     const product = await Product.findById(orderProduct.productId);
-    syncEasyncOrderProductData(order, product, orderProduct);
-  })
-})
+    const { externalId } = buildEasyncOrderProductData(
+      order,
+      product,
+      orderProduct
+    );
+    await Order.updateOne(
+      {
+        "_id": order._id,
+        "orderProducts._id": orderProduct._id
+      },
+      {
+        "$set": {
+          "orderProducts.$.integrationData.EASYNC.externalId": externalId
+        }
+      }
+    );
+  });
+});
 
 export const Order = mongoose.model("Order", OrderSchema);
