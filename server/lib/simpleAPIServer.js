@@ -34,7 +34,8 @@ import {
   getOrderByInputId,
   createOrders,
   getOrder,
-  buildPopulatedOrder
+  buildPopulatedOrder,
+  syncOrderEasyncData
 } from "./controllers/order.controller.js";
 import {
   LINNW_INTEGRATION_TYPE,
@@ -44,7 +45,7 @@ import {
 } from "./integrations/linnworks.js";
 import {
   EASYNC_INTEGRATION_TYPE,
-  EASYNC_TOKEN_CREDENTIAL_KEY,
+  EASYNC_TOKEN_CREDENTIAL_KEY
 } from "./integrations/easync/easync.js";
 import buildEasyncOrderPayload from "./integrations/easync/buildEasyncOrderPayload.js";
 import {
@@ -150,6 +151,7 @@ export async function buildSimpleAPIServer(cg, db) {
       if (!order.accountId.equals(user.account)) {
         return Boom.unauthorized();
       }
+      await syncOrderEasyncData(order);
       return await buildPopulatedOrder(orderId);
     },
     options: {
@@ -236,6 +238,7 @@ export async function buildSimpleAPIServer(cg, db) {
         accountId: user.account,
         integrationData
       });
+      await syncOrderEasyncData(order);
       await order.save();
       return await buildPopulatedOrder(order._id);
     }
@@ -279,6 +282,7 @@ export async function buildSimpleAPIServer(cg, db) {
           );
         }
       }
+      await syncOrderEasyncData(order);
       await order.save();
       return await buildPopulatedOrder(orderId);
     },
@@ -347,6 +351,7 @@ export async function buildSimpleAPIServer(cg, db) {
           }
         }
       });
+      await syncOrderEasyncData(order);
       await order.save();
       return await buildPopulatedOrder(orderId);
     },
@@ -398,6 +403,7 @@ export async function buildSimpleAPIServer(cg, db) {
       }
 
       orderProduct.remove();
+      await syncOrderEasyncData(order);
       await order.save();
       return await buildPopulatedOrder(orderId);
     },
@@ -460,6 +466,7 @@ export async function buildSimpleAPIServer(cg, db) {
         }
       }
 
+      await syncOrderEasyncData(order);
       await order.save();
       return await buildPopulatedOrder(orderId);
     },

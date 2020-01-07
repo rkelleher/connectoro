@@ -3,11 +3,8 @@ import mongoose from "mongoose";
 import {
   EASYNC_INTEGRATION_TYPE,
   easyncOrderDataShape,
-  easyncOrderProductDataShape,
-  buildEasyncOrderData,
-  buildEasyncOrderProductData
+  easyncOrderProductDataShape
 } from "../integrations/easync/easync.js";
-import { Product } from "./product.model.js";
 
 const OrderProductSchema = new mongoose.Schema({
   productId: mongoose.Schema.Types.ObjectId,
@@ -81,34 +78,6 @@ const OrderSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   }
-});
-
-// TODO check that easync is an active integration?
-// TODO what's a safer appoach to keeping this data in sync?
-OrderSchema.pre("save", async function() {
-  const order = this;
-  order["integrationData"][EASYNC_INTEGRATION_TYPE] = buildEasyncOrderData(
-    order
-  );
-  order.orderProducts.forEach(async orderProduct => {
-    const product = await Product.findById(orderProduct.productId);
-    const { externalId } = buildEasyncOrderProductData(
-      order,
-      product,
-      orderProduct
-    );
-    await Order.updateOne(
-      {
-        "_id": order._id,
-        "orderProducts._id": orderProduct._id
-      },
-      {
-        "$set": {
-          "orderProducts.$.integrationData.EASYNC.externalId": externalId
-        }
-      }
-    );
-  });
 });
 
 export const Order = mongoose.model("Order", OrderSchema);

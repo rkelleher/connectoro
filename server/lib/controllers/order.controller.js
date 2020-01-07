@@ -1,6 +1,12 @@
 import _ from "lodash";
 import { Order } from "../models/order.model.js";
 import mongoose from "mongoose";
+import {
+  buildEasyncOrderData,
+  buildEasyncOrderProductData,
+  EASYNC_INTEGRATION_TYPE
+} from "../integrations/easync/easync.js";
+import { Product } from "../models/product.model.js";
 
 const orderProductJoinProductLookup = {
   from: "products",
@@ -23,10 +29,11 @@ export async function createOrders(docs) {
   await Order.create(docs);
 }
 
-// rather than match array indexes later
 function moveProductDataIntoOrderProducts(order) {
-  order.orderProducts.forEach((orderProduct, index) => {
-    orderProduct.product = order.products[index];
+  order.orderProducts.forEach(orderProduct => {
+    orderProduct.product = _.find(order.products, product =>
+      product._id.equals(orderProduct.productId)
+    );
   });
   delete order.products;
 }
@@ -61,4 +68,30 @@ export async function buildPopulatedOrder(orderId) {
   );
   moveProductDataIntoOrderProducts(order);
   return order;
+}
+
+// TODO need a better approach
+export async function syncOrderEasyncData(order) {
+  order["integrationData"][EASYNC_INTEGRATION_TYPE] = buildEasyncOrderData(
+    order
+  );
+  order.orderProducts.forEach(async orderProduct => {
+    const product = await Product.findById(orderProduct.productId);
+    const { externalId } = buildEasyncOrderProductData(
+      order,
+      product,
+      orderProduct
+    );
+    await Order.updateOne(
+      {
+        "_id": order._id,
+        "orderProducts._id": orderProduct._id
+      },
+      {
+        "$set": {
+          "orderProducts.$.integrationData.EASYNC.externalId": externalId
+        }
+      }
+    );
+  });
 }
