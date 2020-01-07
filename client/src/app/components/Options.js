@@ -6,6 +6,7 @@ import { Option } from "./Option";
 import { Button } from "@material-ui/core";
 
 export function Options({
+    isInline,
     data,
     saveAction,
     saveActionParam,
@@ -53,10 +54,11 @@ export function Options({
                                     key={key}
                                     style={{
                                         margin: 10,
-                                        display: "block"
+                                        display: isInline? "inline-block" : "block"
                                     }}
                                 >
                                     <Option
+                                        isInline={isInline}
                                         optionKey={key}
                                         form={form}
                                         label={key}

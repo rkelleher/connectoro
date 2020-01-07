@@ -9,7 +9,14 @@ function getSelectionCriteriaArrayChoices(key) {
     }
 }
 
-export default ({ data, isSaving, saveAction, saveActionParam, saveActionParam2 }) => {
+export default ({
+    data,
+    isSaving,
+    saveAction,
+    saveActionParam,
+    saveActionParam2,
+    isInline
+}) => {
     const selectionCriteria = data.selectionCriteria;
     return (
         <div>
@@ -18,6 +25,7 @@ export default ({ data, isSaving, saveAction, saveActionParam, saveActionParam2 
                     <h4>Selection Criteria</h4>
                     <div>
                         <Options
+                            isInline={isInline}
                             data={selectionCriteria}
                             saveAction={saveAction}
                             saveActionParam={saveActionParam}

@@ -3,6 +3,7 @@ import { TextField, FormControlLabel, Switch } from "@material-ui/core";
 import { FuseChipSelect } from "@fuse";
 
 export function Option({
+    isInline,
     optionKey,
     label,
     choices,
@@ -13,6 +14,9 @@ export function Option({
     if (choices === "str") {
         return (
             <TextField
+                style={{
+                    maxWidth: isInline ? 100 : 300
+                }}
                 label={label}
                 id={optionKey}
                 name={optionKey}
@@ -38,6 +42,9 @@ export function Option({
     } else if (choices === "int") {
         return (
             <TextField
+                style={{
+                    maxWidth: isInline ? 100 : 300
+                }}
                 id={optionKey}
                 name={optionKey}
                 label={label}
@@ -51,7 +58,7 @@ export function Option({
         );
     } else if (choices.map) {
         return (
-            <div style={{minWidth: 300}}>
+            <div style={{ minWidth: 150 }}>
                 <FuseChipSelect
                     // className="w-full my-16"
                     value={

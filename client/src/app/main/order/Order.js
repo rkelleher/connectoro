@@ -8,7 +8,8 @@ import {
     Tabs,
     Typography,
     Button,
-    TextField
+    TextField,
+    Divider
 } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import RefreshIcon from "@material-ui/icons/Refresh";
@@ -229,7 +230,14 @@ const OrderProductRow = ({ order, orderProduct }) => {
                 </ProductLink>
             </td>
             <td>
+                <div>{`Product Title: ${orderProduct.product.title}`}</div>
+                <br />
+                <div>
+                    {`ASIN: ${orderProduct.integrationData.EASYNC.externalId}`}
+                </div>
+                <br />
                 <EasyncProductOptions
+                    isInline
                     data={orderProduct["integrationData"]["EASYNC"]}
                     isSaving={isSavingEasync}
                     saveAction={
@@ -262,6 +270,12 @@ const OrderProducts = ({ order }) => {
     return (
         orderProducts && (
             <div className="pb-48">
+                <div className="pb-16 flex items-center">
+                    <Typography className="h2" color="textSecondary">
+                        Order Products
+                    </Typography>
+                </div>
+
                 <AddProductForm order={order} />
 
                 <div className="table-responsive">
@@ -296,7 +310,7 @@ const OrderCustomer = ({ order }) => {
         <div className="pb-48">
             <div className="pb-16 flex items-center">
                 <Typography className="h2" color="textSecondary">
-                    Customer
+                    Customer Details
                 </Typography>
             </div>
             <Options
@@ -319,7 +333,12 @@ const OrderOptions = ({ order }) => {
                 </Typography>
             </div>
             <Options
-                data={order["integrationData"]["EASYNC"]}
+                data={_.pick(order["integrationData"]["EASYNC"], [
+                    "isGift",
+                    "isFBE",
+                    "maxOrderPrice",
+                    "clientNotes"
+                ])}
                 saveAction={Actions.saveOrderEasyncOptions}
                 saveActionParam={order._id}
                 isSaving={isSaving}
@@ -327,6 +346,47 @@ const OrderOptions = ({ order }) => {
         </div>
     );
 };
+
+function OrderEasyncDetails({ order }) {
+    const { retailerCode, countryCode } = _.get(order, [
+        "integrationData",
+        "EASYNC"
+    ]);
+    return (
+        <div className="pb-48">
+            <div className="pb-16 flex items-center">
+                <Typography className="h2" color="textSecondary">
+                    Easync Details
+                </Typography>
+            </div>
+            <div>{`Site: ${retailerCode}`}</div>
+            <div>{`Country: ${countryCode}`}</div>
+        </div>
+    );
+}
+
+function GeneralTab({ order }) {
+    return (
+        <>
+            <table>
+                <tbody>
+                    <tr>
+                        <td>
+                            <OrderCustomer order={order} />
+                        </td>
+                        <td style={{ verticalAlign: "top" }}>
+                            <OrderOptions order={order} />
+                            <OrderEasyncDetails order={order} />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <Divider />
+            <br />
+            <OrderProducts order={order} />
+        </>
+    );
+}
 
 function Order(props) {
     const dispatch = useDispatch();
@@ -366,13 +426,7 @@ function Order(props) {
             content={
                 order && (
                     <div className="p-16 sm:p-24 max-w-2xl w-full">
-                        {tabValue === 0 && (
-                            <>
-                                <OrderOptions order={order} />
-                                <OrderCustomer order={order} />
-                                <OrderProducts order={order} />
-                            </>
-                        )}
+                        {tabValue === 0 && <GeneralTab order={order} />}
                         {tabValue === 1 && <OrderData order={order} />}
                     </div>
                 )
