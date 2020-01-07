@@ -45,10 +45,6 @@ export const easyncOrderDataShape = {
   maxOrderPrice: {
     type: Number,
     default: 0
-  },
-  clientNotes: {
-    type: String,
-    default: ""
   }
 };
 

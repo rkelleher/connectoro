@@ -336,8 +336,7 @@ const OrderOptions = ({ order }) => {
                 data={_.pick(order["integrationData"]["EASYNC"], [
                     "isGift",
                     "isFBE",
-                    "maxOrderPrice",
-                    "clientNotes"
+                    "maxOrderPrice"
                 ])}
                 saveAction={Actions.saveOrderEasyncOptions}
                 saveActionParam={order._id}
