@@ -12,7 +12,8 @@ export function Options({
     saveActionParam,
     saveActionParam2,
     isSaving,
-    getArrayChoices
+    getArrayChoices,
+    stringOptions
 }) {
     const dispatch = useDispatch();
     const { form, handleChange, setForm, setInForm } = useForm(null);
@@ -54,7 +55,9 @@ export function Options({
                                     key={key}
                                     style={{
                                         margin: 10,
-                                        display: isInline? "inline-block" : "block"
+                                        display: isInline
+                                            ? "inline-block"
+                                            : "block"
                                     }}
                                 >
                                     <Option
@@ -66,7 +69,9 @@ export function Options({
                                         handleChange={handleChange}
                                         choices={
                                             {
-                                                "string": "str",
+                                                "string": stringOptions && stringOptions[key]
+                                                    ? stringOptions[key]
+                                                    : "str",
                                                 "boolean": "bool",
                                                 "number": "int",
                                                 "object":

@@ -21,6 +21,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Options } from "app/components/Options";
 import { InlineOptions } from "app/components/InlineOptions";
 import EasyncProductOptions from "../integrations/easync/EasyncProductOptions";
+import EasyncOrderOptions from "../integrations/easync/EasyncOrderOptions";
 
 const OrderHeader = ({ order }) => {
     const dispatch = useDispatch();
@@ -332,12 +333,14 @@ const OrderOptions = ({ order }) => {
                     Easync Options
                 </Typography>
             </div>
-            <Options
-                data={_.pick(order["integrationData"]["EASYNC"], [
+            <EasyncOrderOptions
+                optionSource={order}
+                optionKeys={[
+                    "shippingMethod",
                     "isGift",
                     "isFBE",
                     "maxOrderPrice"
-                ])}
+                ]}
                 saveAction={Actions.saveOrderEasyncOptions}
                 saveActionParam={order._id}
                 isSaving={isSaving}

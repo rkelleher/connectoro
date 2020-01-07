@@ -30,6 +30,10 @@ export const easyncOrderDataShape = {
     type: String,
     default: ""
   },
+  shippingMethod: {
+    type: String,
+    default: ""
+  },
   countryCode: {
     type: String,
     default: ""

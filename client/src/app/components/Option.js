@@ -1,5 +1,10 @@
 import React from "react";
-import { TextField, FormControlLabel, Switch } from "@material-ui/core";
+import {
+    TextField,
+    FormControlLabel,
+    Switch,
+    MenuItem
+} from "@material-ui/core";
 import { FuseChipSelect } from "@fuse";
 
 export function Option({
@@ -57,36 +62,58 @@ export function Option({
             />
         );
     } else if (choices.map) {
-        return (
-            <div style={{ minWidth: 150 }}>
-                <FuseChipSelect
-                    // className="w-full my-16"
-                    value={
-                        form[optionKey] &&
-                        form[optionKey].map(x => ({ value: x, label: x }))
-                    }
-                    onChange={chosen =>
-                        setInForm(
-                            optionKey,
-                            chosen.map(({ value }) => value)
-                        )
-                    }
-                    placeholder={`Select ${label}`}
-                    textFieldProps={{
-                        label,
-                        InputLabelProps: {
-                            shrink: true
-                        },
-                        variant: "standard"
-                    }}
-                    options={choices.map(choice => ({
-                        value: choice,
-                        label: choice
-                    }))}
-                    isMulti
-                />
-            </div>
-        );
+        // check if we can select multiple options (result should be an array)
+        if (form[optionKey].map) {
+            return (
+                <div style={{ minWidth: 150 }}>
+                    <FuseChipSelect
+                        // className="w-full my-16"
+                        value={form[optionKey].map(x => ({
+                            value: x,
+                            label: x
+                        }))}
+                        onChange={chosen =>
+                            setInForm(
+                                optionKey,
+                                chosen.map(({ value }) => value)
+                            )
+                        }
+                        placeholder={`Select ${label}`}
+                        textFieldProps={{
+                            label,
+                            InputLabelProps: {
+                                shrink: true
+                            },
+                            variant: "standard"
+                        }}
+                        options={choices.map(choice => ({
+                            value: choice,
+                            label: choice
+                        }))}
+                        isMulti
+                    />
+                </div>
+            );
+        } else {
+            return (
+                <div style={{ minWidth: 150 }}>
+                    <TextField
+                        select
+                        id={optionKey}
+                        name={optionKey}
+                        label={label}
+                        value={form[optionKey]}
+                        onChange={handleChange}
+                    >
+                        {choices.map(choice => (
+                            <MenuItem key={choice} value={choice}>
+                                {choice}
+                            </MenuItem>
+                        ))}
+                    </TextField>
+                </div>
+            );
+        }
     }
     return (
         <p>
