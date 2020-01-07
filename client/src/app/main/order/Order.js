@@ -3,12 +3,16 @@ import React, { useEffect, useState } from "react";
 import JSONPretty from "react-json-pretty";
 import {
     Icon,
+    IconButton,
     Tab,
     Tabs,
     Typography,
     Button,
     TextField
 } from "@material-ui/core";
+import Autocomplete from "@material-ui/lab/Autocomplete";
+import RefreshIcon from "@material-ui/icons/Refresh";
+import { makeStyles } from "@material-ui/core/styles";
 import { FuseAnimate, FusePageCarded } from "@fuse";
 import { Link } from "react-router-dom";
 import * as Actions from "app/store/actions";
@@ -116,25 +120,69 @@ const ProductActionButton = props => {
     );
 };
 
+const useProductFormStyles = makeStyles({
+    option: {
+        fontSize: 15,
+        "& > span": {
+            marginRight: 10,
+            fontSize: 18
+        }
+    }
+});
+
 const AddProductForm = ({ order }) => {
-    const orderId = order._id;
     const dispatch = useDispatch();
+    const classes = useProductFormStyles();
+    const products = useSelector(({ products }) =>
+        products.data.map(({ externalIds, title, _id }) => ({
+            productId: _id,
+            SKU: externalIds["SKU"],
+            title
+        }))
+    );
+    const orderId = order._id;
     const isAddingProduct = useSelector(({ order }) => order.isAddingProduct);
-    const [productId, setProductId] = useState("");
+    const [product, setProduct] = useState("");
+    const onRefreshBtnClick = () => dispatch(Actions.getProducts());
     return (
-        <div>
-            <TextField
-                label="Product ID"
-                value={productId}
-                onChange={e => setProductId(e.target.value)}
-                variant="outlined"
+        <div style={{ display: "flex" }}>
+            <IconButton onClick={onRefreshBtnClick}>
+                <RefreshIcon fontSize="inherit" />
+            </IconButton>
+            <Autocomplete
+                style={{ width: 300 }}
+                options={products}
+                classes={{
+                    option: classes.option
+                }}
+                value={product}
+                onChange={(e, value) => setProduct(value)}
+                autoHighlight
+                getOptionLabel={option => option && option.SKU}
+                renderOption={option => (
+                    <>{`SKU${option.SKU}: ${option.title}`}</>
+                )}
+                renderInput={params => (
+                    <TextField
+                        {...params}
+                        label="Choose a product"
+                        variant="outlined"
+                        fullWidth
+                        inputProps={{
+                            ...params.inputProps,
+                            autoComplete: "disabled"
+                        }}
+                    />
+                )}
             />
             <Button
-                style={{margin: 10}}
+                style={{ margin: 10 }}
                 variant="contained"
                 disabled={isAddingProduct}
                 onClick={() =>
-                    dispatch(Actions.addProductToOrder(orderId, productId))
+                    dispatch(
+                        Actions.addProductToOrder(orderId, product.productId)
+                    )
                 }
             >
                 {isAddingProduct ? "..." : "add product to order"}
@@ -164,7 +212,10 @@ const OrderProductRow = ({ order, orderProduct }) => {
                     data={{
                         quantity: orderProduct.quantity
                     }}
-                    actionParam={{orderId: order._id, orderProductId: orderProduct._id}}
+                    actionParam={{
+                        orderId: order._id,
+                        orderProductId: orderProduct._id
+                    }}
                     saveAction={Actions.saveOrderProductQuantity}
                     editAction={Actions.editOrderProductQuantity}
                     cancelEditAction={Actions.cancelEditOrderProductQuantity}
@@ -181,7 +232,9 @@ const OrderProductRow = ({ order, orderProduct }) => {
                 <EasyncProductOptions
                     data={orderProduct["integrationData"]["EASYNC"]}
                     isSaving={isSavingEasync}
-                    saveAction={Actions.saveOrderProductEasyncSelectionCriteriaOptions}
+                    saveAction={
+                        Actions.saveOrderProductEasyncSelectionCriteriaOptions
+                    }
                     saveActionParam={order._id}
                     saveActionParam2={orderProduct._id}
                 />
