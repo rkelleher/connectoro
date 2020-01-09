@@ -15,9 +15,11 @@ const shippingMethodOptions = [
 
 export default props => (
     <Options
-        id={props.optionSource._id}
+        id={props.optionSource ? props.optionSource._id : ""}
         data={_.pick(
-            _.get(props.optionSource, easyncPath),
+            props.dataOverride
+                ? props.dataOverride
+                : _.get(props.optionSource, easyncPath),
             props.optionKeys || []
         )}
         stringOptions={{ shippingMethod: shippingMethodOptions }}
