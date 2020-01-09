@@ -26,7 +26,9 @@ A new browser window should open and you'll see a security warning. This is beca
 Local dependencies:
   - Google Cloud SDK (https://cloud.google.com/sdk/)
 
-Run `gcloud auth login` then `./deploy.sh`
+In `/server/secrets`, duplicate the `secret.prod.env.template.json` file and name it `secret.prod.env.json`. You'll need to insert any values labeled `<INSERT HERE>`.
+
+Run `gcloud auth login` then `./deploy.sh`.
 
 ## Running server tests
 
