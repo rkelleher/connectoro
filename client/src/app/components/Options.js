@@ -1,11 +1,12 @@
 import isEqual from "lodash/isEqual";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useForm } from "@fuse/hooks";
 import { Option } from "./Option";
 import { Button } from "@material-ui/core";
 
 export function Options({
+    id,
     isInline,
     data,
     saveAction,
@@ -17,12 +18,14 @@ export function Options({
 }) {
     const dispatch = useDispatch();
     const { form, handleChange, setForm, setInForm } = useForm(null);
+    const [formId, setFormId] = useState(null);
 
     useEffect(() => {
-        if ((data && !form) || data._id !== form._id) {
+        if ((data && !form) || id !== formId) {
             setForm(data);
+            setFormId(id);
         }
-    }, [data, form, setForm]);
+    }, [data, form, setForm, id, formId, setFormId]);
 
     const canBeSubmitted = () => {
         if (isSaving || !form || Object.keys(form).length === 0) {
@@ -45,7 +48,8 @@ export function Options({
     };
 
     return (
-        form && (
+        form &&
+        formId === id && (
             <div style={{ maxWidth: 500 }}>
                 <div>
                     {Object.keys(data) &&
@@ -69,9 +73,11 @@ export function Options({
                                         handleChange={handleChange}
                                         choices={
                                             {
-                                                "string": stringOptions && stringOptions[key]
-                                                    ? stringOptions[key]
-                                                    : "str",
+                                                "string":
+                                                    stringOptions &&
+                                                    stringOptions[key]
+                                                        ? stringOptions[key]
+                                                        : "str",
                                                 "boolean": "bool",
                                                 "number": "int",
                                                 "object":

@@ -14,7 +14,7 @@ import {
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import { makeStyles } from "@material-ui/core/styles";
-import { FuseAnimate, FusePageCarded } from "@fuse";
+import { FuseAnimate, FusePageCarded, FuseLoading } from "@fuse";
 import { Link } from "react-router-dom";
 import * as Actions from "app/store/actions";
 import { useDispatch, useSelector } from "react-redux";
@@ -136,9 +136,9 @@ const AddProductForm = ({ order }) => {
     const dispatch = useDispatch();
     const classes = useProductFormStyles();
     const products = useSelector(({ products }) =>
-        products.data.map(({ externalIds, title, _id }) => ({
+        products.data.map(({ SKU, title, _id }) => ({
             productId: _id,
-            SKU: externalIds["SKU"],
+            SKU,
             title
         }))
     );
@@ -227,7 +227,7 @@ const OrderProductRow = ({ order, orderProduct }) => {
             </td>
             <td>
                 <ProductLink productId={orderProduct.productId}>
-                    {_.get(orderProduct, ["product", "externalIds", "SKU"])}
+                    {_.get(orderProduct, ["product", "SKU"])}
                 </ProductLink>
             </td>
             <td>
@@ -239,6 +239,7 @@ const OrderProductRow = ({ order, orderProduct }) => {
                 <br />
                 <EasyncProductOptions
                     isInline
+                    id={orderProduct._id}
                     data={orderProduct["integrationData"]["EASYNC"]}
                     isSaving={isSavingEasync}
                     saveAction={
@@ -315,6 +316,7 @@ const OrderCustomer = ({ order }) => {
                 </Typography>
             </div>
             <Options
+                id={order._id}
                 data={_.omit(order.shippingAddress, ["_id"])}
                 isSaving={isSaving}
                 saveAction={Actions.saveOrderCustomer}
@@ -393,6 +395,7 @@ function GeneralTab({ order }) {
 function Order(props) {
     const dispatch = useDispatch();
     const order = useSelector(({ order }) => order.activeOrder);
+    const isFetching = useSelector(({ order }) => order.isFetching);
 
     const [tabValue, setTabValue] = useState(0);
 
@@ -404,7 +407,9 @@ function Order(props) {
         setTabValue(tabValue);
     }
 
-    return (
+    return isFetching ? (
+        <FuseLoading />
+    ) : (
         <FusePageCarded
             classes={{
                 content: "flex",

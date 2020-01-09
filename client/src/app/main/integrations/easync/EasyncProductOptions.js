@@ -10,6 +10,7 @@ function getSelectionCriteriaArrayChoices(key) {
 }
 
 export default ({
+    id,
     data,
     isSaving,
     saveAction,
@@ -25,6 +26,7 @@ export default ({
                     <h4>Selection Criteria</h4>
                     <div>
                         <Options
+                            id={id}
                             isInline={isInline}
                             data={selectionCriteria}
                             saveAction={saveAction}

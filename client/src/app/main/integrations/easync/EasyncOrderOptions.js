@@ -15,6 +15,7 @@ const shippingMethodOptions = [
 
 export default props => (
     <Options
+        id={props.optionSource._id}
         data={_.pick(
             _.get(props.optionSource, easyncPath),
             props.optionKeys || []

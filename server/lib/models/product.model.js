@@ -10,6 +10,7 @@ const ProductShape = {
     type: Date,
     default: Date.now
   },
+  SKU: "",
   description: "",
   accountId: {
     type: mongoose.Schema.Types.ObjectId,

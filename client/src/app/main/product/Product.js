@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import JSONPretty from "react-json-pretty";
 import { Icon, Tab, Tabs, Typography } from "@material-ui/core";
-import { FuseAnimate, FusePageCarded } from "@fuse";
+import { FuseAnimate, FusePageCarded, FuseLoading } from "@fuse";
 import { Link } from "react-router-dom";
 import * as Actions from "app/store/actions";
 import { useDispatch, useSelector } from "react-redux";
@@ -80,7 +80,11 @@ const ProductDetails = ({ product }) => {
         <div>
             <div className="pb-48">
                 <Options
-                    data={{ title: product.title }}
+                    id={product._id}
+                    data={{
+                        SKU: product.SKU || "",
+                        title: product.title || ""
+                    }}
                     isSaving={isSavingDetails}
                     saveAction={Actions.saveProductDetails}
                     saveActionParam={product._id}
@@ -93,6 +97,7 @@ const ProductDetails = ({ product }) => {
 function Product(props) {
     const dispatch = useDispatch();
     const product = useSelector(({ product }) => product.activeProduct);
+    const isFetching = useSelector(({ product }) => product.isFetching)
 
     const [tabValue, setTabValue] = useState(0);
 
@@ -104,7 +109,9 @@ function Product(props) {
         setTabValue(tabValue);
     }
 
-    return (
+    return isFetching ? (
+        <FuseLoading />
+    ) : (
         <FusePageCarded
             classes={{
                 content: "flex",

@@ -15,7 +15,6 @@ export const ProductIdentifierTable = ({ product }) => {
             field: "idType",
             // TODO get from server
             lookup: {
-                "SKU": "SKU",
                 "amazon": "Amazon US ASIN",
                 "amazon_uk": "Amazon UK ASIN",
                 "amazon_de": "Amazon DE ASIN",

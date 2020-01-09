@@ -637,6 +637,9 @@ export async function buildSimpleAPIServer(cg, db) {
         if (changeKey === "title") {
           product.title = changes.title;
         }
+        if (changeKey === "SKU") {
+          product.SKU = changes.SKU;
+        }
       }
       await product.save();
       return product.toObject();
