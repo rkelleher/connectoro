@@ -1,6 +1,6 @@
 # connectoro
 
-E-commerce management system on steroids!
+E-commerce management system with integrated machine learning
 
 ## Setting up a developer environment
 
