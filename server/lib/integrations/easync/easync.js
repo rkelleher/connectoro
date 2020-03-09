@@ -4,7 +4,7 @@ import countryDetails from "../../countryDetails.js";
 // https://developer.easync.io/?javascript
 
 export const EASYNC_INTEGRATION_TYPE = "EASYNC";
-export const EASYNC_TOKEN_CREDENTIAL_KEY = process.ENV.EASYNC_API_TOKEN;
+export const EASYNC_TOKEN_CREDENTIAL_KEY = "API_TOKEN";
 
 export const easyncOrderProductDataShape = {
   externalId: String,
