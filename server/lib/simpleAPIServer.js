@@ -48,7 +48,7 @@ import {
   EASYNC_INTEGRATION_TYPE,
   EASYNC_TOKEN_CREDENTIAL_KEY
 } from "./integrations/easync/easync.js";
-import buildEasyncOrderPayload from "./integrations/easync/buildEasyncOrderPayload.js";
+import { buildEasyncOrderPayload, buildEasyncOrderReq } from "./integrations/easync/buildEasyncOrderPayload.js";
 import {
   createProduct,
   getProductsForAccount
@@ -157,13 +157,17 @@ export async function buildSimpleAPIServer(cg, db) {
         throw Boom.badRequest("No Easync api token!");
       }
 
-      const easyncReq = buildEasyncOrderPayload({ order }, token);
+      const easyncPayload = await buildEasyncOrderPayload({ order });
+
+      const easyncReq = await buildEasyncOrderReq(easyncPayload, token);
 
       const { data } = await axios({
         method: "POST",
         url: easyncReq.uri,
         headers: easyncReq.headers,
         data: easyncReq.payload,
+      }).catch(err => {
+        console.error(err);
       });
 
       return { data };

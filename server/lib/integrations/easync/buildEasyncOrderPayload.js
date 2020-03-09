@@ -73,73 +73,70 @@ const buildAddressObj = (address, countryCode) => ({
   "phone_number": address.phoneNumber
 });
 
-export default function buildEasyncOrderPayload({
-  order,
-  idempotencyKey,
-  webhooks
-}) {
-  const { orderProducts, shippingAddress } = order;
 
-  const {
-    retailerCode,
-    countryCode,
-    shippingMethod,
-    isGift,
-    maxOrderPrice,
-    clientNotes,
-    isFBE
-  } = getEasyncOrderData(order);
+export async function buildEasyncOrderPayload ({ order, idempotencyKey, webhooks }) {
+    const { orderProducts, shippingAddress } = order;
 
-  let payload = {};
+    const {
+      retailerCode,
+      countryCode,
+      shippingMethod,
+      isGift,
+      maxOrderPrice,
+      clientNotes,
+      isFBE
+    } = getEasyncOrderData(order);
 
-  payload["idempotency_key"] = idempotencyKey;
+    let payload = {};
 
-  payload["retailer"] = retailerCode;
+    payload["idempotency_key"] = idempotencyKey;
 
-  payload["products"] = _.map(orderProducts, orderProduct =>
-    buildOrderProductObj(orderProduct, retailerCode)
-  );
+    payload["retailer"] = retailerCode;
 
-  payload["shipping_address"] = buildAddressObj(shippingAddress, countryCode);
+    payload["products"] = _.map(orderProducts, orderProduct =>
+        buildOrderProductObj(orderProduct, retailerCode)
+    );
 
-  if (webhooks !== undefined) {
-    payload["webhooks"] = buildWebhooksObj(webhooks);
+    payload["shipping_address"] = buildAddressObj(shippingAddress, countryCode);
+
+    if (webhooks !== undefined) {
+      payload["webhooks"] = buildWebhooksObj(webhooks);
+    }
+
+    if (shippingMethod !== undefined) {
+      payload["shipping_method"] = shippingMethod;
+    }
+
+    if (isGift !== undefined) {
+      payload["is_gift"] = isGift;
+    }
+
+    if (maxOrderPrice !== undefined) {
+      payload["max_price"] = maxOrderPrice;
+    }
+
+    if (clientNotes !== undefined) {
+      payload["client_notes"] = clientNotes;
+    }
+
+    if (isFBE !== undefined) {
+      payload["fbe"] = isFBE;
+    }
+
+    return payload;
   }
 
-  if (shippingMethod !== undefined) {
-    payload["shipping_method"] = shippingMethod;
+export async function buildEasyncOrderReq (payload, token) {
+    const uri = "https://core.easync.io/api/v1/orders";
+
+    const headers = {
+      Authorization: "Basic " + new Buffer(token + ":").toString("base64"),
+      "Content-Type": "application/json"
+    };
+
+    return {
+      uri,
+      headers,
+      payload
+    };
   }
-
-  if (isGift !== undefined) {
-    payload["is_gift"] = isGift;
-  }
-
-  if (maxOrderPrice !== undefined) {
-    payload["max_price"] = maxOrderPrice;
-  }
-
-  if (clientNotes !== undefined) {
-    payload["client_notes"] = clientNotes;
-  }
-
-  if (isFBE !== undefined) {
-    payload["fbe"] = isFBE;
-  }
-
-  return payload;
-}
-
-export default function buildEasyncOrderReq(payload, token) {
-  const uri = "https://core.easync.io/api/v1/orders";
-
-  const headers = {
-    Authorization: "Basic " + new Buffer(token + ":").toString("base64"),
-    "Content-Type": "application/json"
-  };
-
-  return {
-    uri,
-    headers,
-    payload
-  };
-}
