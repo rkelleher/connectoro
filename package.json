@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/rkelleher/connectoro#readme",
   "dependencies": {
+    "axios": "^0.19.2",
     "ejs": "^3.0.1"
   }
 }

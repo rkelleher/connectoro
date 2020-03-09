@@ -75,7 +75,7 @@ export async function syncOrderEasyncData(order) {
   order["integrationData"][EASYNC_INTEGRATION_TYPE] = buildEasyncOrderData(
     order
   );
-  order.orderProducts.forEach(async orderProduct => {
+  const arrayPromises = order.orderProducts.map(async orderProduct => {
     const product = await Product.findById(orderProduct.productId);
     const { externalId } = buildEasyncOrderProductData(
       order,
@@ -94,4 +94,6 @@ export async function syncOrderEasyncData(order) {
       }
     );
   });
+
+  await Promise.all(arrayPromises);
 }

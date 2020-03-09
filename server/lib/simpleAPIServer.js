@@ -1,4 +1,5 @@
 import _ from "lodash";
+import axios from 'axios';
 
 const get = _.get;
 
@@ -125,6 +126,47 @@ export async function buildSimpleAPIServer(cg, db) {
           orderId: Joi.string().required()
         })
       }
+    }
+  });
+
+  // test send order to easync
+  server.route({
+    method: "POST",
+    path: "/api/easync/order-test",
+    handler: async (request, h) => {
+      const { orderId } = request.payload;
+      const userId = request.headers.authenticatedUserId;
+      const user = await getUser(userId);
+      if (user.role !== "admin") {
+        return Boom.unauthorized();
+      }
+      const order = await getOrder(orderId);
+      if (!order) {
+        return Boom.badRequest("No order found");
+      }
+      const account = await getAccount(user.account);
+      const integration = await getIntegrationByType(
+          account,
+          EASYNC_INTEGRATION_TYPE
+      );
+      const token = getIntegrationCredential(
+          integration,
+          EASYNC_TOKEN_CREDENTIAL_KEY
+      );
+      if (!token) {
+        throw Boom.badRequest("No Easync api token!");
+      }
+
+      const easyncReq = buildEasyncOrderPayload({ order }, token);
+
+      const { data } = await axios({
+        method: "POST",
+        url: easyncReq.uri,
+        headers: easyncReq.headers,
+        data: easyncReq.payload,
+      });
+
+      return { data };
     }
   });
 

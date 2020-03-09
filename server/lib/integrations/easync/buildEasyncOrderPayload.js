@@ -129,8 +129,8 @@ export default function buildEasyncOrderPayload({
   return payload;
 }
 
-function buildEasyncOrderReq(payload, token) {
-  const uri = "http://core.easync.io/api/v1/orders";
+export default function buildEasyncOrderReq(payload, token) {
+  const uri = "https://core.easync.io/api/v1/orders";
 
   const headers = {
     Authorization: "Basic " + new Buffer(token + ":").toString("base64"),
