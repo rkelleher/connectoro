@@ -25,6 +25,40 @@ export async function getOrderByInputId(inputId) {
   return order;
 }
 
+export async function getAllOrdersByStatus(status) {
+  return Order.find({
+    easyncRequestStatus: status
+  })
+}
+
+export async function updateEasyncRequestId(orderId, requestId) {
+  const order = await Order.findById(orderId);
+
+  await Order.updateOne(
+      { "_id": orderId,},
+      {
+        "$set": {
+          "easyncRequestId": requestId
+        }
+      }
+  );
+}
+
+export async function updateEasyncRequestResult(orderId, result) {
+  const order = await Order.findById(orderId);
+
+
+
+  await Order.updateOne(
+      { "_id": orderId,},
+      {
+        "$set": {
+          "easyncRequestId": result
+        }
+      }
+  );
+}
+
 export async function createOrders(docs) {
   await Order.create(docs);
 }

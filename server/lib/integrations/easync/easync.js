@@ -5,6 +5,13 @@ import countryDetails from "../../countryDetails.js";
 
 export const EASYNC_INTEGRATION_TYPE = "EASYNC";
 export const EASYNC_TOKEN_CREDENTIAL_KEY = "API_TOKEN";
+export const EASYNC_ORDER_TYPES = {
+    ERROR: "error",
+    SUCCESS: "order_response",
+};
+export const EASYNC_ORDER_CODES = {
+    IN_PROCESSING: "request_processing",
+};
 
 export const easyncOrderProductDataShape = {
   externalId: String,

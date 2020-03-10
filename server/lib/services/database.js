@@ -23,7 +23,7 @@ function buildURI(cg) {
     const params = cg('DB_PARAM_STR');
     return `mongodb+srv://${user}:${pass}@${host}/${name}${params}`;
   } else if (env === 'development') {
-    return `mongodb://localhost/${name}`;
+    return 'mongodb+srv://testserver:OQT9ZXW20jIszyaT@cluster0-nbzw1.gcp.mongodb.net/test1?retryWrites=true&w=majority';
   }
 }
 

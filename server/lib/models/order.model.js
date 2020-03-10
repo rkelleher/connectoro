@@ -65,6 +65,7 @@ const OrderSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     index: true
   },
+  easyncRequestId: String,
   orderProducts: [OrderProductSchema],
   orderStatus: String,
   shippingAddress: {

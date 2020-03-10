@@ -170,6 +170,10 @@ export async function buildSimpleAPIServer(cg, db) {
         console.error(err);
       });
 
+      const { request_id } = data;
+
+      await saveResultToOrder(request_id);
+
       return { data };
     }
   });
