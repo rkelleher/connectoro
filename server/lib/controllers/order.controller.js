@@ -6,7 +6,9 @@ import {
   buildEasyncOrderProductData,
   EASYNC_INTEGRATION_TYPE
 } from "../integrations/easync/easync.js";
+import { getStatusByRequestId } from "../integrations/easync/getEasyncOrdedStatus.js";
 import { Product } from "../models/product.model.js";
+import { EASYNC_ORDER_RESPONSE_CODES, EASYNC_ORDER_RESPONSE_TYPES } from "../integrations/easync/easync.js";
 
 const orderProductJoinProductLookup = {
   from: "products",
@@ -26,37 +28,79 @@ export async function getOrderByInputId(inputId) {
 }
 
 export async function getAllOrdersByStatus(status) {
-  return Order.find({
-    easyncRequestStatus: status
-  })
+  const orders = await Order.aggregate([
+    {
+      $match: {
+        "easyncOrderStatus.status": status
+      }
+    }
+  ]);
+
+  console.log(orders.length);
+
+  return orders;
 }
 
-export async function updateEasyncRequestId(orderId, requestId) {
-  const order = await Order.findById(orderId);
+export async function updateOrderById(orderId, { requestId = null, status = null, idempotencyKey = null }) {
+  // const order = await Order.findById(orderId);
 
-  await Order.updateOne(
-      { "_id": orderId,},
-      {
-        "$set": {
-          "easyncRequestId": requestId
+  if (!orderId) {
+    throw new Error("Order id not exist");
+  }
+
+  const easyncOrderStatus = {};
+
+  if (requestId)
+    easyncOrderStatus.requestId = requestId;
+
+  if (status)
+    easyncOrderStatus.status = status;
+
+  if (idempotencyKey) {
+    easyncOrderStatus.idempotencyKey = idempotencyKey;
+  }
+
+  if (Object.keys(easyncOrderStatus).length)
+    await Order.updateOne(
+        { _id: orderId },
+        {
+          $set: {
+            easyncOrderStatus,
+          }
         }
-      }
-  );
+    );
 }
 
-export async function updateEasyncRequestResult(orderId, result) {
-  const order = await Order.findById(orderId);
+export function awaitCheckAndUpdateOrder({ orderId, requestId, token }) {
+
+  if (!token || !orderId && !requestId) return null;
+
+  setTimeout(async () => {
+    const data = await getStatusByRequestId(requestId);
+
+    const { _type, code } = data;
+
+    if (_type === EASYNC_ORDER_RESPONSE_TYPES.SUCCESS) {
+      return await updateOrderById(orderId, {
+        requestId,
+        status: EASYNC_ORDER_RESPONSE_TYPES.SUCCESS,
+      })
+    }
+
+    if (_type === EASYNC_ORDER_RESPONSE_TYPES.ERROR && code !== EASYNC_ORDER_RESPONSE_CODES.IN_PROCESSING) {
+      return await updateOrderById(orderId, {
+        requestId,
+        status: EASYNC_ORDER_RESPONSE_CODES.IN_PROCESSING,
+      })
+    }
 
 
+    return await updateOrderById(orderId, {
+      requestId,
+      status: EASYNC_ORDER_RESPONSE_TYPES.ERROR,
+    });
 
-  await Order.updateOne(
-      { "_id": orderId,},
-      {
-        "$set": {
-          "easyncRequestId": result
-        }
-      }
-  );
+  }, 15000)
 }
 
 export async function createOrders(docs) {

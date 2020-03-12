@@ -35,6 +35,7 @@ import {
   getOrderByInputId,
   createOrders,
   getOrder,
+  awaitCheckAndUpdateOrder,
   buildPopulatedOrder,
   syncOrderEasyncData
 } from "./controllers/order.controller.js";
@@ -57,6 +58,7 @@ import { INTEGRATION_TYPES } from "./models/account.model.js";
 import { recursiveMongooseUpdate } from "./utils.js";
 import { Order } from "./models/order.model.js";
 import { Product } from "./models/product.model.js";
+import { updateOrderById } from "./controllers/order.controller.js";
 
 const ERR_NO_USER_WITH_EMAIL = "ERR_NO_USER_WITH_EMAIL";
 const ERR_EMAIL_TAKEN = "ERR_EMAIL_TAKEN";
@@ -172,7 +174,16 @@ export async function buildSimpleAPIServer(cg, db) {
 
       const { request_id } = data;
 
-      await saveResultToOrder(request_id);
+      await updateOrderById(orderId, {
+        requestId: request_id,
+        idempotencyKey: easyncPayload.idempotencyKey
+      });
+
+      awaitCheckAndUpdateOrder({
+        orderId,
+        token,
+        requestId: request_id
+      });
 
       return { data };
     }

@@ -24,7 +24,9 @@
     "lodash": "4.17.15",
     "mongoose": "5.7.12",
     "mongoose-type-email": "1.0.11",
-    "nconf": "0.10.0"
+    "nconf": "0.10.0",
+    "node-cron": "^2.0.3",
+    "uuid": "^7.0.2"
   },
   "devDependencies": {
     "cross-env": "^6.0.3",

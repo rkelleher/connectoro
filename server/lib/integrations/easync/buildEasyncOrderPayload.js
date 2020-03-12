@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { v4 as uuidV4 } from "uuid"
+import uuid from "uuid"
 import { getEasyncOrderData, getEasyncSelectionCriteria, getEasyncExternalId } from "./easync.js";
 
 const ExampleEasyncOrderReqObj = {
@@ -75,8 +75,10 @@ const buildAddressObj = (address, countryCode) => ({
 });
 
 
-export async function buildEasyncOrderPayload ({ order, idempotencyKey = uuidV4(), webhooks }) {
+export async function buildEasyncOrderPayload ({ order, idempotencyKey = uuid.v4(), webhooks }) {
     const { orderProducts, shippingAddress } = order;
+
+    console.log('idempotencyKey', idempotencyKey);
 
     const {
       retailerCode,
