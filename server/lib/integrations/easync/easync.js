@@ -81,7 +81,7 @@ const retailerCodes = {
     countryCodes: ["GB", "IE"]
   },
   "amazon_de": {
-    countryCodes: ["DE"]
+    countryCodes: ["DE", "AT", "BE", "NL", "LU"]
   },
   "amazon_fr": {
     countryCodes: ["FR"]
