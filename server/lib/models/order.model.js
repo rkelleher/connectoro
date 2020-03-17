@@ -66,8 +66,15 @@ const OrderSchema = new mongoose.Schema({
     index: true
   },
   easyncOrderStatus: {
-    requestId: String,
-    status: String,
+    requestId: {
+      type: String
+    },
+    status: {
+      type: String
+    },
+    idempotencyKey: {
+      type: String
+    },
   },
   orderProducts: [OrderProductSchema],
   orderStatus: String,

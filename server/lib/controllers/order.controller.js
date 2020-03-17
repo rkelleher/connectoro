@@ -28,13 +28,7 @@ export async function getOrderByInputId(inputId) {
 }
 
 export async function getAllOrdersByStatus(status) {
-  const orders = await Order.aggregate([
-    {
-      $match: {
-        "easyncOrderStatus.status": status
-      }
-    }
-  ]);
+  const orders = await Order.find({ "easyncOrderStatus.status": status });
 
   console.log(orders.length);
 
@@ -42,13 +36,17 @@ export async function getAllOrdersByStatus(status) {
 }
 
 export async function updateOrderById(orderId, { requestId = null, status = null, idempotencyKey = null }) {
-  // const order = await Order.findById(orderId);
-
   if (!orderId) {
     throw new Error("Order id not exist");
   }
 
-  const easyncOrderStatus = {};
+  const order = await Order.findById(orderId);
+
+  let easyncOrderStatus = {};
+
+  if (Object.keys(order.easyncOrderStatus).length) {
+    easyncOrderStatus = order.easyncOrderStatus.toObject();
+  }
 
   if (requestId)
     easyncOrderStatus.requestId = requestId;
@@ -56,19 +54,15 @@ export async function updateOrderById(orderId, { requestId = null, status = null
   if (status)
     easyncOrderStatus.status = status;
 
-  if (idempotencyKey) {
+  if (idempotencyKey)
     easyncOrderStatus.idempotencyKey = idempotencyKey;
-  }
 
-  if (Object.keys(easyncOrderStatus).length)
+  if (Object.keys(easyncOrderStatus).length) {
     await Order.updateOne(
         { _id: orderId },
-        {
-          $set: {
-            easyncOrderStatus,
-          }
-        }
+        { $set: { easyncOrderStatus }}
     );
+  }
 }
 
 export function awaitCheckAndUpdateOrder({ orderId, requestId, token }) {

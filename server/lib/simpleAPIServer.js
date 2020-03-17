@@ -49,6 +49,7 @@ import {
   EASYNC_INTEGRATION_TYPE,
   EASYNC_TOKEN_CREDENTIAL_KEY
 } from "./integrations/easync/easync.js";
+import { EASYNC_ORDER_RESPONSE_CODES } from "./integrations/easync/easync.js";
 import { buildEasyncOrderPayload, buildEasyncOrderReq } from "./integrations/easync/buildEasyncOrderPayload.js";
 import {
   createProduct,
@@ -176,7 +177,8 @@ export async function buildSimpleAPIServer(cg, db) {
 
       await updateOrderById(orderId, {
         requestId: request_id,
-        idempotencyKey: easyncPayload.idempotencyKey
+        status: EASYNC_ORDER_RESPONSE_CODES.IN_PROCESSING,
+        idempotencyKey: easyncPayload.idempotency_key
       });
 
       awaitCheckAndUpdateOrder({

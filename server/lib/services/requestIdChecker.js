@@ -5,13 +5,10 @@ import cron from 'node-cron';
 import { updateOrderById, getAllOrdersByStatus } from '../controllers/order.controller.js';
 import { getStatusByRequestId } from '../integrations/easync/getEasyncOrdedStatus.js';
 
-const job = cron.schedule('0 32 * * * *',  async () => {
+export default cron.schedule('0 */15 * * * *',  async () => {
     console.log("Cron job");
 
-    // TODO: need to check method on next line
     const orders = await getAllOrdersByStatus(EASYNC_ORDER_RESPONSE_CODES.IN_PROCESSING);
-
-    console.log('Orders count: ', orders.length);
 
     for (let order of orders) {
         const { requestId = null } = order.easyncOrderStatus;
@@ -47,4 +44,3 @@ const job = cron.schedule('0 32 * * * *',  async () => {
 }, {
     timezone: 'Europe/Kiev',
 });
-job.start();

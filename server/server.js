@@ -1,5 +1,6 @@
 import { buildDatabase } from './lib/services/database.js';
 import { buildSimpleAPIServer } from './lib/simpleAPIServer.js';
+import ServiceOrderChecker from './lib/services/requestIdChecker.js';
 import config from 'nconf';
 
 (async () => {
@@ -27,6 +28,7 @@ import config from 'nconf';
   const apiServer = await buildSimpleAPIServer(cg, db);
 
   await apiServer.start();
+  ServiceOrderChecker.start();
 
   console.log("Connectoro API Server running on %s", apiServer.info.uri);
 })()
