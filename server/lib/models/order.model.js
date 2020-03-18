@@ -72,6 +72,9 @@ const OrderSchema = new mongoose.Schema({
     status: {
       type: String
     },
+    message: {
+      type: String
+    },
     idempotencyKey: {
       type: String
     },

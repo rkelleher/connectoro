@@ -35,7 +35,7 @@ export async function getAllOrdersByStatus(status) {
   return orders;
 }
 
-export async function updateOrderById(orderId, { requestId = null, status = null, idempotencyKey = null }) {
+export async function updateOrderById(orderId, { requestId = null, status = null, message = null, idempotencyKey = null }) {
   if (!orderId) {
     throw new Error("Order id not exist");
   }
@@ -53,6 +53,9 @@ export async function updateOrderById(orderId, { requestId = null, status = null
 
   if (status)
     easyncOrderStatus.status = status;
+
+  if (message)
+    easyncOrderStatus.message = message;
 
   if (idempotencyKey)
     easyncOrderStatus.idempotencyKey = idempotencyKey;
@@ -72,12 +75,13 @@ export function awaitCheckAndUpdateOrder({ orderId, requestId, token }) {
   setTimeout(async () => {
     const data = await getStatusByRequestId(requestId);
 
-    const { _type, code } = data;
+    const { _type, code, message } = data;
 
     if (_type === EASYNC_ORDER_RESPONSE_TYPES.SUCCESS) {
       return await updateOrderById(orderId, {
         requestId,
         status: EASYNC_ORDER_RESPONSE_TYPES.SUCCESS,
+        message: "-"
       })
     }
 
@@ -85,6 +89,7 @@ export function awaitCheckAndUpdateOrder({ orderId, requestId, token }) {
       return await updateOrderById(orderId, {
         requestId,
         status: EASYNC_ORDER_RESPONSE_CODES.IN_PROCESSING,
+        message
       })
     }
 
@@ -92,6 +97,7 @@ export function awaitCheckAndUpdateOrder({ orderId, requestId, token }) {
     return await updateOrderById(orderId, {
       requestId,
       status: EASYNC_ORDER_RESPONSE_TYPES.ERROR,
+      message
     });
 
   }, 15000)
