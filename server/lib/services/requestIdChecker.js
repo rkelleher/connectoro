@@ -28,15 +28,17 @@ export default cron.schedule('0 */15 * * * *',  async () => {
 
         const data = await getStatusByRequestId(requestId, token);
 
-        const { _type, code } = data;
+        const { _type, code, message = '-' } = data;
 
         if (_type === EASYNC_ORDER_RESPONSE_TYPES.SUCCESS) {
             await updateOrderById(order._id, {
                 status: EASYNC_ORDER_RESPONSE_TYPES.SUCCESS,
+                message,
             })
         } else if (_type === EASYNC_ORDER_RESPONSE_TYPES.ERROR && code !== EASYNC_ORDER_RESPONSE_CODES.IN_PROCESSING) {
             await updateOrderById(order._id, {
                 status: EASYNC_ORDER_RESPONSE_TYPES.ERROR,
+                message
             })
         }
     }
