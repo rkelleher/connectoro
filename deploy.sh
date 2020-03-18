@@ -1,5 +1,5 @@
 #!/usr/bin/sh
-cd client
+cd client/
 yarn build
 cd ..
 
@@ -11,6 +11,6 @@ node inject-secrets.js
 cd server
 echo "Deploying app with --no-promote for testing"
 gcloud app deploy --no-promote
-rm app.yaml
+#rm app.yaml
 cd ..
 echo "Done!"

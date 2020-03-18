@@ -62,7 +62,7 @@ const OrderHeader = ({ order }) => {
                     variant="contained"
                     onClick={() => dispatch(Actions.testSendOrder(order._id))}
                 >
-                    Test Send Via Easync
+                    Send Order Via Easync
                 </Button>
             </FuseAnimate>
         </div>
