@@ -1,0 +1,5 @@
+steps:
+    - name: gcr.io/cloud-builders/gsutil
+      args: ['cp', 'gs://neon-cooler-236718.appspot.com/app.yaml', 'server/app.yaml']
+    - name: 'gcr.io/cloud-builders/gcloud'
+      args: ['app', 'deploy', 'server/']
