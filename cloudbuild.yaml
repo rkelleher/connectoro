@@ -9,7 +9,7 @@ steps:
   #   waitFor:
   #   - install_packages
 
-  - id: install_packages
+  - id: prerender_browser_files
     name: gcr.io/cloud-builders/npm
     args: ['run','build', '--prefix', 'client/']
 
