@@ -3,15 +3,19 @@ steps:
     name: gcr.io/cloud-builders/npm
     args: ['install', '--prefix', 'client/']
     
-  - id: prerender_browser_files
+  # - id: prerender_browser_files
+  #   name: gcr.io/cloud-builders/npm
+  #   args: ['run','build']
+  #   waitFor:
+  #   - install_packages
+
+  - id: install_packages
     name: gcr.io/cloud-builders/npm
-    args: [ 'run','build']
-    waitFor:
-    - install_packages
+    args: ['run','build', '--prefix', 'client/']
 
   - id: copy_prerendered_files
     name: gcr.io/cloud-builders/gsutil
-    args: ['cp','-r', 'client/build', 'server/static']
+    args: ['rsync','-a', 'client/build/*', 'server/static']
     waitFor:
     - prerender_browser_files
 
