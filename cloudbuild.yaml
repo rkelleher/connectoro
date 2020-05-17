@@ -11,7 +11,7 @@ steps:
 
   - id: copy_prerendered_files
     name: gcr.io/cloud-builders/gsutil
-    args: ['cp', 'client/build', 'server/static']
+    args: ['cp','-r', 'client/build', 'server/static']
     waitFor:
     - prerender_browser_files
 
