@@ -3,8 +3,8 @@ steps:
     name: gcr.io/cloud-builders/npm
     args: ['install', 'client/']
 
-  - name: 'gcr.io/cloud-builders/ubuntu-curl'
-    args: ['cd', 'client']
+  - name: 'gcr.io/cloud-builders/gsutil'
+    args: ['cd', 'client/']
 
   - id: prerender_browser_files
     name: 'gcr.io/cloud-builders/npm'
