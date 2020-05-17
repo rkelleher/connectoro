@@ -368,7 +368,6 @@ function OrderEasyncDetails({ order }) {
     }
     return (
         <div className="pb-48">
-<<<<<<< HEAD
             <div className="pb-16 flex items-center">
                 <Typography className="h2" color="textSecondary">
                     Easync Details
@@ -383,22 +382,6 @@ function OrderEasyncDetails({ order }) {
                 }
         </div>
     );
-=======
-        <div className="pb-16 flex items-center">
-        <Typography className="h2" color="textSecondary">
-        Easync Details
-    </Typography>
-    </div>
-    <div>{`Site: ${retailerCode}`}</div>
-    <div>{`Country: ${countryCode}`}</div>
-    <div>{`Status: ${status}`}</div>
-    {status!=='order_response' && status!=='undefined'
-        ? <div>{`Message: ${message}`}</div>
-    : ''
-    }
-</div>
-);
->>>>>>> 75acc00a6e5ffd9a1820d69d7678950d02913765
 }
 
 function GeneralTab({ order }) {
