@@ -7,7 +7,7 @@ steps:
     name: 'gcr.io/cloud-builders/npm'
     args:
     - 'run'
-    - 'build:prerender'
+    - 'build'
     - 'client/'
     waitFor:
     - install_packages
