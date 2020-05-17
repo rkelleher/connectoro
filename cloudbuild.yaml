@@ -2,17 +2,19 @@ steps:
   - id: install_packages
     name: gcr.io/cloud-builders/npm
     args: ['install', 'client/']
+
   - id: prerender_browser_files
     name: gcr.io/cloud-builders/npm
     args: ['build', 'client/']
     waitFor:
     - install_packages
-  - name: gcr.io/cloud-builders/gsutil
+  - id: copy_prerendered_files
+    name: gcr.io/cloud-builders/gsutil
     args: ['cp', 'client/build', 'server/static']
     waitFor:
     - prerender_browser_files
-  - id: copy_prerendered_files
-    name: gcr.io/cloud-builders/gsutil
+
+  - name: gcr.io/cloud-builders/gsutil
     args: ['cp', 'gs://$_BUCKET/app.yaml', 'server/app.yaml']
     waitFor:
     - copy_prerendered_files
