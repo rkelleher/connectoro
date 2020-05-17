@@ -27,45 +27,47 @@ const OrderHeader = ({ order }) => {
     const dispatch = useDispatch();
     return (
         <div className="flex flex-1 w-full items-center justify-between">
-        <div className="flex flex-1 flex-col items-center sm:items-start">
-        <FuseAnimate animation="transition.slideRightIn" delay={300}>
-        <Typography
-    className="normal-case flex items-center sm:mb-12"
-    component={Link}
-    role="button"
-    to="/orders"
-    color="inherit"
-        >
-        <Icon className="mr-4 text-20">arrow_back</Icon>
-    Orders
-    </Typography>
-    </FuseAnimate>
+            <div className="flex flex-1 flex-col items-center sm:items-start">
+                <FuseAnimate animation="transition.slideRightIn" delay={300}>
+                    <Typography
+                    className="normal-case flex items-center sm:mb-12"
+                    component={Link}
+                    role="button"
+                    to="/orders"
+                    color="inherit"
+                    >
+                        <Icon className="mr-4 text-20">arrow_back</Icon>
+                        Orders
+                    </Typography>
+                </FuseAnimate>
 
-    <div className="flex flex-col min-w-0 items-center sm:items-start">
-        <FuseAnimate animation="transition.slideLeftIn" delay={300}>
-        <Typography className="text-16 sm:text-20 truncate">
-        {"Order " + order._id}
-        </Typography>
-        </FuseAnimate>
+                <div className="flex flex-col min-w-0 items-center sm:items-start">
+                    <FuseAnimate animation="transition.slideLeftIn" delay={300}>
+                        <Typography className="text-16 sm:text-20 truncate">
+                            {"Order " + order._id}
+                        </Typography>
+                    </FuseAnimate>
 
-        <FuseAnimate animation="transition.slideLeftIn" delay={300}>
-        <Typography variant="caption">
-        {order.inputIntegrationType
-                ? `From ${order.inputIntegrationType}`
-                : "Manual Order"}
-        </Typography>
-        </FuseAnimate>
+                    <FuseAnimate animation="transition.slideLeftIn" delay={300}>
+                        <Typography variant="caption">
+                            {order.inputIntegrationType
+                                ? `From ${order.inputIntegrationType}`
+                                : "Manual Order"}
+                        </Typography>
+                    </FuseAnimate>
+
+                </div>
+            </div>
+            
+            <FuseAnimate animation="transition.slideRightIn" delay={300}>
+                <Button
+                    variant="contained"
+                    onClick={() => dispatch(Actions.testSendOrder(order._id))}
+                >
+                    Send Order Via Easync
+                </Button>
+            </FuseAnimate>
         </div>
-        </div>
-        <FuseAnimate animation="transition.slideRightIn" delay={300}>
-        <Button
-    variant="contained"
-    onClick={() => dispatch(Actions.testSendOrder(order._id))}
->
-    Send Order Via Easync
-    </Button>
-    </FuseAnimate>
-    </div>
 );
 };
 
@@ -366,20 +368,20 @@ function OrderEasyncDetails({ order }) {
     }
     return (
         <div className="pb-48">
-        <div className="pb-16 flex items-center">
-        <Typography className="h2" color="textSecondary">
-        Easync Details
-    </Typography>
-    </div>
-    <div>{`Site: ${retailerCode}`}</div>
-    <div>{`Country: ${countryCode}`}</div>
-    <div>{`Status: ${status}`}</div>
-    {status!=='order_response' && status!=='undefined'
-        ? <div>{`Message: ${message}`}</div>
-    : ''
-    }
-</div>
-);
+            <div className="pb-16 flex items-center">
+                <Typography className="h2" color="textSecondary">
+                    Easync Details
+                </Typography>
+            </div>
+            <div>{`Site: ${retailerCode}`}</div>
+            <div>{`Country: ${countryCode}`}</div>
+            <div>{`Status: ${status}`}</div>
+                { status !== 'order_response' && status !== 'undefined'
+                    ? <div>{`Message: ${message}`}</div>
+                    : ''
+                }
+        </div>
+    );
 }
 
 function GeneralTab({ order }) {
