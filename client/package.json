@@ -83,7 +83,7 @@
     },
     "scripts": {
         "start": "yarn run tailwind && react-scripts start",
-        "build": "yarn run tailwind && node ./purge-tailwindcss.js && cross-env GENERATE_SOURCEMAP=false react-scripts build",
+        "build": "npm run tailwind && node ./purge-tailwindcss.js && cross-env GENERATE_SOURCEMAP=false react-scripts build",
         "tailwind": "./node_modules/.bin/tailwind build ./src/styles/tailwind.base.css -c ./tailwind.js -o ./src/styles/tailwind.css",
         "test": "react-scripts test --env=node",
         "eject": "react-scripts eject",
