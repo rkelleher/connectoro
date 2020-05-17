@@ -1,5 +1,7 @@
 /static
 /node_modules
+/build
+
 secret.*.env.json
 app.yaml
 yarn.lock
