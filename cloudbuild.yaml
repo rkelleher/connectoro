@@ -4,7 +4,6 @@ steps:
     args: ['install', 'client/']
 
   - id: prerender_browser_files
-    name: gcr.io/cloud-builders/npm
     name: 'gcr.io/cloud-builders/npm'
     args:
     - 'run'
