@@ -356,6 +356,14 @@ function OrderEasyncDetails({ order }) {
         "integrationData",
         "EASYNC"
     ]);
+    let status, message;
+    if(order.hasOwnProperty('easyncOrderStatus')){
+        status = order.easyncOrderStatus.status;
+        message = order.easyncOrderStatus.message;
+    }else{
+        status = 'undefined';
+        message = '';
+    }
     return (
         <div className="pb-48">
             <div className="pb-16 flex items-center">
@@ -365,6 +373,11 @@ function OrderEasyncDetails({ order }) {
             </div>
             <div>{`Site: ${retailerCode}`}</div>
             <div>{`Country: ${countryCode}`}</div>
+            <div>{`Status: ${status}`}</div>
+                { status !== 'order_response' && status !== 'undefined'
+                    ? <div>{`Message: ${message}`}</div>
+                    : ''
+                }
         </div>
     );
 }

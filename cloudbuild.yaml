@@ -1,0 +1,5 @@
+steps:
+    - name: gcr.io/cloud-builders/gsutil
+      args: ['cp', 'gs://$_BUCKET/app.yaml', 'server/app.yaml']
+    - name: 'gcr.io/cloud-builders/gcloud'
+      args: ['app', 'deploy --no-promote', 'server/']
