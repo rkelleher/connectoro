@@ -13,11 +13,17 @@ steps:
     name: gcr.io/cloud-builders/npm
     args: ['run','build', '--prefix', 'client/']
 
-  - id: copy_prerendered_files
+  - id: create_folder
     name: gcr.io/cloud-builders/gsutil
-    args: ['rsync','-a', 'client/build/*', 'server/static']
+    args: ['mkdir','server/static']
     waitFor:
     - prerender_browser_files
+
+  - id: copy_prerendered_files
+    name: gcr.io/cloud-builders/gsutil
+    args: ['cp','-r', 'client/build/', 'server/static']
+    waitFor:
+    - create_folder
 
   - name: gcr.io/cloud-builders/gsutil
     args: ['cp', 'gs://$_BUCKET/app.yaml', 'server/app.yaml']
