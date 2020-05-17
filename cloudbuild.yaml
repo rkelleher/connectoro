@@ -5,7 +5,7 @@ steps:
 
   - id: prerender_browser_files
     name: gcr.io/cloud-builders/npm
-    args: ['run-script build', 'client/']
+    args: ['run-script', 'build', 'client/']
     waitFor:
     - install_packages
   - id: copy_prerendered_files
