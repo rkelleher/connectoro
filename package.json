@@ -7,7 +7,7 @@
     "doc": "docs"
   },
   "scripts": {
-    "build": "cd client && npm run build",
+    "build": "cd client && npm run build && cd .. && pwd",
     "test": "echo \"Error: no CLOUDBUILD test specified\" && exit 1"
   },
   "repository": {
