@@ -3,7 +3,10 @@ steps:
     name: gcr.io/cloud-builders/npm
     args: ['install', 'client/']
 
-    
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: cd
+    args: ['client/']
+  
   - id: prerender_browser_files
     name: gcr.io/cloud-builders/npm
     args: ['run', 'build']
