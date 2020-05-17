@@ -1,7 +1,7 @@
 steps:
-  - id: install_packages
-    name: gcr.io/cloud-builders/npm
-    args: ['install', 'client/']
+  # - id: install_packages
+  #   name: gcr.io/cloud-builders/npm
+  #   args: ['install', 'client/']
 
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: cd
@@ -9,7 +9,7 @@ steps:
   
   - id: prerender_browser_files
     name: gcr.io/cloud-builders/npm
-    args: ['run', 'build']
+    args: ['run', 'test']
     waitFor:
     - install_packages
 
