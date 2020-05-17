@@ -19,4 +19,4 @@ steps:
     - copy_prerendered_files
 
   - name: 'gcr.io/cloud-builders/gcloud'
-    args: ['app', 'deploy', --no-promote, 'server/']
+    args: ['app', 'deploy', 'server/']
