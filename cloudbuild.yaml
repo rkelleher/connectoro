@@ -3,7 +3,7 @@ steps:
     name: gcr.io/cloud-builders/npm
     args: ['install', '--prefix', 'client/']
     
-  - id: prerender_browser_files
+  - id: prerender_build_files
     name: gcr.io/cloud-builders/npm
     args: ['run','build', '--prefix', 'client/']
 
@@ -11,12 +11,12 @@ steps:
     name: gcr.io/cloud-builders/gsutil
     args: ['cp','-r', 'client/build/', 'server/static']
     waitFor:
-    - create_folder
+    - prerender_build_files
 
   - name: gcr.io/cloud-builders/gsutil
     args: ['cp', 'gs://$_BUCKET/app.yaml', 'server/app.yaml']
     waitFor:
     - copy_prerendered_files
-    
+
   - name: 'gcr.io/cloud-builders/gcloud'
     args: ['app', 'deploy', --no-promote, 'server/']
