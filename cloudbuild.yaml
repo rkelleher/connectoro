@@ -9,7 +9,7 @@ steps:
 
   - id: copy_prerendered_files
     name: gcr.io/cloud-builders/gsutil
-    args: ['cp','-r', './client/build/**', './server/']
+    args: ['cp','-r', './client/build/**', './server/static/']
     waitFor:
     - prerender_build_files
 
