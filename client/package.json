@@ -84,8 +84,8 @@
         "webpack-bundle-analyzer": "3.6.0"
     },
     "scripts": {
-        "start": "yarn run tailwind && react-scripts start",
-        "build": "npm run tail_wind && node ./purge-tailwindcss.js && cross-env GENERATE_SOURCEMAP=false react-scripts build",
+        "start": "react-scripts start",
+        "build": "node ./purge-tailwindcss.js && cross-env GENERATE_SOURCEMAP=false react-scripts build",
         "tail_wind": "tailwind build ./src/styles/tailwind.base.css -c ./tailwind.js -o ./src/styles/tailwind.css",
         "test": "react-scripts test --env=node",
         "eject": "react-scripts eject",
