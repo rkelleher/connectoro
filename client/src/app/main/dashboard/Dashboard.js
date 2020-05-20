@@ -16,7 +16,7 @@ class Dashboard extends Component {
         }}
         header={
           <div className="p-24">
-            <h4>This is the header</h4>
+            <h4>This is the Stage header</h4>
           </div>
         }
         contentToolbar={
