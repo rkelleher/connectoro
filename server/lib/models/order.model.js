@@ -65,6 +65,9 @@ const OrderSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     index: true
   },
+  linwId: {
+    type: String
+  },
   easyncOrderStatus: {
     requestId: {
       type: String
@@ -95,4 +98,3 @@ const OrderSchema = new mongoose.Schema({
 });
 
 export const Order = mongoose.model("Order", OrderSchema);
-3

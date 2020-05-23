@@ -22,8 +22,8 @@ export async function getOrder(orderId) {
   return order;
 }
 
-export async function getOrderByInputId(inputId) {
-  const order = await Order.findOne({ inputId });
+export async function getOrderByLinworkId(linwId) {
+  const order = await Order.findOne({ linwId: String(linwId) });
   return order;
 }
 
