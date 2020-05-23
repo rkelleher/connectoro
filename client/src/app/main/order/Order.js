@@ -24,6 +24,7 @@ import EasyncProductOptions from "../integrations/easync/EasyncProductOptions";
 import EasyncOrderOptions from "../integrations/easync/EasyncOrderOptions";
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faSync} from '@fortawesome/free-solid-svg-icons';
+import './Order.css';
 
 const OrderHeader = ({ order }) => {
     const dispatch = useDispatch();
@@ -47,15 +48,17 @@ const OrderHeader = ({ order }) => {
                 return (
                     <>
                         <Button
+                            className='SendOrderButton'
                             variant="contained"
                             disabled
                         >
                             Send Order Via Easync
                         </Button>
-                        <Button variant="contained"
-                                style={{padding: '9px', marginLeft: '0.5em', minWidth: '2em'}}
+                        <Button
+                            variant="contained"
+                            className='FaSyncButton'
                         >
-                            <FontAwesomeIcon icon={faSync} style={{fontSize: '18px'}}/>
+                            <FontAwesomeIcon icon={faSync} className='FaSyncIcon'/>
                         </Button>
                     </>
                 );
@@ -63,6 +66,7 @@ const OrderHeader = ({ order }) => {
                 return <> </>;
             } else if (status === 'request_processing') {
                 return <Button
+                    className='SendOrderButton'
                     variant="contained"
                     disabled
                 >
@@ -97,7 +101,7 @@ const OrderHeader = ({ order }) => {
 
     <div className="flex flex-col min-w-0 items-center sm:items-start">
         <FuseAnimate animation="transition.slideLeftIn" delay={300}>
-        <Typography className="text-16 sm:text-20 truncate">
+        <Typography className={`text-16 sm:text-20 truncate OrderId`}>
         {"Order " + order._id}
         </Typography>
         </FuseAnimate>
