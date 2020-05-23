@@ -2,6 +2,7 @@ import * as Actions from "../actions";
 
 const initialState = {
     isFetching: false,
+    isLoading: false,
     activeOrder: null,
     easyncOptionsSaving: false,
     savingOrderCustomer: false,
@@ -17,7 +18,8 @@ const orderReducer = function(state = initialState, action) {
         case Actions.GET_ORDER: {
             return {
                 ...state,
-                isFetching: true
+                isFetching: true,
+                isLoading: true,
             };
         }
         case Actions.GOT_ORDER: {

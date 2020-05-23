@@ -22,9 +22,63 @@ import { Options } from "app/components/Options";
 import { InlineOptions } from "app/components/InlineOptions";
 import EasyncProductOptions from "../integrations/easync/EasyncProductOptions";
 import EasyncOrderOptions from "../integrations/easync/EasyncOrderOptions";
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faSync} from '@fortawesome/free-solid-svg-icons';
 
 const OrderHeader = ({ order }) => {
     const dispatch = useDispatch();
+    const isLoading = useSelector(({ order }) => order.isLoading);
+    let status;
+    if (order.hasOwnProperty('easyncOrderStatus')) {
+        status = order.easyncOrderStatus.status;
+    } else {
+        status = 'undefined';
+    }
+    const buttonVariant = (status) => {
+        if (!isLoading) {
+            return <Button
+                variant="contained"
+                disabled
+            >
+                Send Order Via Easync
+            </Button>
+        } else {
+            if (status === 'undefined' || status === 'error') {
+                return (
+                    <>
+                        <Button
+                            variant="contained"
+                            disabled
+                        >
+                            Send Order Via Easync
+                        </Button>
+                        <Button variant="contained"
+                                style={{padding: '9px', marginLeft: '0.5em', minWidth: '2em'}}
+                        >
+                            <FontAwesomeIcon icon={faSync} style={{fontSize: '18px'}}/>
+                        </Button>
+                    </>
+                );
+            } else if (status === 'order_response') {
+                return <> </>;
+            } else if (status === 'request_processing') {
+                return <Button
+                    variant="contained"
+                    disabled
+                >
+                    Send Order Via Easync
+                </Button>
+            } else {
+                return <Button
+                    variant="contained"
+                    onClick={() => dispatch(Actions.testSendOrder(order._id))}
+                >
+                    Send Order Via Easync
+                </Button>
+            }
+        }
+    };
+
     return (
         <div className="flex flex-1 w-full items-center justify-between">
         <div className="flex flex-1 flex-col items-center sm:items-start">
@@ -58,13 +112,8 @@ const OrderHeader = ({ order }) => {
         </div>
         </div>
         <FuseAnimate animation="transition.slideRightIn" delay={300}>
-        <Button
-    variant="contained"
-    onClick={() => dispatch(Actions.testSendOrder(order._id))}
->
-    Send Order Via Easync
-    </Button>
-    </FuseAnimate>
+            {buttonVariant(status)}
+     </FuseAnimate>
     </div>
 );
 };
