@@ -15,7 +15,7 @@ import {
   convertLinnworksOrder
 } from "../integrations/linnworks.js";
 
-export const cronFetchFromLinworks = (cg) => cron.schedule('0 0 */1 * * *',  async () => {
+export const cronFetchFromLinworks = (cg) => cron.schedule('0 */30 * * * *',  async () => {
     const account = await Account.findOne({
         integrations: {
             $elemMatch: {
