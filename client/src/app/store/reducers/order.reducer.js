@@ -19,7 +19,6 @@ const orderReducer = function(state = initialState, action) {
             return {
                 ...state,
                 isFetching: true,
-                isLoading: true,
             };
         }
         case Actions.GOT_ORDER: {
@@ -146,6 +145,18 @@ const orderReducer = function(state = initialState, action) {
                     [action.payload]: false
                 }
             }
+        }
+        case Actions.GET_EASYNC_ORDER_STATUS: {
+            return {
+                ...state,
+                isLoading: true,
+            };
+        }
+        case Actions.GOT_EASYNC_ORDER_STATUS: {
+            return {
+                ...state,
+                isLoading: false,
+            };
         }
         default: {
             return state;

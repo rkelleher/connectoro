@@ -27,6 +27,7 @@ import './Order.css';
 const OrderHeader = ({ order }) => {
     const dispatch = useDispatch();
     const isLoading = useSelector(({ order }) => order.isLoading);
+
     let status;
     if (order.hasOwnProperty('easyncOrderStatus')) {
         status = order.easyncOrderStatus.status;
@@ -34,49 +35,28 @@ const OrderHeader = ({ order }) => {
         status = 'undefined';
     }
     const buttonVariant = (status) => {
-        if (!isLoading) {
+        if (isLoading) {
             return <Button
                 variant="contained"
                 disabled
             >
                 Send Order Via Easync
             </Button>
-        } else {
-            if (status === 'undefined' || status === 'error') {
-                return (
-                    <>
-                        <Button
-                            className='SendOrderButton'
-                            variant="contained"
-                        >
-                            Send Order Via Easync
-                        </Button>
-                    </>
-                );
-            } else if (status === 'order_response') {
-                return <Button
-                    variant="contained"
-                    hidden
-                >
-                    Send Order Via Easync
-                </Button>
-            } else if (status === 'request_processing') {
-                return <Button
+        }
+        return (
+            <>
+                <Button
                     className='SendOrderButton'
                     variant="contained"
-                    disabled
-                >
-                    Send Order Via Easync
-                </Button>
-            } else {
-                return <Button
-                    variant="contained"
                     onClick={() => dispatch(Actions.testSendOrder(order._id))}
+                    {...status === 'order_response' ? {hidden: true} :
+                        status === 'request_processing' ? {disabled: true} :
+                            status === 'undefined' || status === 'error' ? {disabled: false} : ''}
                 >
                     Send Order Via Easync
                 </Button>
-            }
-        }
+            </>
+        );
     };
 
     return (
