@@ -67,20 +67,16 @@ const OrderSchema = new mongoose.Schema({
   },
   easyncOrderStatus: {
     requestId: {
-      type: String,
-      required: true,
+      type: String
     },
     status: {
-      type: String,
-      required: true,
+      type: String
     },
     message: {
-      type: String,
-      default: null
+      type: String
     },
     idempotencyKey: {
-      type: String,
-      required: true,
+      type: String
     },
   },
   orderProducts: [OrderProductSchema],
@@ -99,3 +95,4 @@ const OrderSchema = new mongoose.Schema({
 });
 
 export const Order = mongoose.model("Order", OrderSchema);
+3

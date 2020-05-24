@@ -193,8 +193,8 @@ export default function DataDialog(data) {
 
 export function testSendOrder(order) {
     return async dispatch => {
-        const { data } = await axios.post(`/api/test-send-order`, {
-            order._id
+        const { data } = await axios.post(`/api/easync/order-test`, {
+            orderId: order
         });
         if (data) {
             dispatch(

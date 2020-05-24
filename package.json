@@ -7,7 +7,8 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "cd client && npm run build && cd .. && pwd",
+    "test": "echo \"Error: no CLOUDBUILD test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
@@ -19,6 +20,7 @@
   "homepage": "https://github.com/rkelleher/connectoro#readme",
   "dependencies": {
     "axios": "^0.19.2",
-    "ejs": "^3.0.1"
+    "ejs": "^3.0.1",
+    "yarn": "^1.22.4"
   }
 }
