@@ -22,8 +22,6 @@ import { Options } from "app/components/Options";
 import { InlineOptions } from "app/components/InlineOptions";
 import EasyncProductOptions from "../integrations/easync/EasyncProductOptions";
 import EasyncOrderOptions from "../integrations/easync/EasyncOrderOptions";
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faSync} from '@fortawesome/free-solid-svg-icons';
 import './Order.css';
 
 const OrderHeader = ({ order }) => {
@@ -50,20 +48,18 @@ const OrderHeader = ({ order }) => {
                         <Button
                             className='SendOrderButton'
                             variant="contained"
-                            disabled
                         >
                             Send Order Via Easync
-                        </Button>
-                        <Button
-                            variant="contained"
-                            className='FaSyncButton'
-                        >
-                            <FontAwesomeIcon icon={faSync} className='FaSyncIcon'/>
                         </Button>
                     </>
                 );
             } else if (status === 'order_response') {
-                return <> </>;
+                return <Button
+                    variant="contained"
+                    hidden
+                >
+                    Send Order Via Easync
+                </Button>
             } else if (status === 'request_processing') {
                 return <Button
                     className='SendOrderButton'
