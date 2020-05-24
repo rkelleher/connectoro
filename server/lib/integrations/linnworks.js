@@ -18,7 +18,6 @@ export async function convertLinnworksOrder(account, inputOrder) {
       addressLine1: inputOrder.CustomerInfo.Address.Address1,
       addressLine2: inputOrder.CustomerInfo.Address.Address2,
       addressLine3: inputOrder.CustomerInfo.Address.Address3,
-      addressLine3: inputOrder.CustomerInfo.Address.Address3,
       zipCode: inputOrder.CustomerInfo.Address.PostCode,
       city: inputOrder.CustomerInfo.Address.Town,
       state: inputOrder.CustomerInfo.Address.Region,
@@ -81,9 +80,7 @@ export async function makeLinnworksAPISession(appID, appSecret, appInstallToken)
         Token: appInstallToken
       })
     });
-    const linnworksSession = JSON.parse(payload);
-    return linnworksSession;
-    
+    return JSON.parse(payload);
   } catch (error) {
     console.error(error);
   }
@@ -105,8 +102,7 @@ export async function getLinnworksOpenOrdersPaged(token, locationId, entriesNum,
     }
   try {
     const { payload } = await Wreck.post(uri, request);
-    const orderIds = JSON.parse(payload);
-    return orderIds;
+    return JSON.parse(payload);
   } catch (error) {
     console.error(error);
   }
@@ -128,8 +124,7 @@ export async function getLinnworksOrderDetails(token, locationId, orderId) {
     }
   try {
     const { payload } = await Wreck.post(uri, request);
-    const order = JSON.parse(payload);
-    return order;
+    return JSON.parse(payload);
   } catch (error) {
     console.error(error);
   }
