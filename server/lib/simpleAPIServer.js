@@ -43,7 +43,8 @@ import {
   LINNW_INTEGRATION_TYPE,
   makeLinnworksAPISession,
   getLinnworksOpenOrdersPaged,
-  convertLinnworksOrder
+  convertLinnworksOrder,
+  getLinnworksLocations
 } from "./integrations/linnworks.js";
 import {
   EASYNC_INTEGRATION_TYPE,
@@ -1062,6 +1063,112 @@ export async function buildSimpleAPIServer(cg, db) {
         payload: Joi.object({
           id: Joi.string().required(),
           changes: Joi.object().required()
+        })
+      }
+    }
+  });
+
+  server.route({
+    method: "GET",
+    path: "/api/account/refresh-locations",
+    handler: async (request, h) => {
+      const { authenticatedUserId } = request.headers;
+      const user = await getUser(authenticatedUserId);
+      const account = await getAccount(user.account);
+
+      if (!account.integrations.length) {
+        throw Boom.badRequest('You don\'t have any integrations!');
+      }
+
+      const linnwIntegration = account.integrations.find(el => {
+        return el.integrationType === LINNW_INTEGRATION_TYPE
+      });
+
+      if (!linnwIntegration) {
+        throw Boom.badRequest('You don\'t have linnwork integration!');
+      }
+
+      const { appId, credentials, session } = linnwIntegration;
+
+      const appInstallToken = credentials && credentials.get("INSTALL_TOKEN");
+      if (!appInstallToken) {
+        throw Boom.badRequest("No Linnworks Install Token");
+      }
+
+      if (!session) {
+        const appSecret = cg("LINNW_APP_SECRET");
+        const linnworksSession = await makeLinnworksAPISession(
+          appId,
+          appSecret,
+          appInstallToken
+        );
+        linnwIntegration.session = linnworksSession;
+        await account.save();
+      }
+
+      const locations = await getLinnworksLocations(linnwIntegration.session.Token);
+
+      if (!locations.length) {
+        throw Boom.badRequest('There aren\'t any locations!');
+      }
+
+      const linnwIntegrationData = account.integrationData[LINNW_INTEGRATION_TYPE];
+
+      linnwIntegrationData.locations = locations;
+      if (
+        !linnwIntegrationData.choosedLocation ||
+        !locations.find(el => {
+          return el.StockLocationId === linnwIntegrationData.choosedLocation.StockLocationId
+        })
+      ) {
+        linnwIntegrationData.choosedLocation = locations[0];
+      }
+
+      return await account.save();;
+    }
+  });
+
+  server.route({
+    method: "POST",
+    path: "/api/account/change-location",
+    handler: async (request, h) => {
+      const { authenticatedUserId } = request.headers;
+      const user = await getUser(authenticatedUserId);
+      const account = await getAccount(user.account);
+
+      if (!account.integrations.length) {
+        throw Boom.badRequest('You don\'t have any integrations!');
+      }
+
+      const linnwIntegration = account.integrations.find(el => {
+        return el.integrationType === LINNW_INTEGRATION_TYPE
+      });
+
+      if (!linnwIntegration) {
+        throw Boom.badRequest('You don\'t have linnwork integration!');
+      }
+
+      const { StockLocationId } = request.payload;
+
+      const linnwIntegrationData = account.integrationData[LINNW_INTEGRATION_TYPE];
+
+      const newLocation = linnwIntegrationData.locations.find(el => 
+        el.StockLocationId === StockLocationId
+      ); 
+
+      if (!newLocation) {
+        throw Boom.badRequest('There aren\'t location with this id!');
+      }
+
+      linnwIntegrationData.choosedLocation = newLocation;
+      await account.save();
+
+      return newLocation;
+    },
+    options: {
+      validate: {
+        payload: Joi.object({
+          StockLocationId: Joi.string().required()
         })
       }
     }
