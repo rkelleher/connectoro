@@ -22,52 +22,79 @@ import { Options } from "app/components/Options";
 import { InlineOptions } from "app/components/InlineOptions";
 import EasyncProductOptions from "../integrations/easync/EasyncProductOptions";
 import EasyncOrderOptions from "../integrations/easync/EasyncOrderOptions";
+import './Order.css';
 
 const OrderHeader = ({ order }) => {
     const dispatch = useDispatch();
+    const isLoading = useSelector(({ order }) => order.isLoading);
+
+    let status;
+    if (order.hasOwnProperty('easyncOrderStatus')) {
+        status = order.easyncOrderStatus.status;
+    } else {
+        status = 'undefined';
+    }
+    const buttonVariant = (status) => {
+        if (isLoading) {
+            return <Button
+                variant="contained"
+                disabled
+            >
+                Send Order Via Easync
+            </Button>
+        }
+        return (
+            <>
+                <Button
+                    className='SendOrderButton'
+                    variant="contained"
+                    onClick={() => dispatch(Actions.testSendOrder(order._id))}
+                    {...status === 'order_response' ? {hidden: true} :
+                        status === 'request_processing' ? {disabled: true} :
+                            status === 'undefined' || status === 'error' ? {disabled: false} : ''}
+                >
+                    Send Order Via Easync
+                </Button>
+            </>
+        );
+    };
+
     return (
         <div className="flex flex-1 w-full items-center justify-between">
             <div className="flex flex-1 flex-col items-center sm:items-start">
                 <FuseAnimate animation="transition.slideRightIn" delay={300}>
                     <Typography
-                    className="normal-case flex items-center sm:mb-12"
-                    component={Link}
-                    role="button"
-                    to="/orders"
-                    color="inherit"
+                        className="normal-case flex items-center sm:mb-12"
+                        component={Link}
+                        role="button"
+                        to="/orders"
+                        color="inherit"
                     >
                         <Icon className="mr-4 text-20">arrow_back</Icon>
                         Orders
                     </Typography>
                 </FuseAnimate>
 
-                <div className="flex flex-col min-w-0 items-center sm:items-start">
-                    <FuseAnimate animation="transition.slideLeftIn" delay={300}>
-                        <Typography className="text-16 sm:text-20 truncate">
-                            {"Order " + order._id}
-                        </Typography>
-                    </FuseAnimate>
+    <div className="flex flex-col min-w-0 items-center sm:items-start">
+        <FuseAnimate animation="transition.slideLeftIn" delay={300}>
+        <Typography className={`text-16 sm:text-20 truncate OrderId`}>
+        {"Order " + order._id}
+        </Typography>
+        </FuseAnimate>
 
-                    <FuseAnimate animation="transition.slideLeftIn" delay={300}>
-                        <Typography variant="caption">
-                            {order.inputIntegrationType
-                                ? `From ${order.inputIntegrationType}`
-                                : "Manual Order"}
-                        </Typography>
-                    </FuseAnimate>
-
-                </div>
-            </div>
-            
-            <FuseAnimate animation="transition.slideRightIn" delay={300}>
-                <Button
-                    variant="contained"
-                    onClick={() => dispatch(Actions.testSendOrder(order._id))}
-                >
-                    Send Order Via Easync
-                </Button>
-            </FuseAnimate>
+        <FuseAnimate animation="transition.slideLeftIn" delay={300}>
+        <Typography variant="caption">
+        {order.inputIntegrationType
+                ? `From ${order.inputIntegrationType}`
+                : "Manual Order"}
+        </Typography>
+        </FuseAnimate>
         </div>
+        </div>
+        <FuseAnimate animation="transition.slideRightIn" delay={300}>
+            {buttonVariant(status)}
+     </FuseAnimate>
+    </div>
 );
 };
 
@@ -376,10 +403,10 @@ function OrderEasyncDetails({ order }) {
             <div>{`Site: ${retailerCode}`}</div>
             <div>{`Country: ${countryCode}`}</div>
             <div>{`Status: ${status}`}</div>
-                { status !== 'order_response' && status !== 'undefined'
-                    ? <div>{`Message: ${message}`}</div>
-                    : ''
-                }
+            {status !== 'order_response' && status !== 'undefined'
+                ? <div>{`Message: ${message}`}</div>
+                : ''
+            }
         </div>
     );
 }
