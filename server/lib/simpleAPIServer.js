@@ -32,12 +32,12 @@ import {
 } from "./controllers/account.controller.js";
 import {
   buildPopulatedOrdersForAccount,
-  getOrderByInputId,
   createOrders,
   getOrder,
   awaitCheckAndUpdateOrder,
   buildPopulatedOrder,
-  syncOrderEasyncData
+  syncOrderEasyncData,
+  getOrderByLinworkId
 } from "./controllers/order.controller.js";
 import {
   LINNW_INTEGRATION_TYPE,
@@ -774,7 +774,7 @@ export async function buildSimpleAPIServer(cg, db) {
           let orderDocs = [];
           for (const inputOrder of someOrders["Data"]) {
             const inputId = inputOrder["OrderId"];
-            const existingOrder = await getOrderByInputId(inputId);
+            const existingOrder = await getOrderByLinworkId(inputId);
             if (!existingOrder) {
               const orderDoc = {
                 inputId,
