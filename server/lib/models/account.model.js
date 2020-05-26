@@ -44,7 +44,11 @@ const AccountSchema = new mongoose.Schema({
     required: true
   },
   integrationData: {
-    [EASYNC_INTEGRATION_TYPE]: easyncAccountDataShape
+    [EASYNC_INTEGRATION_TYPE]: easyncAccountDataShape,
+    [LINNW_INTEGRATION_TYPE]: {
+      locations: [],
+      choosedLocation: {}
+    }
   }
 }, {toObject: {flattenMaps: true}});
 

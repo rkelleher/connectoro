@@ -1,0 +1,31 @@
+@media (max-width: 660px) {
+    .SendOrderButton{
+        font-size: 10px;
+        padding: 2px;
+        width: 10em;
+    }
+    .OrderId{
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 560px) {
+    .SendOrderButton{
+        font-size: 10px;
+        padding: 2px;
+        width: 10em;
+    }
+    .OrderId{
+        font-size: 10px;
+    }
+}
+
+.FaSyncIcon{
+    font-size: 18px;
+}
+
+.FaSyncButton{
+    padding: 9px;
+    margin-left: 0.5em;
+    min-width: 2em;
+}
