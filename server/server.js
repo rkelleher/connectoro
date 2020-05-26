@@ -30,7 +30,7 @@ import config from 'nconf';
 
   await apiServer.start();
   await ServiceOrderChecker.start();
-  await cronFetchFromLinworks().start(cg);
+  // await cronFetchFromLinworks().start(cg);
 
   console.log("Connectoro API Server running on %s", apiServer.info.uri);
 })()
