@@ -1129,7 +1129,7 @@ export async function buildSimpleAPIServer(cg, db) {
   });
 
   server.route({
-    method: "POST",
+    method: "PUT",
     path: "/api/account/change-location",
     handler: async (request, h) => {
       const { authenticatedUserId } = request.headers;
