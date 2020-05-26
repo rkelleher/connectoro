@@ -36,12 +36,17 @@ const OrderHeader = ({ order }) => {
     }
     const buttonVariant = (status) => {
         if (isLoading) {
-            return <Button
-                variant="contained"
-                disabled
-            >
-                Send Order Via Easync
-            </Button>
+            return (
+            <>
+                <Button
+                    className='SendOrderButton'
+                    variant="contained"
+                    {...isLoading ? {disabled: true} : ''}
+                >
+                    Send Order Via Easync
+                </Button>
+            </>
+        )
         }
         return (
             <>

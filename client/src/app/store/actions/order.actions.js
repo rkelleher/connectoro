@@ -205,12 +205,14 @@ export function testSendOrder(order) {
         });
         if (data) {
             dispatch(
-                Actions.openDialog({
-                    children: <DataDialog data={data}/>
-                }),
                 {
                     type: GOT_EASYNC_ORDER_STATUS
                 }
+            );
+            dispatch(
+                Actions.openDialog({
+                    children: <DataDialog data={data}/>
+                }),
             );
         }
     };
