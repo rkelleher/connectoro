@@ -39,11 +39,11 @@ export async function convertLinnworksOrder(account, inputOrder) {
     linwOrder.shippingAddress.firstName = clientName;
   }
   
-  const products = await Bluebird.filter(inputOrder.Items, async product => {
-    return !(await Product.findOne({SKU: product.SKU}));
-  });
+  linwOrder.products = [];
+  await Bluebird.each(inputOrder.Items, async product => {
+    const isProductExist = await Product.findOne({ SKU: product.SKU });
+    if (isProductExist) return;
 
-  linwOrder.products = await Bluebird.map(products, async product => {
     const dbProduct = await Product.create({
       accountId: account._id,
       SKU: product.SKU,
@@ -54,13 +54,13 @@ export async function convertLinnworksOrder(account, inputOrder) {
       // }
     });
 
-    return {
+    linwOrder.products.push({
       productId: dbProduct.id,
       quantity: product.Quantity,
       // integrationData: {
       //   LINNW_INTEGRATION_TYPE: integration
       // }
-    }
+    });
   }) || [];
 
   return linwOrder;
