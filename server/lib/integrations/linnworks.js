@@ -129,3 +129,20 @@ export async function getLinnworksOrderDetails(token, locationId, orderId) {
     console.error(error);
   }
 }
+
+export async function getLinnworksLocations(token) {
+  const uri = 'https://eu-ext.linnworks.net//api/Inventory/GetStockLocations';
+  const request = {
+    headers: {
+      'Authorization': token,
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+  };
+
+  try {
+    const { payload } = await Wreck.post(uri, request);
+    return JSON.parse(payload);
+  } catch (error) {
+    console.error(error);
+  }
+}
