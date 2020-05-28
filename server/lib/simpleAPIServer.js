@@ -173,11 +173,14 @@ export async function buildSimpleAPIServer(cg, db) {
       }).catch(err => {
         console.error(err);
       });
+     // const data = {request_id : 'hello'}
 
       const { request_id } = data;
+      console.log('here')
 
       await updateOrderById(orderId, {
         requestId: request_id,
+        // status: 'error',
         status: EASYNC_ORDER_RESPONSE_CODES.IN_PROCESSING,
         idempotencyKey: easyncPayload.idempotency_key
       });
