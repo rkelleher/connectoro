@@ -1,0 +1,88 @@
+@media (max-width: 640px) {
+    .Select {
+        width: 18em !important;
+        margin-left: 0.5em !important;
+    }
+    .InputLabel {
+        margin-left: 1em !important;
+    }
+}
+
+@media (max-width: 500px) {
+    .Select {
+        width: 14em !important;
+        margin-left: 0.1em !important;
+    }
+    .InputLabel {
+        margin-left: 1em !important;
+    }
+}
+
+@media (max-width: 400px) {
+    .Select {
+        width: 10em !important;
+        margin-left: 0.1em !important;
+    }
+    .InputLabel {
+        margin-left: 1em !important;
+    }
+    .CurrentLocation {
+        margin-top: 0.5em !important;
+    }
+}
+
+@media (max-width: 325px) {
+    .Select {
+        width: 8em !important;
+        margin-left: 0.1em !important;
+    }
+    .InputLabel {
+        margin-left: 1em !important;
+    }
+}
+
+.HorizontalLine {
+    margin: 1em 0 1em 0;
+}
+
+.DropshippingWrapper {
+    margin-top: 2em;
+}
+
+.DropshippingLocation {
+    display: flex;
+    margin-top: 1em;
+}
+
+.DropshippingLocationText{
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+.CurrentLocation {
+    margin-top: 1.2em;
+}
+
+.InputLabel {
+    margin-left: 8em;
+    background-color: white;
+    padding: 0 2px 0 2px;
+    border-radius: 3px;
+}
+
+.Select {
+    width: 20em;
+    margin-left: 5em;
+}
+
+.ButtonWrapper {
+    margin-top: 1em;
+}
+
+.ButtonSave {
+    margin-right: 1em
+}
+
+.ButtonRefresh {
+    margin-right: 2em
+}

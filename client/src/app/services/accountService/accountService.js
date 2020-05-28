@@ -7,6 +7,17 @@ class AccountService extends FuseUtils.EventEmitter {
         return data;
     };
 
+    fetchAccountLinnworksData = async () => {
+        const { data } = await axios.get("/api/account/refresh-locations");
+        return data;
+    };
+
+    sendLinnworksLocationData = async id => {
+        return await axios.put("/api/account/change-location", {
+            StockLocationId: id
+        });
+    };
+
     sendNewIntegration = async type => {
         const { data } = await axios.post("/api/account/integrations", {
             type

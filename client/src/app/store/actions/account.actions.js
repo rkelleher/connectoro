@@ -9,6 +9,10 @@ export const SAVING_ACC_EASYNC_ORDER_OPTS = "[ACCOUNT] SAVING ACC EASYC ORDER OP
 export const SAVED_ACC_EASYNC_ORDER_OPTS = "[ACCOUNT] SAVED ACC EASYC ORDER OPTS";
 export const SAVING_ACC_EASYNC_PRODUCT_OPTS = "[ACCOUNT] SAVING ACC EASYC PRODUCT OPTS";
 export const SAVED_ACC_EASYNC_PRODUCT_OPTS = "[ACCOUNT] SAVED ACC EASYC PRODUCT OPTS";
+export const GET_INTEGRATION_DATA  = "[ACCOUNT] GET INTEGRATION DATA";
+export const SET_INTEGRATION_DATA = "[ACCOUNT] SET INTEGRATION DATA";
+export const SET_LINNWORKS_LOCATION_ID = "[ACCOUNT] SET LINNWORKS LOCATION ID";
+
 
 export function getAccountDetails() {
     return async dispatch => {
@@ -20,6 +24,37 @@ export function getAccountDetails() {
             type: SET_ACCOUNT,
             payload: account
         });
+    };
+}
+
+export function getLinnworksData() {
+    return async dispatch => {
+        dispatch({
+            type: GET_INTEGRATION_DATA
+        });
+        const { integrationData } = await accountService.fetchAccountLinnworksData();
+        if (integrationData) {
+            return dispatch({
+                type: SET_INTEGRATION_DATA,
+                payload: integrationData
+            });
+        }
+    };
+}
+
+export function setLinnworksLocationId(id) {
+    return async dispatch => {
+        dispatch({
+            type: SET_LINNWORKS_LOCATION_ID
+        });
+
+        const  { data }  = await accountService.sendLinnworksLocationData(id);
+        if (data.StockLocationId) {
+            return dispatch({
+                type: SET_LINNWORKS_LOCATION_ID,
+                payload: data.StockLocationId
+            });
+        }
     };
 }
 

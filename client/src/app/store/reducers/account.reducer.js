@@ -7,6 +7,8 @@ const initialState = {
     isSavingEasyncProductOptions: false,
     email: "",
     integrations: [],
+    integrationData: [],
+    StockLocationId: "",
     users: []
 };
 
@@ -67,6 +69,24 @@ const account = function(state = initialState, action) {
                 integrations: action.payload
             };
         }
+        case Actions.SET_INTEGRATION_DATA: {
+            return {
+                ...state,
+                integrationData: action.payload
+            };
+        }
+        case Actions.GET_INTEGRATION_DATA: {
+            return {
+                ...state,
+            };
+        }
+        case Actions.SET_LINNWORKS_LOCATION_ID: {
+            return {
+                ...state,
+                StockLocationId: action.payload
+            };
+        }
+
         default: {
             return state;
         }

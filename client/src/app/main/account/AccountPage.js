@@ -20,12 +20,17 @@ import {
     CardActionArea,
     Link,
     Divider,
-    Icon
+    Icon,
+    FormControl,
+    Select,
+    MenuItem,
+    InputLabel,
 } from "@material-ui/core";
 import { FusePageCarded, FuseLoading } from "@fuse";
 import { useForm } from "@fuse/hooks";
 import ConfirmationDialog from "app/components/ConfirmationDialog";
 import EasyncAccountOptions from "../integrations/easync/EasyncAccountOptions";
+import "./AccountPage.css";
 
 const useStyles = makeStyles(theme => {
     return {
@@ -271,6 +276,22 @@ function EasyncIntegrationSettings(props) {
 function LinnworksIntegrationSettings(props) {
     const appId = props.integration.appId;
     const appInstallURL = `https://apps.linnworks.net/Authorization/Authorize/${appId}`;
+    const dispatch = useDispatch();
+    const linnworksStockLocations = useSelector(({ account }) => account.integrationData.LINNW.locations);
+    const chosenLinnworksStockLocation = useSelector(({ account }) => account.integrationData.LINNW.choosedLocation.LocationName);
+    const [currentLinnworksStockLocation, setCurrentLinnworksStockLocation] = React.useState('');
+    const [currentLinnworksStockLocationId, setCurrentLinnworksStockLocationId] = React.useState('');
+    const classes = useStyles();
+
+    useEffect(() => {
+        setCurrentLinnworksStockLocation(chosenLinnworksStockLocation);
+    }, []);
+
+    const handleChangeLinnworksLocation = (event, { props }) => {
+        setCurrentLinnworksStockLocation(event.target.value);
+        setCurrentLinnworksStockLocationId(props.id);
+    };
+
     return (
         <>
             <IntegrationSettingHeader {...props} />
@@ -284,6 +305,71 @@ function LinnworksIntegrationSettings(props) {
                 add it as a credential to this integration.
             </p>
             <IntegrationSettings {...props} />
+
+            <Divider className="HorizontalLine"/>
+            <div className="DropshippingWrapper">
+                <h6 className="DropshippingLocationText">Dropshipping Location</h6>
+                <div className="DropshippingLocation">
+                    <div className="CurrentLocation">
+                        Current location:
+                    </div>
+
+                    <FormControl variant="outlined" className={classes.formControl}>
+                        <InputLabel
+                            className="InputLabel"
+                            id="demo-simple-select-outlined-label"
+                        >
+                            Select location
+                        </InputLabel>
+                        <Select
+                            className="Select"
+                            labelId="demo-simple-select-outlined-label"
+                            id="demo-simple-select-outlined"
+                            value={currentLinnworksStockLocation}
+                            onChange={(event, data) => handleChangeLinnworksLocation(event, data)}
+                            label="Select location"
+                        >
+                            {linnworksStockLocations.map(item => {
+                                return (
+                                    <MenuItem
+                                        key={item.StockLocationId}
+                                        id={item.StockLocationId}
+                                        value={item.LocationName}
+                                    >
+                                        {item.LocationName}
+                                    </MenuItem>
+                                );
+                            })}
+                        </Select>
+                    </FormControl>
+                </div>
+                <div className="ButtonWrapper">
+                    <Button
+                        className="ButtonSave"
+                        variant="contained"
+                        disabled={!chosenLinnworksStockLocation || !currentLinnworksStockLocation}
+                        onClick={() =>
+                            dispatch(
+                                Actions.setLinnworksLocationId(currentLinnworksStockLocationId)
+                            )
+                        }
+                    >
+                        Save
+                    </Button>
+                    <Button
+                        className="ButtonRefresh"
+                        variant="contained"
+                        onClick={() => {
+                            dispatch(
+                                Actions.getLinnworksData()
+                            )
+                        }
+                        }
+                    >
+                        Refresh
+                    </Button>
+                </div>
+            </div>
         </>
     );
 }
