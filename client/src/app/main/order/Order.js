@@ -27,14 +27,18 @@ import './Order.css';
 const OrderHeader = ({ order }) => {
     const dispatch = useDispatch();
     const isLoading = useSelector(({ order }) => order.isLoading);
+    let _status = useSelector(({order}) => order.status);
 
-    let status;
-    if (order.hasOwnProperty('easyncOrderStatus')) {
-        status = order.easyncOrderStatus.status;
-    } else {
-        status = 'undefined';
+    if(!_status){
+        if (order.hasOwnProperty('easyncOrderStatus')) {
+
+            dispatch(Actions.changeStatus(order.easyncOrderStatus.status))
+        } else {
+            dispatch(Actions.changeStatus('undefined'))
+        }
     }
-    const buttonVariant = (status) => {
+
+    const buttonVariant = (_status) => {
         if (isLoading) {
             return (
             <>
@@ -54,9 +58,9 @@ const OrderHeader = ({ order }) => {
                     className='SendOrderButton'
                     variant="contained"
                     onClick={() => dispatch(Actions.testSendOrder(order._id))}
-                    {...status === 'order_response' ? {hidden: true} :
-                        status === 'request_processing' ? {disabled: true} :
-                            status === 'undefined' || status === 'error' ? {disabled: false} : ''}
+                    { ..._status === 'order_response' ? {hidden: true} :
+                        _status === 'request_processing' ? {disabled: true} :
+                            _status === 'undefined' || _status === 'error' ? {disabled: false} : ''}
                 >
                     Send Order Via Easync
                 </Button>
@@ -97,7 +101,7 @@ const OrderHeader = ({ order }) => {
         </div>
         </div>
         <FuseAnimate animation="transition.slideRightIn" delay={300}>
-            {buttonVariant(status)}
+            {buttonVariant(_status)}
      </FuseAnimate>
     </div>
 );

@@ -1,6 +1,7 @@
 import * as Actions from "../actions";
 
 const initialState = {
+    status: null,
     isFetching: false,
     isLoading: false,
     activeOrder: null,
@@ -25,7 +26,8 @@ const orderReducer = function(state = initialState, action) {
             return {
                 ...state,
                 isFetching: false,
-                activeOrder: action.payload
+                activeOrder: action.payload,
+                status: null
             };
         }
         case Actions.SET_ORDER: {
@@ -150,13 +152,21 @@ const orderReducer = function(state = initialState, action) {
             return {
                 ...state,
                 isLoading: true,
+
             };
         }
         case Actions.GOT_EASYNC_ORDER_STATUS: {
             return {
                 ...state,
                 isLoading: false,
+                status: action.payload
             };
+        }
+        case Actions.CHANGE_STATUS: {
+            return {
+                ...state,
+                status: action.payload
+            }
         }
         default: {
             return state;
