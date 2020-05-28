@@ -30,6 +30,8 @@ export const SAVED_ORDER_PRODUCT_EASYNC = '[ORDER] SAVED ORDER PROD EASYNC';
 export const GET_EASYNC_ORDER_STATUS = '[ORDER] GET_EASYNC_ORDER_STATUS';
 export const GOT_EASYNC_ORDER_STATUS = '[ORDER] GOT_EASYNC_ORDER_STATUS';
 
+export const  CHANGE_STATUS = 'CHANGE_STATUS';
+
 export function getOrder({ orderId }) {
     const request = axios.get(`/api/orders/${orderId}`);
     const process = order => {
@@ -194,6 +196,16 @@ export default function DataDialog(data) {
     );
 }
 
+export const changeStatus = (status) =>{
+    return async dispatch =>{
+        dispatch({
+            type: CHANGE_STATUS,
+            payload: status
+        })
+    }
+}
+
+
 export function testSendOrder(order) {
     return async dispatch => {
         dispatch({
@@ -204,9 +216,17 @@ export function testSendOrder(order) {
             orderId: order
         });
         if (data) {
+            let payload;
+            if(data.data.status){
+                payload = data.data.status
+            }else{
+                const orderFile = await axios.get(`/api/orders/${order}`)
+                payload = orderFile.data.easyncOrderStatus.status;
+            }
             dispatch(
                 {
-                    type: GOT_EASYNC_ORDER_STATUS
+                    type: GOT_EASYNC_ORDER_STATUS,
+                    payload: payload
                 }
             );
             dispatch(
