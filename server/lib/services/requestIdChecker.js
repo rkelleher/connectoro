@@ -5,7 +5,7 @@ import cron from 'node-cron';
 import { updateOrderById, getAllOrdersByStatus } from '../controllers/order.controller.js';
 import { getStatusByRequestId } from '../integrations/easync/getEasyncOrdedStatus.js';
 
-export default cron.schedule('0 */15 * * * *',  async () => {
+export default cron.schedule('0 */10 * * * *',  async () => {
     console.log("Cron job");
 
     const orders = await getAllOrdersByStatus(EASYNC_ORDER_RESPONSE_CODES.IN_PROCESSING);

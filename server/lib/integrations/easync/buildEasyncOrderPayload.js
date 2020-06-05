@@ -75,10 +75,14 @@ const buildAddressObj = (address, countryCode) => ({
 });
 
 
-export async function buildEasyncOrderPayload ({ order, idempotencyKey = uuid.v4(), webhooks }) {
-    const { orderProducts, shippingAddress } = order;
-
-    console.log('idempotencyKey', idempotencyKey);
+export async function buildEasyncOrderPayload ({ order, webhooks }) {
+    const { 
+      orderProducts, 
+      shippingAddress,
+      easyncOrderStatus: {
+        idempotencyKey 
+      }
+    } = order;
 
     const {
       retailerCode,
@@ -92,7 +96,7 @@ export async function buildEasyncOrderPayload ({ order, idempotencyKey = uuid.v4
 
     let payload = {};
 
-    payload["idempotency_key"] = idempotencyKey;
+    payload["idempotency_key"] = idempotencyKey || uuid.v4();
 
     payload["retailer"] = retailerCode;
 
