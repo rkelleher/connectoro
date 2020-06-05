@@ -38,35 +38,17 @@ const OrderHeader = ({ order }) => {
         }
     }
 
-    const buttonVariant = (_status) => {
-        if (isLoading) {
-            return (
-            <>
-                <Button
-                    className='SendOrderButton'
-                    variant="contained"
-                    {...isLoading ? {disabled: true} : ''}
-                >
-                    Send Order Via Easync
-                </Button>
-            </>
-        )
-        }
-        return (
-            <>
-                <Button
-                    className='SendOrderButton'
-                    variant="contained"
-                    onClick={() => dispatch(Actions.testSendOrder(order._id))}
-                    { ..._status === 'order_response' ? {hidden: true} :
-                        _status === 'request_processing' ? {disabled: true} :
-                            _status === 'undefined' || _status === 'error' ? {disabled: false} : ''}
-                >
-                    Send Order Via Easync
-                </Button>
-            </>
-        );
-    };
+    const buttonVariant = (_status) => (
+        <Button
+            className='SendOrderButton'
+            variant="contained"
+            onClick={() => dispatch(Actions.testSendOrder(order._id))}
+            {...isLoading ? {disabled: true} : ''}
+            {..._status === 'order_response' ? {hidden: true} : ''}
+        >
+            Send Order Via Easync
+        </Button>
+    );
 
     return (
         <div className="flex flex-1 w-full items-center justify-between">
