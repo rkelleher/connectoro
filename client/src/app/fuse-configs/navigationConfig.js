@@ -7,25 +7,68 @@ const navigationConfig = [
         url: "/dashboard"
     },
     {
-        id: "products",
-        title: "Products",
-        type: "item",
-        icon: "whatshot",
-        url: "/products"
+        id      : 'inventory',
+        title   : 'Inventory',
+        type    : 'collapse',
+        icon    : 'shopping_cart',
+        children: [
+            {
+                id: "products",
+                title: "Products",
+                type: "item",
+                icon: "whatshot",
+                url: "/products",
+                'exact': true
+            }
+        ]
     },
     {
-        id: "orders",
-        title: "Orders",
-        type: "item",
-        icon: "whatshot",
-        url: "/orders"
+        id      : 'dropshipping',
+        title   : 'Dropshipping',
+        type    : 'collapse',
+        icon    : 'shopping_cart',
+        children: [
+            {
+                id: "orders",
+                title: "Orders",
+                type: "item",
+                icon: "whatshot",
+                url: "/orders",
+                'exact': true
+            }
+        ]
     },
     {
-        id: "account-settings",
-        title: "Account Settings",
-        type: "item",
-        icon: "settings",
-        url: "/account"
+        id      : 'settings',
+        title   : 'Settings',
+        type    : 'collapse',
+        icon    : 'shopping_cart',
+        children: [
+            {
+                id: "account-settings",
+                title: "Account Settings",
+                type: "item",
+                icon: "settings",
+                url: "/account",
+                exact: true
+            },
+            {
+                id: "integrations",
+                title: "Integrations",
+                type: "item",
+                icon: "settings",
+                url: "/account",
+                exact: true
+            },
+            {
+                id: "email settings",
+                title: "Email settings",
+                type: "item",
+                icon: "settings",
+                url: "/account",
+                exact: true
+            }
+        ]
     }
 ];
 
