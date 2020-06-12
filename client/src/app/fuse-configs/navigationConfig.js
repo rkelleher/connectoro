@@ -57,7 +57,7 @@ const navigationConfig = [
                 title: "Integrations",
                 type: "item",
                 icon: "settings",
-                url: "/account",
+                url: "/integrations",
                 exact: true
             },
             {
@@ -65,7 +65,7 @@ const navigationConfig = [
                 title: "Email settings",
                 type: "item",
                 icon: "settings",
-                url: "/account",
+                url: "/email-settings",
                 exact: true
             }
         ]
