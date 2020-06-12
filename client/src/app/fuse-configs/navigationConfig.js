@@ -3,20 +3,19 @@ const navigationConfig = [
         id: "dashboard",
         title: "Dashboard",
         type: "item",
-        icon: "whatshot",
+        icon: "dashboard",
         url: "/dashboard"
     },
     {
         id      : 'inventory',
         title   : 'Inventory',
         type    : 'collapse',
-        icon    : 'shopping_cart',
+        icon    : 'category',
         children: [
             {
                 id: "products",
                 title: "Products",
                 type: "item",
-                icon: "whatshot",
                 url: "/products",
                 'exact': true
             }
@@ -32,7 +31,6 @@ const navigationConfig = [
                 id: "orders",
                 title: "Orders",
                 type: "item",
-                icon: "whatshot",
                 url: "/orders",
                 'exact': true
             }
@@ -42,13 +40,12 @@ const navigationConfig = [
         id      : 'settings',
         title   : 'Settings',
         type    : 'collapse',
-        icon    : 'shopping_cart',
+        icon: "settings",
         children: [
             {
                 id: "account-settings",
                 title: "Account Settings",
                 type: "item",
-                icon: "settings",
                 url: "/account",
                 exact: true
             },
@@ -56,7 +53,6 @@ const navigationConfig = [
                 id: "integrations",
                 title: "Integrations",
                 type: "item",
-                icon: "settings",
                 url: "/integrations",
                 exact: true
             },
@@ -64,7 +60,6 @@ const navigationConfig = [
                 id: "email settings",
                 title: "Email settings",
                 type: "item",
-                icon: "settings",
                 url: "/email-settings",
                 exact: true
             }
