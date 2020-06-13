@@ -14,7 +14,8 @@ export function Options({
     saveActionParam2,
     isSaving,
     getArrayChoices,
-    stringOptions
+    stringOptions,
+    maxWidth = 500
 }) {
     const dispatch = useDispatch();
     const { form, handleChange, setForm, setInForm } = useForm(null);
@@ -50,8 +51,16 @@ export function Options({
     return (
         form &&
         formId === id && (
-            <div style={{ maxWidth: 500 }}>
-                <div>
+            <div style={{ maxWidth }}>
+                <div
+                    style={isInline &&
+                        {
+                            display: 'flex',
+                            alignItems: 'center',
+                            flexWrap: 'wrap'
+                        }
+                    }
+                >
                     {Object.keys(data) &&
                         Object.keys(data).map(key => {
                             return (

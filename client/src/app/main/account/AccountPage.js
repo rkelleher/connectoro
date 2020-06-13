@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { makeStyles } from "@material-ui/styles";
 import * as Actions from "app/store/actions";
@@ -7,7 +7,6 @@ import {
     Typography,
 } from "@material-ui/core";
 import { FusePageCarded, FuseLoading } from "@fuse";
-import EasyncAccountOptions from "../integrations/easync/EasyncAccountOptions";
 import "./AccountPage.css";
 
 const useStyles = makeStyles(theme => {
@@ -20,10 +19,7 @@ function SettingsTab() {
     const classes = useStyles();
     const email = useSelector(({ account }) => account.email);
     const users = useSelector(({ account }) => account.users);
-    const accountId = useSelector(({ account }) => account._id)
-    const integrationData = useSelector(
-        ({ account }) => account.integrationData
-    );
+
     return (
         <>
             <div style={{margin: 10}}>
@@ -49,16 +45,6 @@ function SettingsTab() {
                     ))}
                 </ul>
             </div>
-            {integrationData && (
-                <div style={{margin: 10}}>
-                    {integrationData["EASYNC"] && (
-                        <EasyncAccountOptions
-                            data={integrationData["EASYNC"]}
-                            accountId={accountId}
-                        />
-                    )}
-                </div>
-            )}
         </>
     );
 }
