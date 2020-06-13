@@ -1,10 +1,12 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { makeStyles } from "@material-ui/styles";
 import * as Actions from "app/store/actions";
 import {
     TextField,
     Typography,
+    Tabs,
+    Tab
 } from "@material-ui/core";
 import { FusePageCarded, FuseLoading } from "@fuse";
 import "./AccountPage.css";
@@ -18,34 +20,38 @@ const useStyles = makeStyles(theme => {
 function SettingsTab() {
     const classes = useStyles();
     const email = useSelector(({ account }) => account.email);
-    const users = useSelector(({ account }) => account.users);
 
     return (
-        <>
-            <div style={{margin: 10}}>
-                <TextField
-                    disabled
-                    id="outlined-disabled"
-                    label="Account Email"
-                    defaultValue={email}
-                    className={classes.textField}
-                    margin="normal"
-                    variant="outlined"
-                />
+        <div style={{margin: 10}}>
+            <TextField
+                disabled
+                id="outlined-disabled"
+                label="Account Email"
+                defaultValue={email}
+                className={classes.textField}
+                margin="normal"
+                variant="outlined"
+            />
+        </div>
+    );
+}
+
+function UsersTab() {
+    const account = useSelector(({ account }) => account);
+
+    return (
+        <div style={{margin: 10}}>
+            <div className="pb-16 flex items-center">
+                <Typography className="h2" color="textSecondary">
+                    Users
+                </Typography>
             </div>
-            <div style={{margin: 10}}>
-                <div className="pb-16 flex items-center">
-                    <Typography className="h2" color="textSecondary">
-                        Users
-                    </Typography>
-                </div>
-                <ul>
-                    {users.map(user => (
-                        <li key={user}>{user}</li>
-                    ))}
-                </ul>
-            </div>
-        </>
+            <ul>
+                {account.users.map(user => (
+                    <li key={user}>{user}</li>
+                ))}
+            </ul>
+        </div>
     );
 }
 
@@ -58,6 +64,12 @@ function AccountPage() {
     useEffect(() => {
         dispatch(Actions.getAccountDetails());
     }, [dispatch]);
+
+    const [selectedTab, setSelectedTab] = useState(0);
+
+    const handleTabChange = (event, value) => {
+        setSelectedTab(value);
+    };
 
     return isFetching ? (
         <FuseLoading />
@@ -72,9 +84,24 @@ function AccountPage() {
                     <h1>Account Settings</h1>
                 </div>
             }
+            contentToolbar={
+                <Tabs
+                    value={selectedTab}
+                    onChange={handleTabChange}
+                    indicatorColor="primary"
+                    textColor="primary"
+                    variant="scrollable"
+                    scrollButtons="off"
+                    className="w-full h-64"
+                >
+                    <Tab className="h-64" label="General Settings" />
+                    <Tab className="h-64" label="Users" />
+                </Tabs>
+            }
             content={
                 <div className="p-24">
-                    <SettingsTab />
+                    {selectedTab === 0 && <SettingsTab />}
+                    {selectedTab === 1 && <UsersTab />}
                 </div>
             }
         />
