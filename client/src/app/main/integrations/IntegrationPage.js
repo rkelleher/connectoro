@@ -27,6 +27,7 @@ import {
 import { FusePageCarded, FuseLoading } from "@fuse";
 import { useForm } from "@fuse/hooks";
 import ConfirmationDialog from "app/components/ConfirmationDialog";
+import EasyncAccountOptions from "./easync/EasyncAccountOptions";
 
 const useStyles = makeStyles(theme => {
     return {
@@ -261,10 +262,21 @@ function IntegrationSettings({ integration, credentialTypes }) {
 }
 
 function EasyncIntegrationSettings(props) {
+    const account = useSelector(({ account }) => account);
+
     return (
         <>
             <IntegrationSettingHeader {...props} />
             <IntegrationSettings {...props} />
+
+            <Divider className="HorizontalLine"/>
+
+            <div style={{margin: 10}}>
+                <EasyncAccountOptions
+                    data={account.integrationData["EASYNC"]}
+                    accountId={account.accountId}
+                />
+            </div>
         </>
     );
 }
@@ -520,13 +532,13 @@ function IntegrationPage() {
     const dispatch = useDispatch();
     const classes = useStyles();
 
-    const isFetching = useSelector(({ account }) => account.isFetching);
+    const account = useSelector(({ account }) => account);
 
     useEffect(() => {
         dispatch(Actions.getAccountDetails());
     }, [dispatch]);
 
-    return isFetching ? (
+    return account.isFetching ? (
         <FuseLoading />
     ) : (
         <FusePageCarded
