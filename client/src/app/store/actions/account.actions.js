@@ -12,6 +12,7 @@ export const SAVED_ACC_EASYNC_PRODUCT_OPTS = "[ACCOUNT] SAVED ACC EASYC PRODUCT 
 export const GET_INTEGRATION_DATA  = "[ACCOUNT] GET INTEGRATION DATA";
 export const SET_INTEGRATION_DATA = "[ACCOUNT] SET INTEGRATION DATA";
 export const SET_LINNWORKS_LOCATION_ID = "[ACCOUNT] SET LINNWORKS LOCATION ID";
+export const SET_ACCOUNT_USERS = "[ACCOUNT] SET ACCOUNT USERS";
 
 
 export function getAccountDetails() {
@@ -182,6 +183,21 @@ export function saveAccountEasyncProductSelectionCriteriaOptions(form) {
         }
         return dispatch({
             type: SAVED_ACC_EASYNC_PRODUCT_OPTS
+        });
+    };
+}
+
+export function getAccountUsers() {
+    return async dispatch => {
+        dispatch({
+            type: START_ACCOUNT_FETCH
+        });
+
+        const users = await accountService.fetchAccountUsers();
+
+        return dispatch({
+            type: SET_ACCOUNT_USERS,
+            payload: users
         });
     };
 }

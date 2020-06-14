@@ -86,6 +86,13 @@ const account = function(state = initialState, action) {
                 StockLocationId: action.payload
             };
         }
+        case Actions.SET_ACCOUNT_USERS: {
+            return {
+                ...state,
+                users: action.payload,
+                isFetching: false
+            };
+        }
 
         default: {
             return state;
