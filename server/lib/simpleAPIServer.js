@@ -19,7 +19,9 @@ import {
   getUserByEmail,
   createAdminUser,
   removeUser,
-  getUser
+  getUser,
+  getUsers,
+  getUserAccount
 } from "./controllers/user.controller.js";
 import {
   createNewLinkedAccount,
@@ -1171,6 +1173,18 @@ export async function buildSimpleAPIServer(cg, db) {
           StockLocationId: Joi.string().required()
         })
       }
+    }
+  });
+
+  server.route({
+    method: "GET",
+    path: "/api/account/users",
+    handler: async (request, h) => {
+      const { authenticatedUserId } = request.headers;
+
+      const account = await getUserAccount(authenticatedUserId);
+
+      return getUsers(account.users);
     }
   });
 
