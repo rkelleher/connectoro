@@ -5,6 +5,7 @@ import {
 } from "@material-ui/core";
 import { FusePageCarded } from "@fuse";
 import GeneralSettingsTab from "./tabs/GeneralSettingsTab";
+import UsersTab from "./tabs/UsersTab/UsersTab";
 import "./AccountPage.css";
 
 function AccountPage() {
@@ -35,6 +36,7 @@ function AccountPage() {
                     className="w-full h-64"
                 >
                     <Tab className="h-64" label="General Settings" />
+                    <Tab className="h-64" label="Users" />
                 </Tabs>
             }
             content={
@@ -44,6 +46,7 @@ function AccountPage() {
                             <GeneralSettingsTab />
                         </div>
                     }
+                    {selectedTab === 1 && <UsersTab />}
                 </>
             }
         />

@@ -14,8 +14,8 @@ function GeneralSettingsTab() {
     }, [dispatch]);
 
     return account.isFetching ? (
-            <FuseLoading />
-        ) : (
+        <FuseLoading />
+    ) : (
         <div style={{margin: 10}}>
             <TextField
                 disabled
