@@ -7,7 +7,8 @@ import {
     TableRow,
     Checkbox,
     Button,
-    Icon
+    Icon,
+    Avatar
 } from "@material-ui/core";
 import { FuseScrollbars } from "@fuse";
 import _ from "@lodash";
@@ -143,7 +144,17 @@ function UsersTable() {
                                                 />
                                             </TableCell>
 
-                                            {['displayName', 'email', 'role'].map(field => (
+                                            <TableCell
+                                                component="th"
+                                                scope="row"
+                                            >
+                                                <div class="flex items-center">
+                                                    <Avatar className="mr-10" src={'/assets/images/profile.jpg'} />
+                                                    {n.displayName}
+                                                </div>
+                                            </TableCell>
+
+                                            {['email', 'role'].map(field => (
                                                 <TableCell
                                                     component="th"
                                                     scope="row"
