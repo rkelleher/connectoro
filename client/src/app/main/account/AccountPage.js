@@ -1,70 +1,23 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { makeStyles } from "@material-ui/styles";
-import * as Actions from "app/store/actions";
+import React, { useState } from "react";
 import {
-    TextField,
-    Typography,
+    Tabs,
+    Tab
 } from "@material-ui/core";
-import { FusePageCarded, FuseLoading } from "@fuse";
+import { FusePageCarded } from "@fuse";
+import GeneralSettingsTab from "./tabs/GeneralSettingsTab";
+import UsersTab from "./tabs/UsersTab/UsersTab";
 import "./AccountPage.css";
 
-const useStyles = makeStyles(theme => {
-    return {
-        layoutRoot: {}
-    };
-});
+function AccountPage() {
+    const [selectedTab, setSelectedTab] = useState(0);
 
-function SettingsTab() {
-    const classes = useStyles();
-    const email = useSelector(({ account }) => account.email);
-    const users = useSelector(({ account }) => account.users);
+    const handleTabChange = (event, value) => {
+        setSelectedTab(value);
+    };
 
     return (
-        <>
-            <div style={{margin: 10}}>
-                <TextField
-                    disabled
-                    id="outlined-disabled"
-                    label="Account Email"
-                    defaultValue={email}
-                    className={classes.textField}
-                    margin="normal"
-                    variant="outlined"
-                />
-            </div>
-            <div style={{margin: 10}}>
-                <div className="pb-16 flex items-center">
-                    <Typography className="h2" color="textSecondary">
-                        Users
-                    </Typography>
-                </div>
-                <ul>
-                    {users.map(user => (
-                        <li key={user}>{user}</li>
-                    ))}
-                </ul>
-            </div>
-        </>
-    );
-}
-
-function AccountPage() {
-    const dispatch = useDispatch();
-    const classes = useStyles();
-
-    const isFetching = useSelector(({ account }) => account.isFetching);
-
-    useEffect(() => {
-        dispatch(Actions.getAccountDetails());
-    }, [dispatch]);
-
-    return isFetching ? (
-        <FuseLoading />
-    ) : (
         <FusePageCarded
             classes={{
-                root: classes.layoutRoot,
                 toolbar: "p-0"
             }}
             header={
@@ -72,10 +25,29 @@ function AccountPage() {
                     <h1>Account Settings</h1>
                 </div>
             }
+            contentToolbar={
+                <Tabs
+                    value={selectedTab}
+                    onChange={handleTabChange}
+                    indicatorColor="primary"
+                    textColor="primary"
+                    variant="scrollable"
+                    scrollButtons="off"
+                    className="w-full h-64"
+                >
+                    <Tab className="h-64" label="General Settings" />
+                    <Tab className="h-64" label="Users" />
+                </Tabs>
+            }
             content={
-                <div className="p-24">
-                    <SettingsTab />
-                </div>
+                <>
+                    {selectedTab === 0 && 
+                        <div className="p-24">
+                            <GeneralSettingsTab />
+                        </div>
+                    }
+                    {selectedTab === 1 && <UsersTab />}
+                </>
             }
         />
     );

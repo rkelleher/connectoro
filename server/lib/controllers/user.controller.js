@@ -1,4 +1,5 @@
 import { User } from '../models/user.model.js';
+import { Account } from '../models/account.model.js';
 
 export async function getUser(userId) {
   const user = await User.findById(userId);
@@ -8,6 +9,10 @@ export async function getUser(userId) {
 export async function getUserByEmail(email) {
   const user = await User.findOne({email});
   return user;
+}
+
+export function getUsers(usersArray) {
+  return User.find({_id: { $in: usersArray }});
 }
 
 export async function createAdminUser({
@@ -80,6 +85,11 @@ export async function getUserDetailsById(userId) {
 }
 
 export async function getUserAccount(userId) {
-  const user = await User.findById(userId).select('account');
-  return user.account;
+  return Account.findOne({ 
+    users: { 
+      $elemMatch : { 
+        $eq: userId 
+      } 
+    } 
+  });
 }

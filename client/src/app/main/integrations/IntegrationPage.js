@@ -293,7 +293,7 @@ function LinnworksIntegrationSettings(props) {
 
     useEffect(() => {
         setCurrentLinnworksStockLocation(chosenLinnworksStockLocation);
-    }, []);
+    }, [chosenLinnworksStockLocation]);
 
     const handleChangeLinnworksLocation = (event, { props }) => {
         setCurrentLinnworksStockLocation(event.target.value);
