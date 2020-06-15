@@ -79,6 +79,11 @@ class AccountService extends FuseUtils.EventEmitter {
         const { data } = await axios.get("/api/account/users");
         return data;
     }
+
+    fetchAccountRetailerCodes = async () => {
+        const { data } = await axios.get("/api/account/retailer-codes");
+        return data;
+    }
 }
 
 const instance = new AccountService();

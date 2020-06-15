@@ -93,6 +93,13 @@ const account = function(state = initialState, action) {
                 isFetching: false
             };
         }
+        case Actions.SET_ACCOUNT_RETAILER_CODES: {
+            return {
+                ...state,
+                retailerCodes: action.payload,
+                isFetching: false
+            };
+        }
 
         default: {
             return state;

@@ -148,7 +148,7 @@ function UsersTable() {
                                                 component="th"
                                                 scope="row"
                                             >
-                                                <div class="flex items-center">
+                                                <div className="flex items-center">
                                                     <Avatar className="mr-10" src={'/assets/images/profile.jpg'} />
                                                     {n.displayName}
                                                 </div>
