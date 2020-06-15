@@ -76,3 +76,7 @@ export async function updateIntegration(account, integrationId, changes) {
   await account.save();
   return account.integrations.id(integrationId);
 }
+
+export function getAccountRetailerCodes(accountId) {
+  return RetailerCode.findOne({ accountId });
+}

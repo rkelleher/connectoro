@@ -30,7 +30,8 @@ import {
   deleteIntegration,
   updateIntegration,
   getIntegrationCredential,
-  getIntegrationByType
+  getIntegrationByType,
+  getAccountRetailerCodes
 } from "./controllers/account.controller.js";
 import {
   buildPopulatedOrdersForAccount,
@@ -1185,6 +1186,18 @@ export async function buildSimpleAPIServer(cg, db) {
       const account = await getUserAccount(authenticatedUserId);
 
       return getUsers(account.users);
+    }
+  });
+
+  server.route({
+    method: "GET",
+    path: "/api/account/retailer-codes",
+    handler: async (request, h) => {
+      const { authenticatedUserId } = request.headers;
+
+      const user = await getUser(authenticatedUserId);
+
+      return getAccountRetailerCodes(user.account);
     }
   });
 
