@@ -1,4 +1,5 @@
 import { Account } from "../models/account.model.js";
+import { DefaultRetailerCode, RetailerCode } from "../models/retailerCode.model.js";
 
 export async function getAccount(accountId) {
   return Account.findById(accountId);
@@ -12,6 +13,13 @@ export async function createNewLinkedAccount(user) {
   user.account = account._id;
   await account.save();
   await user.save();
+
+  const defaultRetailersCodes = await DefaultRetailerCode.find().lean();
+  RetailerCode.create({
+    accountId: account._id,
+    retailerCodes: defaultRetailersCodes
+  });
+
   return account;
 }
 
