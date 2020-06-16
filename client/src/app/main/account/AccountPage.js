@@ -6,7 +6,7 @@ import {
 import { FusePageCarded } from "@fuse";
 import GeneralSettingsTab from "./tabs/GeneralSettingsTab";
 import UsersTab from "./tabs/UsersTab/UsersTab";
-import RetailerCodesTab from "./tabs/RetailerCodesTab";
+import RetailerCodesTab from "./tabs/RetailerCodesTab/RetailerCodesTab";
 import "./AccountPage.css";
 
 function AccountPage() {

@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import * as Actions from "app/store/actions";
 import { FuseLoading } from "@fuse";
 
+import RetailerCodesTable from "./RetailerCodesTable";
+
 function RetailerCodesTab() {
     const dispatch = useDispatch();
 
@@ -15,9 +17,7 @@ function RetailerCodesTab() {
     return account.isFetching ? (
         <FuseLoading />
     ) : (
-        <h1>
-            Retailers
-        </h1>
+        <RetailerCodesTable />
     );
 }
     
