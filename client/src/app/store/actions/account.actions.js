@@ -16,6 +16,7 @@ export const SET_ACCOUNT_USERS = "[ACCOUNT] SET ACCOUNT USERS";
 export const SET_ACCOUNT_RETAILER_CODES = "[ACCOUNT] SET ACCOUNT RETAILER CODES";
 export const DELETE_ACCOUNT_RETAILER_CODE = "[ACCOUNT] DELETE ACCOUNT RETAILER CODE";
 export const UPDATE_ACCOUNT_RETAILER_CODE = "[ACCOUNT] UPDATE ACCOUNT RETAILER CODE";
+export const SET_ACCOUNT_COUNTRIES = "[ACCOUNT] SET ACCOUNT COUNTRIES";
 
 
 export function getAccountDetails() {
@@ -242,4 +243,17 @@ export function updateAccountRetailerCode(code) {
     };
 }
 
+export function getAccountCountries() {
+    return async dispatch => {
+        dispatch({
+            type: START_ACCOUNT_FETCH
+        });
 
+        const { countries } = await accountService.fetchAccountCountries();
+
+        return dispatch({
+            type: SET_ACCOUNT_COUNTRIES,
+            payload: countries
+        });
+    };
+}

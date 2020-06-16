@@ -120,6 +120,13 @@ const account = function(state = initialState, action) {
                 )
             };
         }
+        case Actions.SET_ACCOUNT_COUNTRIES: {
+            return {
+                ...state,
+                countries: action.payload,
+                isFetching: false
+            };
+        }
 
         default: {
             return state;
