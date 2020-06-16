@@ -92,6 +92,15 @@ class AccountService extends FuseUtils.EventEmitter {
         });
         return data;
     };
+
+    updateAccountRetailerCode = async payload => {
+        const { data } = await axios({
+            method: "put",
+            url: `/api/account/retailer-codes/${payload.retailerCode}`,
+            data: payload
+        });
+        return data;
+    };
 }
 
 const instance = new AccountService();

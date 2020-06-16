@@ -108,6 +108,18 @@ const account = function(state = initialState, action) {
                 )
             };
         }
+        case Actions.UPDATE_ACCOUNT_RETAILER_CODE: {
+            return {
+                ...state,
+                retailerCodes: state.retailerCodes.map(
+                    code  => {
+                        return code.retailerCode === action.payload.retailerCode 
+                            ? action.payload
+                            : code;
+                    }
+                )
+            };
+        }
 
         default: {
             return state;

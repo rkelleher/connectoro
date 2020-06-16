@@ -25,6 +25,9 @@ function RetailerCodesTable() {
                 actionsColumnIndex: -1
             }}
             editable={{
+                onRowUpdate: (newData, oldData) => dispatch(
+                    Actions.updateAccountRetailerCode(newData)
+                ),
                 onRowDelete: ({ retailerCode })=> dispatch(
                     Actions.deleteAccountRetailerCode(retailerCode)
                 )
