@@ -80,3 +80,18 @@ export async function updateIntegration(account, integrationId, changes) {
 export function getAccountRetailerCodes(accountId) {
   return RetailerCode.findOne({ accountId });
 }
+
+export async function deleteAccountRetailerCode(accountId, retailerCode) {
+  return RetailerCode.update(
+    { 
+      accountId 
+    },
+    { 
+      $pull: { 
+        retailerCodes: {
+          retailerCode
+        }
+      }
+    }
+  );
+}
