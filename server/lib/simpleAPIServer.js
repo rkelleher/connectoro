@@ -33,7 +33,8 @@ import {
   getIntegrationByType,
   getAccountRetailerCodes,
   deleteAccountRetailerCode,
-  updateAccountRetailerCode
+  updateAccountRetailerCode,
+  getAccountCountries
 } from "./controllers/account.controller.js";
 import {
   buildPopulatedOrdersForAccount,
@@ -1227,6 +1228,18 @@ export async function buildSimpleAPIServer(cg, db) {
       const account = await getUserAccount(authenticatedUserId);
 
       return updateAccountRetailerCode(account._id, retailerCode, payload);
+    }
+  });
+
+  server.route({
+    method: "GET",
+    path: "/api/account/countries",
+    handler: async (request, h) => {
+      const { authenticatedUserId } = request.headers;
+
+      const user = await getUser(authenticatedUserId);
+
+      return getAccountCountries(user.account);
     }
   });
 

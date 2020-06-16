@@ -98,7 +98,7 @@ export function getAccountRetailerCodes(accountId) {
   return RetailerCode.findOne({ accountId });
 }
 
-export async function deleteAccountRetailerCode(accountId, retailerCode) {
+export function deleteAccountRetailerCode(accountId, retailerCode) {
   return RetailerCode.update(
     { 
       accountId 
@@ -113,7 +113,7 @@ export async function deleteAccountRetailerCode(accountId, retailerCode) {
   );
 }
 
-export async function updateAccountRetailerCode(accountId, retailerCode, newValue) {
+export function updateAccountRetailerCode(accountId, retailerCode, newValue) {
   return RetailerCode.update(
     { 
       accountId, 
@@ -129,4 +129,8 @@ export async function updateAccountRetailerCode(accountId, retailerCode, newValu
       }
     }
   );
+}
+
+export function getAccountCountries(accountId) {
+  return Country.findOne({ accountId });
 }
