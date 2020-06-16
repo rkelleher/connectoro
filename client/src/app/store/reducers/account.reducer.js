@@ -93,6 +93,40 @@ const account = function(state = initialState, action) {
                 isFetching: false
             };
         }
+        case Actions.SET_ACCOUNT_RETAILER_CODES: {
+            return {
+                ...state,
+                retailerCodes: action.payload,
+                isFetching: false
+            };
+        }
+        case Actions.DELETE_ACCOUNT_RETAILER_CODE: {
+            return {
+                ...state,
+                retailerCodes: state.retailerCodes.filter(
+                    ({ retailerCode })  => retailerCode !== action.payload
+                )
+            };
+        }
+        case Actions.UPDATE_ACCOUNT_RETAILER_CODE: {
+            return {
+                ...state,
+                retailerCodes: state.retailerCodes.map(
+                    code  => {
+                        return code.retailerCode === action.payload.retailerCode 
+                            ? action.payload
+                            : code;
+                    }
+                )
+            };
+        }
+        case Actions.SET_ACCOUNT_COUNTRIES: {
+            return {
+                ...state,
+                countries: action.payload,
+                isFetching: false
+            };
+        }
 
         default: {
             return state;

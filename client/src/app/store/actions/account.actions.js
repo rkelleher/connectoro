@@ -13,6 +13,10 @@ export const GET_INTEGRATION_DATA  = "[ACCOUNT] GET INTEGRATION DATA";
 export const SET_INTEGRATION_DATA = "[ACCOUNT] SET INTEGRATION DATA";
 export const SET_LINNWORKS_LOCATION_ID = "[ACCOUNT] SET LINNWORKS LOCATION ID";
 export const SET_ACCOUNT_USERS = "[ACCOUNT] SET ACCOUNT USERS";
+export const SET_ACCOUNT_RETAILER_CODES = "[ACCOUNT] SET ACCOUNT RETAILER CODES";
+export const DELETE_ACCOUNT_RETAILER_CODE = "[ACCOUNT] DELETE ACCOUNT RETAILER CODE";
+export const UPDATE_ACCOUNT_RETAILER_CODE = "[ACCOUNT] UPDATE ACCOUNT RETAILER CODE";
+export const SET_ACCOUNT_COUNTRIES = "[ACCOUNT] SET ACCOUNT COUNTRIES";
 
 
 export function getAccountDetails() {
@@ -198,6 +202,58 @@ export function getAccountUsers() {
         return dispatch({
             type: SET_ACCOUNT_USERS,
             payload: users
+        });
+    };
+}
+
+export function getAccountRetailerCodes() {
+    return async dispatch => {
+        dispatch({
+            type: START_ACCOUNT_FETCH
+        });
+
+        const res = await accountService.fetchAccountRetailerCodes();
+
+        return dispatch({
+            type: SET_ACCOUNT_RETAILER_CODES,
+            payload: res.retailerCodes
+        });
+    };
+}
+
+export function deleteAccountRetailerCode(retailerCode) {
+    return async dispatch => {
+        accountService.deleteAccountRetailerCode(retailerCode);
+
+        return dispatch({
+            type: DELETE_ACCOUNT_RETAILER_CODE,
+            payload: retailerCode
+        });
+    };
+}
+
+export function updateAccountRetailerCode(code) {
+    return async dispatch => {
+        accountService.updateAccountRetailerCode(code);
+
+        return dispatch({
+            type: UPDATE_ACCOUNT_RETAILER_CODE,
+            payload: code
+        });
+    };
+}
+
+export function getAccountCountries() {
+    return async dispatch => {
+        dispatch({
+            type: START_ACCOUNT_FETCH
+        });
+
+        const { countries } = await accountService.fetchAccountCountries();
+
+        return dispatch({
+            type: SET_ACCOUNT_COUNTRIES,
+            payload: countries
         });
     };
 }

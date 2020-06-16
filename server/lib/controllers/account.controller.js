@@ -1,7 +1,27 @@
 import { Account } from "../models/account.model.js";
+import { DefaultRetailerCode, RetailerCode } from "../models/retailerCode.model.js";
+import { DefaultCountry, Country } from "../models/country.model.js";
 
 export async function getAccount(accountId) {
   return Account.findById(accountId);
+}
+
+export async function fillAccountWithDefaultRetailers(accountId) {
+  const retailerCodes = await DefaultRetailerCode.find().lean();
+        
+  RetailerCode.create({
+    accountId,
+    retailerCodes
+  });
+}
+
+export async function fillAccountWithDefaultCountries(accountId) {
+  const countries = await DefaultCountry.find().lean();
+        
+  Country.create({
+    accountId,
+    countries
+  });
 }
 
 export async function createNewLinkedAccount(user) {
@@ -9,9 +29,14 @@ export async function createNewLinkedAccount(user) {
     email: user.email,
     users: [user._id]
   });
+
   user.account = account._id;
   await account.save();
   await user.save();
+
+  fillAccountWithDefaultRetailers(account._id);
+  fillAccountWithDefaultCountries(account._id);
+
   return account;
 }
 
@@ -67,4 +92,45 @@ export async function updateIntegration(account, integrationId, changes) {
 
   await account.save();
   return account.integrations.id(integrationId);
+}
+
+export function getAccountRetailerCodes(accountId) {
+  return RetailerCode.findOne({ accountId });
+}
+
+export function deleteAccountRetailerCode(accountId, retailerCode) {
+  return RetailerCode.update(
+    { 
+      accountId 
+    },
+    { 
+      $pull: { 
+        retailerCodes: {
+          retailerCode
+        }
+      }
+    }
+  );
+}
+
+export function updateAccountRetailerCode(accountId, retailerCode, newValue) {
+  return RetailerCode.update(
+    { 
+      accountId, 
+      retailerCodes: { 
+        $elemMatch: { 
+          retailerCode
+        }
+      }
+    },
+    { 
+      $set: { 
+        'retailerCodes.$': newValue
+      }
+    }
+  );
+}
+
+export function getAccountCountries(accountId) {
+  return Country.findOne({ accountId });
 }

@@ -6,6 +6,8 @@ import {
 import { FusePageCarded } from "@fuse";
 import GeneralSettingsTab from "./tabs/GeneralSettingsTab";
 import UsersTab from "./tabs/UsersTab/UsersTab";
+import RetailerCodesTab from "./tabs/RetailerCodesTab/RetailerCodesTab";
+import CountriesTab from "./tabs/CountriesTab/CountriesTab";
 import "./AccountPage.css";
 
 function AccountPage() {
@@ -37,6 +39,8 @@ function AccountPage() {
                 >
                     <Tab className="h-64" label="General Settings" />
                     <Tab className="h-64" label="Users" />
+                    <Tab className="h-64" label="Countries" />
+                    <Tab className="h-64" label="Retailers" />
                 </Tabs>
             }
             content={
@@ -47,6 +51,8 @@ function AccountPage() {
                         </div>
                     }
                     {selectedTab === 1 && <UsersTab />}
+                    {selectedTab === 2 && <CountriesTab />}
+                    {selectedTab === 3 && <RetailerCodesTab />}
                 </>
             }
         />
