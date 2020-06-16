@@ -95,3 +95,21 @@ export async function deleteAccountRetailerCode(accountId, retailerCode) {
     }
   );
 }
+
+export async function updateAccountRetailerCode(accountId, retailerCode, newValue) {
+  return RetailerCode.update(
+    { 
+      accountId, 
+      retailerCodes: { 
+        $elemMatch: { 
+          retailerCode
+        }
+      }
+    },
+    { 
+      $set: { 
+        'retailerCodes.$': newValue
+      }
+    }
+  );
+}
