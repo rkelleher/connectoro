@@ -7,8 +7,7 @@ const retailerCode = {
   },
   retailerCode: {
     type: String,
-    default: "",
-    unique: true
+    default: ""
   },
   retailerIcon: {
     type: String,

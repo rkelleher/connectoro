@@ -1,8 +1,27 @@
 import { Account } from "../models/account.model.js";
 import { DefaultRetailerCode, RetailerCode } from "../models/retailerCode.model.js";
+import { DefaultCountry, Country } from "../models/country.model.js";
 
 export async function getAccount(accountId) {
   return Account.findById(accountId);
+}
+
+export async function fillAccountWithDefaultRetailers(accountId) {
+  const retailerCodes = await DefaultRetailerCode.find().lean();
+        
+  RetailerCode.create({
+    accountId,
+    retailerCodes
+  });
+}
+
+export async function fillAccountWithDefaultCountries(accountId) {
+  const countries = await DefaultCountry.find().lean();
+        
+  Country.create({
+    accountId,
+    countries
+  });
 }
 
 export async function createNewLinkedAccount(user) {
@@ -10,15 +29,13 @@ export async function createNewLinkedAccount(user) {
     email: user.email,
     users: [user._id]
   });
+
   user.account = account._id;
   await account.save();
   await user.save();
 
-  const defaultRetailersCodes = await DefaultRetailerCode.find().lean();
-  RetailerCode.create({
-    accountId: account._id,
-    retailerCodes: defaultRetailersCodes
-  });
+  fillAccountWithDefaultRetailers(account._id);
+  fillAccountWithDefaultCountries(account._id);
 
   return account;
 }
