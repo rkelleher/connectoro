@@ -25,6 +25,12 @@ function RetailerCodesTable() {
                 actionsColumnIndex: -1
             }}
             editable={{
+                onRowAdd: newData =>
+                    new Promise((resolve, reject) => {
+                        setTimeout(() => {
+                            resolve();
+                        }, 1000)
+                    }),
                 onRowUpdate: (newData, oldData) => dispatch(
                     Actions.updateAccountRetailerCode(newData)
                 ),
