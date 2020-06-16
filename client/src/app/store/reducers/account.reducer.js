@@ -100,6 +100,14 @@ const account = function(state = initialState, action) {
                 isFetching: false
             };
         }
+        case Actions.DELETE_ACCOUNT_RETAILER_CODE: {
+            return {
+                ...state,
+                retailerCodes: state.retailerCodes.filter(
+                    ({ retailerCode })  => retailerCode !== action.payload
+                )
+            };
+        }
 
         default: {
             return state;

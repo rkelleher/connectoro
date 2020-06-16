@@ -14,6 +14,7 @@ export const SET_INTEGRATION_DATA = "[ACCOUNT] SET INTEGRATION DATA";
 export const SET_LINNWORKS_LOCATION_ID = "[ACCOUNT] SET LINNWORKS LOCATION ID";
 export const SET_ACCOUNT_USERS = "[ACCOUNT] SET ACCOUNT USERS";
 export const SET_ACCOUNT_RETAILER_CODES = "[ACCOUNT] SET ACCOUNT RETAILER CODES";
+export const DELETE_ACCOUNT_RETAILER_CODE = "[ACCOUNT] DELETE ACCOUNT RETAILER CODE";
 
 
 export function getAccountDetails() {
@@ -217,3 +218,15 @@ export function getAccountRetailerCodes() {
         });
     };
 }
+
+export function deleteAccountRetailerCode(retailerCode) {
+    return async dispatch => {
+        accountService.deleteAccountRetailerCode(retailerCode);
+
+        return dispatch({
+            type: DELETE_ACCOUNT_RETAILER_CODE,
+            payload: retailerCode
+        });
+    };
+}
+
