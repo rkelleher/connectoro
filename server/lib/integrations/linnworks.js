@@ -8,6 +8,11 @@ import { Product } from '../models/product.model.js';
 
 export const LINNW_INTEGRATION_TYPE = 'LINNW';
 
+export const DEFAULT_LOCATION = {
+  StockLocationId: '00000000-0000-0000-0000-000000000000',
+  LocationName: 'Default'
+};
+
 export async function convertLinnworksOrder(account, inputOrder) {
   // const integration = account.integrations.find(el => el.integrationType === LINNW_INTEGRATION_TYPE);
 
