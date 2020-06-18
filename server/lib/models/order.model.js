@@ -5,6 +5,7 @@ import {
   easyncOrderDataShape,
   easyncOrderProductDataShape
 } from "../integrations/easync/easync.js";
+import { LINNW_INTEGRATION_TYPE, linnwOrderDataShape } from "../integrations/linnworks.js";
 
 const OrderProductSchema = new mongoose.Schema({
   productId: mongoose.Schema.Types.ObjectId,
@@ -65,9 +66,6 @@ const OrderSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     index: true
   },
-  linwId: {
-    type: String
-  },
   easyncOrderStatus: {
     requestId: {
       type: String
@@ -89,7 +87,8 @@ const OrderSchema = new mongoose.Schema({
     default: () => ({})
   },
   integrationData: {
-    [EASYNC_INTEGRATION_TYPE]: easyncOrderDataShape
+    [EASYNC_INTEGRATION_TYPE]: easyncOrderDataShape,
+    [LINNW_INTEGRATION_TYPE]: linnwOrderDataShape
   },
   createdDate: {
     type: Date,

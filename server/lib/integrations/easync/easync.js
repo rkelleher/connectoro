@@ -39,7 +39,7 @@ export const easyncOrderDataShape = {
   },
   shippingMethod: {
     type: String,
-    default: ""
+    default: "free"
   },
   countryCode: {
     type: String,
@@ -47,15 +47,15 @@ export const easyncOrderDataShape = {
   },
   isGift: {
     type: Boolean,
-    default: false
+    default: true
   },
   isFBE: {
     type: Boolean,
-    default: false
+    default: true
   },
   maxOrderPrice: {
     type: Number,
-    default: 0
+    default: 2199
   }
 };
 

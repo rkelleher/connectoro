@@ -1,7 +1,7 @@
 import { buildDatabase } from './lib/services/database.js';
 import { buildSimpleAPIServer } from './lib/simpleAPIServer.js';
-import ServiceOrderChecker from './lib/services/requestIdChecker.js';
-import { cronFetchFromLinworks } from './lib/services/order.js';
+import ServiceOrderChecker from './lib/crons/requestIdChecker.cron.js';
+import { cronFetchFromLinworks } from './lib/crons/pull-linnworks.cron.js';
 import config from 'nconf';
 
 (async () => {
@@ -30,7 +30,7 @@ import config from 'nconf';
 
   await apiServer.start();
   await ServiceOrderChecker.start();
-  // await cronFetchFromLinworks().start(cg);
+  await cronFetchFromLinworks().start(cg);
 
   console.log("Connectoro API Server running on %s", apiServer.info.uri);
 })()
