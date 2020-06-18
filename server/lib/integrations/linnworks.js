@@ -13,6 +13,15 @@ export const DEFAULT_LOCATION = {
   LocationName: 'Default'
 };
 
+export const linnwOrderDataShape = {
+  numOrderId: {
+    type: Number
+  },
+  status: {
+    type: Number
+  }
+};
+
 export async function convertLinnworksOrder(account, inputOrder) {
   // const integration = account.integrations.find(el => el.integrationType === LINNW_INTEGRATION_TYPE);
 
