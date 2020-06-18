@@ -40,7 +40,7 @@ const rows = [
         sort: true
     },
     {
-        id: "date",
+        id: "createdDate",
         align: "left",
         disablePadding: false,
         label: "Date",

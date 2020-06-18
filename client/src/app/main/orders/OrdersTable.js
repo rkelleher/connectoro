@@ -21,10 +21,10 @@ function OrdersTable(props) {
     const [selected, setSelected] = useState([]);
     const [data, setData] = useState(orders);
     const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [rowsPerPage, setRowsPerPage] = useState(100);
     const [order, setOrder] = useState({
-        direction: "asc",
-        id: null
+        direction: "desc",
+        id: 'createdDate'
     });
 
     useEffect(() => {
