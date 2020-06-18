@@ -12,14 +12,15 @@ import * as AccountService from "../services/account.service.js";
 import * as IntegrationUtil from '../utils/integration.util.js';
 import { Order } from '../models/order.model.js';
 
-async function pullLinnworksOrder(order) {
+async function pullLinnworksOrder(order, account) {
   const dbOrder = await Order.findOne({ 
-    'integrationData.LINNW.numOrderId': 390584
+    'integrationData.LINNW.numOrderId': order.NumOrderId
   });
 
   if (dbOrder) { return; }
 
   const convertedOrder = IntegrationUtil.convertLinnworksOrder(order);
+  convertedOrder.accountId = account._id;
 
   return Order.create(convertedOrder);
 }
@@ -49,7 +50,7 @@ async function pullLinnworksOrdersByLocation(account, cg) {
     1
   );
      
-  return Bluebird.each(orders.Data, async order => pullLinnworksOrder(order));
+  return Bluebird.each(orders.Data, async order => pullLinnworksOrder(order, account));
 }
 
 export const cronFetchFromLinworks = (cg) => cron.schedule('0 */30 * * * *',  async () => {
