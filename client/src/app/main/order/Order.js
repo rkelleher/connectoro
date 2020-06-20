@@ -405,24 +405,13 @@ function OrderEasyncDetails({ order }) {
 function GeneralTab({ order }) {
     return (
         <>
-        <table>
-        <tbody>
-        <tr>
-        <td>
-        <OrderCustomer order={order} />
-    </td>
-    <td style={{ verticalAlign: "top" }}>
-<OrderOptions order={order} />
-    <OrderEasyncDetails order={order} />
-    </td>
-    </tr>
-    </tbody>
-    </table>
-    <Divider />
-    <br />
-    <OrderProducts order={order} />
-    </>
-);
+            <OrderCustomer order={order} />
+            <OrderOptions order={order} />
+            <OrderEasyncDetails order={order} />
+            <Divider />
+            <OrderProducts order={order} />
+        </>
+    );
 }
 
 function Order(props) {

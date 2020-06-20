@@ -35,7 +35,6 @@ export default ({ data }) => {
                         saveAction={Actions.saveAccountEasyncOrderOptions}
                         isSaving={orderOptionsIsSaving}
                         isInline
-                        maxWidth={600}
                     />
                 </div>
 
@@ -52,7 +51,6 @@ export default ({ data }) => {
                         saveAction={
                                 Actions.saveAccountEasyncProductSelectionCriteriaOptions
                         }
-                        maxWidth={600}
                     />
                 </div>
             </div>

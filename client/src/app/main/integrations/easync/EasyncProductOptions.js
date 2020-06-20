@@ -16,8 +16,7 @@ export default ({
     saveAction,
     saveActionParam,
     saveActionParam2,
-    isInline,
-    maxWidth
+    isInline
 }) => {
     const selectionCriteria = data.selectionCriteria;
     return (
@@ -35,7 +34,6 @@ export default ({
                             saveActionParam2={saveActionParam2}
                             isSaving={isSaving}
                             getArrayChoices={getSelectionCriteriaArrayChoices}
-                            maxWidth={maxWidth}                 
                         />
                     </div>
                 </>
