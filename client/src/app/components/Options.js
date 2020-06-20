@@ -3,7 +3,17 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useForm } from "@fuse/hooks";
 import { Option } from "./Option";
-import { Button } from "@material-ui/core";
+import { Grid, Button, makeStyles } from "@material-ui/core";
+
+const useStyles = makeStyles(theme => ({
+    saveBtnContainer: {
+        marginTop: 10,
+        display: 'flex',
+        [theme.breakpoints.down('sm')]: {
+            justifyContent: 'center'
+        }
+    }
+}));
 
 export function Options({
     id,
@@ -14,9 +24,10 @@ export function Options({
     saveActionParam2,
     isSaving,
     getArrayChoices,
-    stringOptions,
-    maxWidth = 500
+    stringOptions
 }) {
+    const classes = useStyles();
+
     const dispatch = useDispatch();
     const { form, handleChange, setForm, setInForm } = useForm(null);
     const [formId, setFormId] = useState(null);
@@ -50,68 +61,50 @@ export function Options({
 
     return (
         form &&
-        formId === id && (
-            <div style={{ maxWidth }}>
-                <div
-                    style={isInline &&
-                        {
-                            display: 'flex',
-                            alignItems: 'center',
-                            flexWrap: 'wrap'
-                        }
-                    }
-                >
-                    {Object.keys(data) &&
-                        Object.keys(data).map(key => {
-                            return (
-                                <div
-                                    key={key}
-                                    style={{
-                                        margin: 10,
-                                        display: isInline
-                                            ? "inline-block"
-                                            : "block"
-                                    }}
-                                >
-                                    <Option
-                                        isInline={isInline}
-                                        optionKey={key}
-                                        form={form}
-                                        label={key}
-                                        setInForm={setInForm}
-                                        handleChange={handleChange}
-                                        choices={
-                                            {
-                                                "string":
-                                                    stringOptions &&
-                                                    stringOptions[key]
-                                                        ? stringOptions[key]
-                                                        : "str",
-                                                "boolean": "bool",
-                                                "number": "int",
-                                                "object":
-                                                    (getArrayChoices &&
-                                                        getArrayChoices(key)) ||
-                                                    []
-                                            }[typeof data[key]]
-                                        }
-                                    />
-                                </div>
-                            );
-                        })}
-                </div>
+        formId === id && (<>
+            <Grid container spacing={2}>
+                {Object.keys(data) &&
+                    Object.keys(data).map(key => {
+                        return (
+                            <Grid item xs={6} sm={3}>
+                                <Option
+                                    isInline={isInline}
+                                    optionKey={key}
+                                    form={form}
+                                    label={key}
+                                    setInForm={setInForm}
+                                    handleChange={handleChange}
+                                    choices={
+                                        {
+                                            "string":
+                                                stringOptions &&
+                                                stringOptions[key]
+                                                    ? stringOptions[key]
+                                                    : "str",
+                                            "boolean": "bool",
+                                            "number": "int",
+                                            "object":
+                                                (getArrayChoices &&
+                                                    getArrayChoices(key)) ||
+                                                []
+                                        }[typeof data[key]]
+                                    }
+                                />
+                            </Grid>
+                        );
+                    })}
+            </Grid>
 
-                <div style={{ margin: 10 }}>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        disabled={!canBeSubmitted()}
-                        onClick={handleSubmit}
-                    >
-                        {isSaving ? "Saving..." : "Save Changes"}
-                    </Button>
-                </div>
+            <div className={classes.saveBtnContainer}>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    disabled={!canBeSubmitted()}
+                    onClick={handleSubmit}
+                >
+                    {isSaving ? "Saving..." : "Save Changes"}
+                </Button>
             </div>
-        )
+        </>)
     );
 }
