@@ -21,7 +21,7 @@ export function convertLinnworksOrder(linnwOrder) {
         : '',
       addressLine1: Address.Address1,
       addressLine2: Address.Address2,
-      addressLine3: Address.Address2
+      addressLine3: Address.Address2 && Address.Address2
         ? `${Address.Address2}, ${Address.Address3}`
         : Address.Address3,
       zipCode: Address.PostCode,
