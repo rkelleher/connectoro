@@ -73,7 +73,7 @@ export function awaitCheckAndUpdateOrder({ orderId, requestId, token }) {
   if (!token || !orderId && !requestId) return null;
 
   setTimeout(async () => {
-    const data = await getStatusByRequestId(requestId);
+    const data = await getStatusByRequestId(requestId, token);
 
     const { _type, code, message } = data;
 
