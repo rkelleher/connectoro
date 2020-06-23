@@ -5,7 +5,9 @@ import {
     TableCell,
     TablePagination,
     TableRow,
-    Checkbox
+    Checkbox,
+    Button,
+    Icon
 } from "@material-ui/core";
 import { FuseScrollbars } from "@fuse";
 import { withRouter } from "react-router-dom";
@@ -92,7 +94,7 @@ function OrdersTable(props) {
     return (
         <div className="w-full flex flex-col">
             <FuseScrollbars className="flex-grow overflow-x-auto">
-                <Table className="min-w-xl" aria-labelledby="tableTitle">
+                <Table className="min-w-xl order-table" aria-labelledby="tableTitle">
                     <OrdersTableHead
                         numSelected={selected.length}
                         order={order}
@@ -156,14 +158,7 @@ function OrdersTable(props) {
                                                 component="th"
                                                 scope="row"
                                             >
-                                                {n._id}
-                                            </TableCell>
-
-                                            <TableCell
-                                                component="th"
-                                                scope="row"
-                                            >
-                                                {n.orderProducts.length}
+                                                {new Date(n.createdDate).toUTCString()}
                                             </TableCell>
 
                                             <TableCell
@@ -177,7 +172,51 @@ function OrdersTable(props) {
                                                 component="th"
                                                 scope="row"
                                             >
-                                                {new Date(n.createdDate).toUTCString()}
+                                                {n.orderProducts.length}
+                                            </TableCell>
+
+                                            <TableCell
+                                                component="th"
+                                                scope="row"
+                                            >
+                                                {n.easyncOrderStatus && n.easyncOrderStatus.status}
+                                            </TableCell>
+
+                                            <TableCell
+                                                component="th"
+                                                scope="row"
+                                            >
+                                                <Button variant="contained" className="mr-8"
+                                                    onClick={event =>
+                                                        event.stopPropagation()
+                                                    }
+                                                >
+                                                    <Icon>shopping_cart</Icon>
+                                                </Button>
+                                                <Button variant="contained" className="mr-8"
+                                                    onClick={event =>
+                                                        event.stopPropagation()
+                                                    }
+                                                >
+                                                    <Icon>block</Icon>
+                                                </Button>
+                                                <Button variant="contained" className="mr-8"
+                                                    onClick={event =>
+                                                        event.stopPropagation()
+                                                    }
+                                                >
+                                                    <Icon>local_shipping</Icon>
+                                                </Button>
+                                                <Button variant="contained" className="mr-8"
+                                                    onClick={event =>
+                                                        event.stopPropagation()
+                                                    }
+                                                >
+                                                    <Icon>backspace</Icon>
+                                                </Button>
+                                                <Button variant="contained">
+                                                    <Icon>format_list_bulleted</Icon>
+                                                </Button>
                                             </TableCell>
                                         </TableRow>
                                     );

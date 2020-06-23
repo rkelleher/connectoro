@@ -35,6 +35,7 @@ export default ({ data }) => {
                         saveAction={Actions.saveAccountEasyncOrderOptions}
                         isSaving={orderOptionsIsSaving}
                         isInline
+                        smCol={2}
                     />
                 </div>
 
@@ -51,6 +52,7 @@ export default ({ data }) => {
                         saveAction={
                                 Actions.saveAccountEasyncProductSelectionCriteriaOptions
                         }
+                        smCol={2}
                     />
                 </div>
             </div>

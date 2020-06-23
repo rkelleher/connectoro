@@ -29,3 +29,7 @@
     margin-left: 0.5em;
     min-width: 2em;
 }
+
+.order-table tr th:last-child {
+    white-space: nowrap;
+}
