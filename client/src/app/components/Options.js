@@ -24,7 +24,8 @@ export function Options({
     saveActionParam2,
     isSaving,
     getArrayChoices,
-    stringOptions
+    stringOptions,
+    smCol=3
 }) {
     const classes = useStyles();
 
@@ -66,7 +67,7 @@ export function Options({
                 {Object.keys(data) &&
                     Object.keys(data).map(key => {
                         return (
-                            <Grid item xs={6} sm={3}>
+                            <Grid item xs={6} sm={smCol}>
                                 <Option
                                     isInline={isInline}
                                     optionKey={key}

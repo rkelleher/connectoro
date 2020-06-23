@@ -348,27 +348,30 @@ const OrderCustomer = ({ order }) => {
 
 const OrderOptions = ({ order }) => {
     const isSaving = useSelector(({ order }) => order.easyncOptionsSaving);
+
     return (
         <div className="pb-48">
-        <div className="pb-16 flex items-center">
-        <Typography className="h2" color="textSecondary">
-        Easync Options
-    </Typography>
-    </div>
-    <EasyncOrderOptions
-    optionSource={order}
-    optionKeys={[
-            "shippingMethod",
-        "isGift",
-        "isFBE",
-        "maxOrderPrice"
-]}
-    saveAction={Actions.saveOrderEasyncOptions}
-    saveActionParam={order._id}
-    isSaving={isSaving}
-    />
-    </div>
-);
+            <div className="pb-16 flex items-center">
+                <Typography className="h2" color="textSecondary">
+                    Easync Options
+                </Typography>
+            </div>
+
+            <EasyncOrderOptions
+                optionSource={order}
+                optionKeys={[
+                    "shippingMethod",
+                    "isGift",
+                    "isFBE",
+                    "maxOrderPrice"
+                ]}
+                saveAction={Actions.saveOrderEasyncOptions}
+                saveActionParam={order._id}
+                isSaving={isSaving}
+                smCol={2}
+            />
+        </div>
+    );
 };
 
 function OrderEasyncDetails({ order }) {
