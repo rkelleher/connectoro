@@ -19,17 +19,10 @@ import { makeStyles } from "@material-ui/styles";
 
 const rows = [
     {
-        id: "id",
+        id: "createdDate",
         align: "left",
         disablePadding: false,
-        label: "ID",
-        sort: true
-    },
-    {
-        id: "numProd",
-        align: "left",
-        disablePadding: false,
-        label: "Products",
+        label: "Date",
         sort: true
     },
     {
@@ -40,10 +33,24 @@ const rows = [
         sort: true
     },
     {
-        id: "createdDate",
+        id: "numProd",
         align: "left",
         disablePadding: false,
-        label: "Date",
+        label: "Products",
+        sort: true
+    },
+    {
+        id: "status",
+        align: "left",
+        disablePadding: false,
+        label: "Status",
+        sort: true
+    },
+    {
+        id: "controls",
+        align: "left",
+        disablePadding: false,
+        label: "Controls",
         sort: true
     }
 ];
