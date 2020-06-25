@@ -40,12 +40,13 @@ const OrderHeader = ({ order }) => {
 
     const buttonVariant = (_status) => (
         <Button
-            className='SendOrderButton'
+            className='SendOrderButton mr-8'
             variant="contained"
             onClick={() => dispatch(Actions.testSendOrder(order._id))}
             {...isLoading ? {disabled: true} : ''}
             {..._status === 'order_response' ? {hidden: true} : ''}
         >
+            <Icon className="mr-4 text-20">shopping_cart</Icon>
             Send Order Via Easync
         </Button>
     );
@@ -66,27 +67,42 @@ const OrderHeader = ({ order }) => {
                     </Typography>
                 </FuseAnimate>
 
-    <div className="flex flex-col min-w-0 items-center sm:items-start">
-        <FuseAnimate animation="transition.slideLeftIn" delay={300}>
-        <Typography className={`text-16 sm:text-20 truncate OrderId`}>
-        {"Order " + order._id}
-        </Typography>
-        </FuseAnimate>
+                <div className="flex flex-col min-w-0 items-center sm:items-start">
+                    <FuseAnimate animation="transition.slideLeftIn" delay={300}>
+                        <Typography className={`text-16 sm:text-20 truncate OrderId`}>
+                            {"Order " + order._id}
+                        </Typography>
+                    </FuseAnimate>
 
-        <FuseAnimate animation="transition.slideLeftIn" delay={300}>
-        <Typography variant="caption">
-        {order.inputIntegrationType
-                ? `From ${order.inputIntegrationType}`
-                : "Manual Order"}
-        </Typography>
-        </FuseAnimate>
+                    <FuseAnimate animation="transition.slideLeftIn" delay={300}>
+                        <Typography variant="caption">
+                            {order.inputIntegrationType
+                                    ? `From ${order.inputIntegrationType}`
+                                    : "Manual Order"}
+                        </Typography>
+                    </FuseAnimate>
+                </div>
+            </div>
+
+            <FuseAnimate animation="transition.slideRightIn" delay={300}>
+                <div className="order-page-header">
+                    {buttonVariant(_status)}
+                    <Button variant="contained" className="mr-8">
+                        <Icon>block</Icon>
+                    </Button>
+                    <Button variant="contained" className="mr-8">
+                        <Icon>local_shipping</Icon>
+                    </Button>
+                    <Button variant="contained" className="mr-8">
+                        <Icon>backspace</Icon>
+                    </Button>
+                    <Button variant="contained">
+                        <Icon>refresh</Icon>
+                    </Button>
+                </div>
+            </FuseAnimate>
         </div>
-        </div>
-        <FuseAnimate animation="transition.slideRightIn" delay={300}>
-            {buttonVariant(_status)}
-     </FuseAnimate>
-    </div>
-);
+    );
 };
 
 const OrderData = order => {

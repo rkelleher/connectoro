@@ -214,7 +214,11 @@ function OrdersTable(props) {
                                                 >
                                                     <Icon>backspace</Icon>
                                                 </Button>
-                                                <Button variant="contained">
+                                                <Button variant="contained"
+                                                    onClick={event =>
+                                                        event.stopPropagation()
+                                                    }
+                                                >
                                                     <Icon>format_list_bulleted</Icon>
                                                 </Button>
                                             </TableCell>
