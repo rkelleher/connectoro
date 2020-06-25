@@ -52,7 +52,7 @@ const OrderHeader = ({ order }) => {
     );
 
     return (
-        <div className="flex flex-1 w-full items-center justify-between">
+        <div className="flex flex-1 flex-col sm:flex-row w-full items-center justify-between">
             <div className="flex flex-1 flex-col items-center sm:items-start">
                 <FuseAnimate animation="transition.slideRightIn" delay={300}>
                     <Typography
@@ -452,25 +452,25 @@ function Order(props) {
         <FuseLoading />
 ) : (
     <FusePageCarded
-    classes={{
+        classes={{
         content: "flex",
-            header: "min-h-72 h-72 sm:h-136 sm:min-h-136"
-    }}
-    header={order && <OrderHeader order={order} />}
-    contentToolbar={
-        <Tabs
-    value={tabValue}
-    onChange={handleChangeTab}
-    indicatorColor="secondary"
-    textColor="secondary"
-    variant="scrollable"
-    scrollButtons="auto"
-    classes={{ root: "w-full h-64" }}
->
-<Tab className="h-64 normal-case" label="Order" />
-        <Tab className="h-64 normal-case" label="Data" />
-        </Tabs>
-}
+            header: "min-h-136 my-20 sm:my-0"
+        }}
+        header={order && <OrderHeader order={order} />}
+        contentToolbar={
+            <Tabs
+                value={tabValue}
+                onChange={handleChangeTab}
+                indicatorColor="secondary"
+                textColor="secondary"
+                variant="scrollable"
+                scrollButtons="auto"
+                classes={{ root: "w-full h-64" }}
+            >
+                <Tab className="h-64 normal-case" label="Order" />
+                <Tab className="h-64 normal-case" label="Data" />
+            </Tabs>
+        }
     content={
             order && (
         <div className="p-16 sm:p-24 max-w-2xl w-full">
