@@ -1,8 +1,11 @@
+import _ from "lodash";
+const get = _.get;
+
 import { LINNW_INTEGRATION_TYPE } from "../integrations/linnworks.js";
 import { EASYNC_INTEGRATION_TYPE, buildEasyncOrderData } from "../integrations/easync/easync.js";
 
 export function getIntegrationByType(account, integrationType) {
-  return account.integrations.find(el => 
+  return account.integrations.find(el =>
     el.integrationType === integrationType
   );
 }
@@ -16,7 +19,7 @@ export function convertLinnworksOrder(linnwOrder) {
 
   const shippingAddress = {
       firstName: Address.FullName,
-      lastName: Address.Company 
+      lastName: Address.Company
         ? `${Address.FullName} - ${Address.Company}`
         : '',
       addressLine1: Address.Address1,
@@ -43,4 +46,21 @@ export function convertLinnworksOrder(linnwOrder) {
     shippingAddress,
     integrationData
   };
+}
+
+export function convertLinnworksProduct(product, account) {
+  return ({
+    SKU: product.SKU,
+    title: product.Title,
+    description: product.ChannelTitle,
+    integrationData: {
+      [EASYNC_INTEGRATION_TYPE]: {
+        orderProductData: get(account, [
+          "integrationData",
+          EASYNC_INTEGRATION_TYPE,
+          "orderProductData"
+        ])
+      }
+    }
+  })
 }
