@@ -708,6 +708,12 @@ export async function buildSimpleAPIServer(cg, db) {
           product.title = changes.title;
         }
         if (changeKey === "SKU") {
+          const isSKUexists = await Product.findOne({ SKU: changes.SKU });
+
+          if (isSKUexists) {
+            return Boom.badRequest("This SKU already exists");
+          }
+
           product.SKU = changes.SKU;
         }
       }
@@ -1158,9 +1164,9 @@ export async function buildSimpleAPIServer(cg, db) {
 
       const linnwIntegrationData = account.integrationData[LINNW_INTEGRATION_TYPE];
 
-      const newLocation = linnwIntegrationData.locations.find(el => 
+      const newLocation = linnwIntegrationData.locations.find(el =>
         el.StockLocationId === StockLocationId
-      ); 
+      );
 
       if (!newLocation) {
         throw Boom.badRequest('There aren\'t location with this id!');
