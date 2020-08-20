@@ -28,27 +28,38 @@ export function getProduct({ productId }) {
 
 export function saveProductDetails(form, productId) {
     return async dispatch => {
-        dispatch({
-            type: SAVING_PRODUCT
-        });
-        const { data } = await axios.patch(`/api/products/${productId}`, {
-            changes: form
-        });
-        if (data) {
+        try {
             dispatch({
-                type: SET_PRODUCT,
-                payload: data
+                type: SAVING_PRODUCT
             });
-        } else {
+
+            const { data } = await axios.patch(`/api/products/${productId}`, {
+                changes: form
+            });
+
+            if (data) {
+                dispatch({
+                    type: SET_PRODUCT,
+                    payload: data
+                });
+            } else {
+                dispatch(
+                    Actions.showMessage({
+                        message: "Could not save Product, please try again"
+                    })
+                );
+            }
+
+            return dispatch({
+                type: SAVED_PRODUCT
+            });
+        } catch (error) {
             dispatch(
                 Actions.showMessage({
-                    message: "Could not save Product, please try again"
+                    message: error.response.data.message
                 })
             );
         }
-        return dispatch({
-            type: SAVED_PRODUCT
-        });
     };
 }
 
