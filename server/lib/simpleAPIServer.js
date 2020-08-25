@@ -100,6 +100,15 @@ export async function buildSimpleAPIServer(cg, db) {
 
   server.auth.default("jwt");
 
+  // Get current version
+  server.route({
+    method: "GET",
+    path: "/api/current-version",
+    handler: async (request, h) => {
+      return { version: 1.0 };
+    }
+  });
+
   // Test send order
   server.route({
     method: "POST",

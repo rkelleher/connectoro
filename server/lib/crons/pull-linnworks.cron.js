@@ -1,6 +1,5 @@
 import cron from 'node-cron';
 import _ from "lodash";
-const get = _.get;
 import Bluebird from "bluebird";
 
 import {
@@ -13,54 +12,37 @@ import * as AccountService from "../services/account.service.js";
 import * as IntegrationUtil from '../utils/integration.util.js';
 import { Order } from '../models/order.model.js';
 import { Product } from '../models/product.model.js';
-import { EASYNC_INTEGRATION_TYPE } from '../integrations/easync/easync.js';
-
-export async function pullLinnworksProduct(product, account) {
-  const dbProduct = await Product.findOne({ SKU: product.SKU });
-
-  if (dbProduct) {
-    return dbProduct;
-  }
-
-  const convertedProduct = IntegrationUtil.convertLinnworksProduct(product, account);
-  convertedProduct.accountId = account._id;
-
-  return Product.create(convertedProduct);
-}
 
 async function pullLinnworksOrder(order, account) {
-  let dbOrder = await Order.findOne({
+  const isOrderExists = await Order.findOne({
     'integrationData.LINNW.numOrderId': order.NumOrderId
   });
 
-  if (!dbOrder) {
-    const convertedOrder = IntegrationUtil.convertLinnworksOrder(order);
-    convertedOrder.accountId = account._id;
-
-    dbOrder = await Order.create(convertedOrder);
+  if (isOrderExists) {
+    return;
   }
 
-  return Bluebird.each(order.Items, async product => {
-    const dbProduct = await pullLinnworksProduct(product, account);
-    console.log(dbProduct);
+  const convertedOrder = IntegrationUtil.convertLinnworksOrder(order);
+  convertedOrder.accountId = account._id;
 
-    dbOrder.orderProducts.push({
+  const products = [];
+
+  for (const product of order.Items || []) {
+    const dbProduct = await Product.findOne({ SKU: product.SKU });
+
+    if (!dbProduct) {
+      continue;
+    }
+
+    products.push({
       productId: dbProduct._id,
-      quantity: 1,
-      integrationData: {
-        [EASYNC_INTEGRATION_TYPE]: {
-          selectionCriteria: get(product, [
-            "integrationData",
-            EASYNC_INTEGRATION_TYPE,
-            "orderProductData",
-            "selectionCriteria"
-          ])
-        }
-      }
+      quantity: product.Quantity
     });
+  }
 
-    return dbOrder.save();
-  });
+  convertedOrder.orderProducts = products;
+
+  await Order.create(convertedOrder);
 }
 
 async function pullLinnworksOrdersByLocation(account, cg) {
