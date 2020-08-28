@@ -16,18 +16,21 @@ export const EASYNC_ORDER_RESPONSE_CODES = {
 export const easyncOrderProductDataShape = {
   externalId: String,
   selectionCriteria: {
-    conditionIn: [String],
+    conditionIn: {
+      type: [String],
+      default: ['New']
+    },
     handlingDaysMax: {
       type: Number,
-      default: 0
+      default: 4
     },
     maxItemPrice: {
       type: Number,
-      default: 0
+      default: 1339
     },
     isPrime: {
       type: Boolean,
-      default: false
+      default: true
     }
   }
 };
