@@ -18,10 +18,31 @@ async function pullLinnworksOrder(order, account) {
     'integrationData.LINNW.numOrderId': order.NumOrderId
   });
 
+  // UPDATE ORDER
   if (isOrderExists) {
+    for (const product of order.Items || []) {
+      const dbProduct = await Product.findOne({ SKU: product.SKU });
+
+      if (!dbProduct) {
+        continue;
+      }
+
+      if (
+        isOrderExists.orderProducts.find(p => dbProduct._id.equals(p.productId))
+      ) { return; }
+
+      isOrderExists.orderProducts.push({
+        productId: dbProduct._id,
+        quantity: product.Quantity
+      });
+
+      await isOrderExists.save();
+    }
+
     return;
   }
 
+  // CREATE NEW ORDER
   const convertedOrder = IntegrationUtil.convertLinnworksOrder(order);
   convertedOrder.accountId = account._id;
 
