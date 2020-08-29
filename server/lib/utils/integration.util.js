@@ -19,14 +19,10 @@ export function convertLinnworksOrder(linnwOrder) {
 
   const shippingAddress = {
     firstName: Address.FullName,
-    lastName: Address.Company
-      ? `${Address.FullName} - ${Address.Company}`
-      : '',
+    lastName: Address.Company,
     addressLine1: Address.Address1,
     addressLine2: Address.Address2,
-    addressLine3: Address.Address2 && Address.Address2
-      ? `${Address.Address2}, ${Address.Address3}`
-      : Address.Address3,
+    addressLine3: Address.Address3,
     zipCode: Address.PostCode,
     city: Address.Town,
     state: Address.Region,
