@@ -105,7 +105,7 @@ export async function buildSimpleAPIServer(cg, db) {
     method: "GET",
     path: "/api/current-version",
     handler: async (request, h) => {
-      return { version: '1.1 [FIX LINNW ORDER ADDRESS MAPPING]' };
+      return { version: '1.2 [UPDATE ORDER WHEN PULLING FROM LINNW]' };
     }
   });
 
