@@ -37,9 +37,7 @@ async function pullLinnworksOrder(order, account) {
         quantity: product.Quantity,
         integrationData: {
           [EASYNC_INTEGRATION_TYPE]: {
-            selectionCriteria: {
-              maxItemPrice:  dbProduct.integrationData[EASYNC_INTEGRATION_TYPE].orderProductData.selectionCriteria.maxItemPrice
-            }
+            selectionCriteria: dbProduct.integrationData[EASYNC_INTEGRATION_TYPE].orderProductData.selectionCriteria
           }
         }
       });
@@ -68,9 +66,7 @@ async function pullLinnworksOrder(order, account) {
       quantity: product.Quantity,
       integrationData: {
         [EASYNC_INTEGRATION_TYPE]: {
-          selectionCriteria: {
-            maxItemPrice:  dbProduct.integrationData[EASYNC_INTEGRATION_TYPE].orderProductData.selectionCriteria.maxItemPrice
-          }
+          selectionCriteria: dbProduct.integrationData[EASYNC_INTEGRATION_TYPE].orderProductData.selectionCriteria
         }
       }
     });
