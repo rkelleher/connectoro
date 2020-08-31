@@ -8,6 +8,7 @@ import {
   getLinnworksOpenOrdersPaged,
   DEFAULT_LOCATION
 } from "../integrations/linnworks.js";
+import { EASYNC_INTEGRATION_TYPE } from '../integrations/easync/easync.js';
 import * as AccountService from "../services/account.service.js";
 import * as IntegrationUtil from '../utils/integration.util.js';
 import { Order } from '../models/order.model.js';
@@ -33,7 +34,14 @@ async function pullLinnworksOrder(order, account) {
 
       isOrderExists.orderProducts.push({
         productId: dbProduct._id,
-        quantity: product.Quantity
+        quantity: product.Quantity,
+        integrationData: {
+          [EASYNC_INTEGRATION_TYPE]: {
+            selectionCriteria: {
+              maxItemPrice:  dbProduct.integrationData[EASYNC_INTEGRATION_TYPE].orderProductData.selectionCriteria.maxItemPrice
+            }
+          }
+        }
       });
 
       await isOrderExists.save();
@@ -57,7 +65,14 @@ async function pullLinnworksOrder(order, account) {
 
     products.push({
       productId: dbProduct._id,
-      quantity: product.Quantity
+      quantity: product.Quantity,
+      integrationData: {
+        [EASYNC_INTEGRATION_TYPE]: {
+          selectionCriteria: {
+            maxItemPrice:  dbProduct.integrationData[EASYNC_INTEGRATION_TYPE].orderProductData.selectionCriteria.maxItemPrice
+          }
+        }
+      }
     });
   }
 
