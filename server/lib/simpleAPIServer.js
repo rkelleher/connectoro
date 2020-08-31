@@ -105,7 +105,7 @@ export async function buildSimpleAPIServer(cg, db) {
     method: "GET",
     path: "/api/current-version",
     handler: async (request, h) => {
-      return { version: '1.2.0 [MAP MAX ITEM PRICE WHEN PULLING FROM LINNW]' };
+      return { version: '1.2.1 [MAP PRODUCT SELECTION CRITERIA WHEN PULLING FROM LINNW]' };
     }
   });
 
