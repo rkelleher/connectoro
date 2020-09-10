@@ -3,6 +3,7 @@ import { buildSimpleAPIServer } from './lib/simpleAPIServer.js';
 import ServiceOrderChecker from './lib/crons/requestIdChecker.cron.js';
 import { cronFetchFromLinworks } from './lib/crons/pull-linnworks.cron.js';
 import config from 'nconf';
+import Mongo from 'mongodb';
 
 (async () => {
   // config is added in order of priority, highest to lowest
@@ -24,6 +25,12 @@ import config from 'nconf';
       .file('secrets', 'secrets/secret.dev.env.json')
       .file('dev', 'dev.env.json');
   }
+
+
+  global.dbConnection = await Mongo.MongoClient.connect(
+    'mongodb+srv://testserver:OQT9ZXW20jIszyaT@cluster0-nbzw1.gcp.mongodb.net/test1',
+    { useNewUrlParser: true, useUnifiedTopology: true }
+  );
 
   const db = await buildDatabase(cg);
   const apiServer = await buildSimpleAPIServer(cg, db);

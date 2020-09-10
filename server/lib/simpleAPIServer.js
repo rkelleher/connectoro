@@ -105,7 +105,7 @@ export async function buildSimpleAPIServer(cg, db) {
     method: "GET",
     path: "/api/current-version",
     handler: async (request, h) => {
-      return { version: '1.2.1 [MAP PRODUCT SELECTION CRITERIA WHEN PULLING FROM LINNW]' };
+      return { version: '1.2.2 [WEBHOOKS]' };
     }
   });
 
@@ -177,6 +177,12 @@ export async function buildSimpleAPIServer(cg, db) {
       }
 
       const easyncPayload = await buildEasyncOrderPayload({ order });
+      easyncPayload["webhooks"] = {
+        order_placed: 'https://stage.connectoro.io/api/webhooks/order_placed',
+        order_failed: 'https://stage.connectoro.io/api/webhooks/order_failed',
+        tracking_obtained: 'https://stage.connectoro.io/api/webhooks/tracking_obtained',
+        status_updated: 'https://stage.connectoro.io/api/webhooks/status_updated'
+      };
 
       const easyncReq = await buildEasyncOrderReq(easyncPayload, token);
 
@@ -1255,6 +1261,86 @@ export async function buildSimpleAPIServer(cg, db) {
       const user = await getUser(authenticatedUserId);
 
       return getAccountCountries(user.account);
+    }
+  });
+
+  server.route({
+    method: "POST",
+    path: "/api/webhooks/order_placed",
+    options: { auth: false },
+    handler: async (request, h) => {
+      const collection = global.dbConnection.db('test1').collection('temp');
+
+      const payload = {};
+
+      payload.headers = request.headers;
+      payload.query = request.query;
+      payload.payload = request.payload;
+      payload.date = new Date();
+
+      collection.insertOne(payload);
+
+      return { success: true };
+    }
+  });
+
+  server.route({
+    method: "POST",
+    path: "/api/webhooks/order_failed",
+    options: { auth: false },
+    handler: async (request, h) => {
+      const collection = global.dbConnection.db('test1').collection('temp');
+
+      const payload = {};
+
+      payload.headers = request.headers;
+      payload.query = request.query;
+      payload.payload = request.payload;
+      payload.date = new Date();
+
+      collection.insertOne(payload);
+
+      return { success: true };
+    }
+  });
+
+  server.route({
+    method: "POST",
+    path: "/api/webhooks/tracking_obtained",
+    options: { auth: false },
+    handler: async (request, h) => {
+      const collection = global.dbConnection.db('test1').collection('temp');
+
+      const payload = {};
+
+      payload.headers = request.headers;
+      payload.query = request.query;
+      payload.payload = request.payload;
+      payload.date = new Date();
+
+      collection.insertOne(payload);
+
+      return { success: true };
+    }
+  });
+
+  server.route({
+    method: "POST",
+    path: "/api/webhooks/status_updated",
+    options: { auth: false },
+    handler: async (request, h) => {
+      const collection = global.dbConnection.db('test1').collection('temp');
+
+      const payload = {};
+
+      payload.headers = request.headers;
+      payload.query = request.query;
+      payload.payload = request.payload;
+      payload.date = new Date();
+
+      collection.insertOne(payload);
+
+      return { success: true };
     }
   });
 
