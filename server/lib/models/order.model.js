@@ -66,6 +66,10 @@ const OrderSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     index: true
   },
+  easyncOrderDeliveryStatus: {
+    status: String,
+    tracking: [mongoose.Schema.Types.Mixed]
+  },
   easyncOrderStatus: {
     requestId: {
       type: String

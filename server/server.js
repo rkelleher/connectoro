@@ -4,6 +4,7 @@ import ServiceOrderChecker from './lib/crons/requestIdChecker.cron.js';
 import { cronFetchFromLinworks } from './lib/crons/pull-linnworks.cron.js';
 import config from 'nconf';
 import Mongo from 'mongodb';
+import { cronDeliveryStatus } from './lib/crons/delivery-status.cron.js';
 
 (async () => {
   // config is added in order of priority, highest to lowest
@@ -36,6 +37,7 @@ import Mongo from 'mongodb';
   const apiServer = await buildSimpleAPIServer(cg, db);
 
   await apiServer.start();
+  await cronDeliveryStatus.start();
   await ServiceOrderChecker.start();
   await cronFetchFromLinworks().start(cg);
 
