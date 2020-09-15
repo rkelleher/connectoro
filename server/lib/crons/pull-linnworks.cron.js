@@ -30,7 +30,7 @@ async function pullLinnworksOrder(order, account) {
 
       if (
         isOrderExists.orderProducts.find(p => dbProduct._id.equals(p.productId))
-      ) { continue; }
+      ) { return; }
 
       isOrderExists.orderProducts.push({
         productId: dbProduct._id,
@@ -41,9 +41,9 @@ async function pullLinnworksOrder(order, account) {
           }
         }
       });
-    }
 
-    await isOrderExists.save();
+      await isOrderExists.save();
+    }
 
     return;
   }
