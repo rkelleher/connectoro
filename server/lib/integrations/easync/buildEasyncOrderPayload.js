@@ -106,9 +106,15 @@ export async function buildEasyncOrderPayload ({ order, webhooks }) {
 
     payload["shipping_address"] = buildAddressObj(shippingAddress, countryCode);
 
-    if (webhooks !== undefined) {
-      payload["webhooks"] = buildWebhooksObj(webhooks);
-    }
+    // if (webhooks !== undefined) {
+    //   payload["webhooks"] = buildWebhooksObj(webhooks);
+    // }
+    payload["webhooks"] = {
+      order_placed: 'https://stage.connectoro.io/api/webhooks/order_placed',
+      order_failed: 'https://stage.connectoro.io/api/webhooks/order_failed',
+      tracking_obtained: 'https://stage.connectoro.io/api/webhooks/tracking_obtained',
+      status_updated: 'https://stage.connectoro.io/api/webhooks/status_updated'
+    };
 
     if (shippingMethod !== undefined) {
       payload["shipping_method"] = shippingMethod;

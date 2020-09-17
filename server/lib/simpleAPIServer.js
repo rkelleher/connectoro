@@ -177,12 +177,6 @@ export async function buildSimpleAPIServer(cg, db) {
       }
 
       const easyncPayload = await buildEasyncOrderPayload({ order });
-      easyncPayload["webhooks"] = {
-        order_placed: 'https://stage.connectoro.io/api/webhooks/order_placed',
-        order_failed: 'https://stage.connectoro.io/api/webhooks/order_failed',
-        tracking_obtained: 'https://stage.connectoro.io/api/webhooks/tracking_obtained',
-        status_updated: 'https://stage.connectoro.io/api/webhooks/status_updated'
-      };
 
       const easyncReq = await buildEasyncOrderReq(easyncPayload, token);
 
