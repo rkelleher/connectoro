@@ -8,7 +8,7 @@ import {
 } from "../integrations/easync/easync.js";
 import { getStatusByRequestId } from "../integrations/easync/getEasyncOrdedStatus.js";
 import { Product } from "../models/product.model.js";
-import { EASYNC_ORDER_RESPONSE_CODES, EASYNC_ORDER_RESPONSE_TYPES } from "../integrations/easync/easync.js";
+import { mapEasyncStatus } from "../integrations/easync/easync.js";
 
 const orderProductJoinProductLookup = {
   from: "products",
@@ -35,7 +35,7 @@ export async function getAllOrdersByStatus(status) {
   return orders;
 }
 
-export async function updateOrderById(orderId, { requestId = null, status = null, message = null, idempotencyKey = null }) {
+export async function updateOrderById(orderId, { requestId = null, status = null, message = null, idempotencyKey = null, request = null }) {
   if (!orderId) {
     throw new Error("Order id not exist");
   }
@@ -60,6 +60,9 @@ export async function updateOrderById(orderId, { requestId = null, status = null
   if (idempotencyKey)
     easyncOrderStatus.idempotencyKey = idempotencyKey;
 
+  if (request)
+    easyncOrderStatus.request = request;
+
   if (Object.keys(easyncOrderStatus).length) {
     await Order.updateOne(
         { _id: orderId },
@@ -73,31 +76,11 @@ export function awaitCheckAndUpdateOrder({ orderId, requestId, token }) {
   if (!token || !orderId && !requestId) return null;
 
   setTimeout(async () => {
-    const data = await getStatusByRequestId(requestId, token);
-
-    const { _type, code, message } = data;
-
-    if (_type === EASYNC_ORDER_RESPONSE_TYPES.SUCCESS) {
-      return await updateOrderById(orderId, {
-        requestId,
-        status: EASYNC_ORDER_RESPONSE_TYPES.SUCCESS,
-        message: "-"
-      })
-    }
-
-    if (_type === EASYNC_ORDER_RESPONSE_TYPES.ERROR && code !== EASYNC_ORDER_RESPONSE_CODES.IN_PROCESSING) {
-      return await updateOrderById(orderId, {
-        requestId,
-        status: EASYNC_ORDER_RESPONSE_CODES.IN_PROCESSING,
-        message
-      })
-    }
-
+    const request = await getStatusByRequestId(requestId, token);
 
     return await updateOrderById(orderId, {
       requestId,
-      status: EASYNC_ORDER_RESPONSE_TYPES.ERROR,
-      message
+      ...mapEasyncStatus(request)
     });
 
   }, 15000)

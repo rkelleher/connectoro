@@ -185,7 +185,7 @@ export function saveOrderEasyncOptions(form, orderId) {
     };
 }
 
-export default function DataDialog(data) {
+export function DataDialog(data) {
     return (
         <>
             <DialogTitle>Data</DialogTitle>

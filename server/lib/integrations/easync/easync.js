@@ -5,6 +5,12 @@ import countryDetails from "../../countryDetails.js";
 
 export const EASYNC_INTEGRATION_TYPE = "EASYNC";
 export const EASYNC_TOKEN_CREDENTIAL_KEY = "API_TOKEN";
+export const EASYNC_ORDER_STATUSES = {
+  OPEN: 'open',
+  PROCESSING: 'processing',
+  ERROR: 'error',
+  AWAITING_TRACKER: 'awaiting_tracker'
+};
 export const EASYNC_ORDER_RESPONSE_TYPES = {
     ERROR: "error",
     SUCCESS: "order_response",
@@ -140,3 +146,30 @@ export const buildEasyncOrderData = order => {
     retailerCode
   };
 };
+
+export function mapEasyncStatus(request) {
+  const base = { request };
+
+  if (request.code && request.code === EASYNC_ORDER_RESPONSE_CODES.IN_PROCESSING) {
+    return {
+      ...base,
+      status: EASYNC_ORDER_STATUSES.PROCESSING,
+      message: request.message
+    };
+  }
+
+  switch (request._type) {
+    case EASYNC_ORDER_RESPONSE_TYPES.SUCCESS:
+      return {
+        ...base,
+        status: EASYNC_ORDER_STATUSES.AWAITING_TRACKER,
+        message: request.message
+      };
+    case EASYNC_ORDER_RESPONSE_TYPES.ERROR:
+      return {
+        ...base,
+        status: EASYNC_ORDER_STATUSES.ERROR,
+        message: request.message
+      };
+  } 
+}

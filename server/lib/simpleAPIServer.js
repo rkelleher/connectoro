@@ -105,7 +105,7 @@ export async function buildSimpleAPIServer(cg, db) {
     method: "GET",
     path: "/api/current-version",
     handler: async (request, h) => {
-      return { version: '1.2.2 [WEBHOOKS]' };
+      return { version: '1.2.3 [EASYNC ORDER STATUS & INFO BUTTON]' };
     }
   });
 
@@ -177,12 +177,6 @@ export async function buildSimpleAPIServer(cg, db) {
       }
 
       const easyncPayload = await buildEasyncOrderPayload({ order });
-      easyncPayload["webhooks"] = {
-        order_placed: 'https://stage.connectoro.io/api/webhooks/order_placed',
-        order_failed: 'https://stage.connectoro.io/api/webhooks/order_failed',
-        tracking_obtained: 'https://stage.connectoro.io/api/webhooks/tracking_obtained',
-        status_updated: 'https://stage.connectoro.io/api/webhooks/status_updated'
-      };
 
       const easyncReq = await buildEasyncOrderReq(easyncPayload, token);
 
@@ -191,7 +185,8 @@ export async function buildSimpleAPIServer(cg, db) {
         url: easyncReq.uri,
         headers: easyncReq.headers,
         data: easyncReq.payload,
-      }).catch(err => {
+      })
+      .catch(err => {
         console.error(err);
       });
 
