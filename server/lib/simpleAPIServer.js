@@ -185,7 +185,8 @@ export async function buildSimpleAPIServer(cg, db) {
         url: easyncReq.uri,
         headers: easyncReq.headers,
         data: easyncReq.payload,
-      }).catch(err => {
+      })
+      .catch(err => {
         console.error(err);
       });
 
