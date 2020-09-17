@@ -105,7 +105,7 @@ export async function buildSimpleAPIServer(cg, db) {
     method: "GET",
     path: "/api/current-version",
     handler: async (request, h) => {
-      return { version: '1.2.2 [WEBHOOKS]' };
+      return { version: '1.2.3 [EASYNC ORDER STATUS & INFO BUTTON]' };
     }
   });
 
