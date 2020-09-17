@@ -3,7 +3,8 @@ import mongoose from "mongoose";
 import {
   EASYNC_INTEGRATION_TYPE,
   easyncOrderDataShape,
-  easyncOrderProductDataShape
+  easyncOrderProductDataShape,
+  EASYNC_ORDER_STATUSES
 } from "../integrations/easync/easync.js";
 import { LINNW_INTEGRATION_TYPE, linnwOrderDataShape } from "../integrations/linnworks.js";
 
@@ -71,7 +72,8 @@ const OrderSchema = new mongoose.Schema({
       type: String
     },
     status: {
-      type: String
+      type: String,
+      default: EASYNC_ORDER_STATUSES.OPEN
     },
     message: {
       type: String
