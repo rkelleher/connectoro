@@ -17,6 +17,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { FuseAnimate, FusePageCarded, FuseLoading } from "@fuse";
 import { Link } from "react-router-dom";
 import * as Actions from "app/store/actions";
+import { DataDialog } from "app/store/actions/order.actions";
 import { useDispatch, useSelector } from "react-redux";
 import { Options } from "app/components/Options";
 import { InlineOptions } from "app/components/InlineOptions";
@@ -44,7 +45,7 @@ const OrderHeader = ({ order }) => {
             variant="contained"
             onClick={() => dispatch(Actions.testSendOrder(order._id))}
             {...isLoading ? {disabled: true} : ''}
-            {..._status === 'order_response' ? {hidden: true} : ''}
+            {..._status === 'awaiting_tracker' ? {hidden: true} : ''}
         >
             <Icon className="mr-4 text-20">shopping_cart</Icon>
             Send Order Via Easync
@@ -391,14 +392,17 @@ const OrderOptions = ({ order }) => {
 };
 
 function OrderEasyncDetails({ order }) {
+    const dispatch = useDispatch();
+
     const { retailerCode, countryCode } = _.get(order, [
         "integrationData",
         "EASYNC"
     ]);
-    let status, message;
+    let status, message, request;
     if(order.hasOwnProperty('easyncOrderStatus')){
         status = order.easyncOrderStatus.status;
         message = order.easyncOrderStatus.message;
+        request = order.easyncOrderStatus.request;
     }else{
         status = 'undefined';
         message = '';
@@ -413,9 +417,26 @@ function OrderEasyncDetails({ order }) {
             <div>{`Site: ${retailerCode}`}</div>
             <div>{`Country: ${countryCode}`}</div>
             <div>{`Status: ${status}`}</div>
-            {status !== 'order_response' && status !== 'undefined'
-                ? <div>{`Message: ${message}`}</div>
-                : ''
+            {
+                status !== 'open' &&
+                <div>
+                    {`Message: ${message}`}
+                    {
+                        request && 
+                        <Button
+                            variant="contained"
+                            style={{ marginLeft: 10 }}
+                            onClick={() => dispatch(
+                                Actions.openDialog({
+                                    children: <DataDialog data={request}/>
+                                }),
+                            )}
+                        >
+                            <Icon style={{ marginRight: 10 }}>description</Icon>
+                            Info
+                        </Button>
+                    }
+                </div>
             }
         </div>
     );
