@@ -5,6 +5,12 @@ import countryDetails from "../../countryDetails.js";
 
 export const EASYNC_INTEGRATION_TYPE = "EASYNC";
 export const EASYNC_TOKEN_CREDENTIAL_KEY = "API_TOKEN";
+export const EASYNC_ORDER_STATUSES = {
+  OPEN: 'open',
+  PROCESSING: 'processing',
+  ERROR: 'error',
+  AWAITING_TRACKER: 'awaiting_tracker'
+};
 export const EASYNC_ORDER_RESPONSE_TYPES = {
     ERROR: "error",
     SUCCESS: "order_response",
