@@ -1,5 +1,5 @@
 import { getAccount, getIntegrationByType, getIntegrationCredential } from "../controllers/account.controller.js";
-import { EASYNC_INTEGRATION_TYPE, EASYNC_TOKEN_CREDENTIAL_KEY, EASYNC_ORDER_RESPONSE_CODES, EASYNC_ORDER_RESPONSE_TYPES, mapEasyncStatus } from "../integrations/easync/easync.js";
+import { EASYNC_INTEGRATION_TYPE, EASYNC_TOKEN_CREDENTIAL_KEY, mapEasyncStatus, EASYNC_ORDER_STATUSES } from "../integrations/easync/easync.js";
 
 import cron from 'node-cron';
 import { updateOrderById, getAllOrdersByStatus } from '../controllers/order.controller.js';
@@ -8,7 +8,7 @@ import { getStatusByRequestId } from '../integrations/easync/getEasyncOrdedStatu
 export default cron.schedule('0 */10 * * * *',  async () => {
     console.log("Cron job");
 
-    const orders = await getAllOrdersByStatus(EASYNC_ORDER_RESPONSE_CODES.IN_PROCESSING);
+    const orders = await getAllOrdersByStatus(EASYNC_ORDER_STATUSES.PROCESSING);
 
     for (let order of orders) {
         const { requestId = null } = order.easyncOrderStatus;
