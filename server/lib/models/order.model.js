@@ -81,7 +81,8 @@ const OrderSchema = new mongoose.Schema({
     idempotencyKey: {
       type: String
     },
-    request: mongoose.Schema.Types.Mixed
+    request: mongoose.Schema.Types.Mixed,
+    tracking: mongoose.Schema.Types.Mixed
   },
   orderProducts: [OrderProductSchema],
   orderStatus: String,

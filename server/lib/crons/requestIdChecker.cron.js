@@ -1,14 +1,26 @@
-import { getAccount, getIntegrationByType, getIntegrationCredential } from "../controllers/account.controller.js";
-import { EASYNC_INTEGRATION_TYPE, EASYNC_TOKEN_CREDENTIAL_KEY, mapEasyncStatus, EASYNC_ORDER_STATUSES } from "../integrations/easync/easync.js";
-
 import cron from 'node-cron';
+
+import { 
+    getAccount, 
+    getIntegrationByType, 
+    getIntegrationCredential 
+} from "../controllers/account.controller.js";
+import { 
+    EASYNC_INTEGRATION_TYPE, 
+    EASYNC_TOKEN_CREDENTIAL_KEY, 
+    EASYNC_ORDER_STATUSES, 
+    mapEasyncStatus
+} from "../integrations/easync/easync.js";
 import { updateOrderById, getAllOrdersByStatus } from '../controllers/order.controller.js';
-import { getStatusByRequestId } from '../integrations/easync/getEasyncOrdedStatus.js';
+import { getStatusByRequestId, getTrackingByRequestId } from '../integrations/easync/getEasyncOrdedStatus.js';
 
 export default cron.schedule('0 */10 * * * *',  async () => {
     console.log("Cron job");
 
-    const orders = await getAllOrdersByStatus(EASYNC_ORDER_STATUSES.PROCESSING);
+    const orders = await getAllOrdersByStatus([
+        EASYNC_ORDER_STATUSES.PROCESSING,
+        EASYNC_ORDER_STATUSES.AWAITING_TRACKER
+    ]);
 
     for (let order of orders) {
         const { requestId = null } = order.easyncOrderStatus;
@@ -26,9 +38,15 @@ export default cron.schedule('0 */10 * * * *',  async () => {
             EASYNC_TOKEN_CREDENTIAL_KEY
         );
 
-        const request = await getStatusByRequestId(requestId, token);
+        const request = await getStatusByRequestId(requestId, token)
 
-        await updateOrderById(order._id, {...mapEasyncStatus(request)});
+        let tracking;
+        if (order.easyncOrderStatus.status === EASYNC_ORDER_STATUSES.AWAITING_TRACKER)
+            tracking = await getTrackingByRequestId(requestId, token);
+
+        const newValue = {...mapEasyncStatus(request, tracking)};
+
+        await updateOrderById(order._id, newValue);
     }
 
 }, {

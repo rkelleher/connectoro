@@ -28,14 +28,19 @@ export async function getOrderByLinworkId(linwId) {
 }
 
 export async function getAllOrdersByStatus(status) {
-  const orders = await Order.find({ "easyncOrderStatus.status": status });
+  const query = {};
 
-  console.log(orders.length);
+  if (Array.isArray(status))
+    query['easyncOrderStatus.status'] = { $in: status }
+  else
+    query['easyncOrderStatus.status'] = status;
+
+  const orders = await Order.find(query);
 
   return orders;
 }
 
-export async function updateOrderById(orderId, { requestId = null, status = null, message = null, idempotencyKey = null, request = null }) {
+export async function updateOrderById(orderId, { requestId = null, status = null, message = null, idempotencyKey = null, request = null, tracking = null }) {
   if (!orderId) {
     throw new Error("Order id not exist");
   }
@@ -62,6 +67,9 @@ export async function updateOrderById(orderId, { requestId = null, status = null
 
   if (request)
     easyncOrderStatus.request = request;
+
+  if (tracking)
+    easyncOrderStatus.tracking = tracking;
 
   if (Object.keys(easyncOrderStatus).length) {
     await Order.updateOne(
