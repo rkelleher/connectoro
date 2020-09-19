@@ -9,7 +9,8 @@ export const EASYNC_ORDER_STATUSES = {
   OPEN: 'open',
   PROCESSING: 'processing',
   ERROR: 'error',
-  AWAITING_TRACKER: 'awaiting_tracker'
+  AWAITING_TRACKER: 'awaiting_tracker',
+  COMPLETE: 'complete'
 };
 export const EASYNC_ORDER_RESPONSE_TYPES = {
     ERROR: "error",
@@ -17,6 +18,9 @@ export const EASYNC_ORDER_RESPONSE_TYPES = {
 };
 export const EASYNC_ORDER_RESPONSE_CODES = {
     IN_PROCESSING: "request_processing",
+};
+export const EASYNC_ORDER_TRACKING_TYPES = {
+  SUCCESS: 'success'
 };
 
 export const easyncOrderProductDataShape = {
@@ -147,8 +151,16 @@ export const buildEasyncOrderData = order => {
   };
 };
 
-export function mapEasyncStatus(request) {
-  const base = { request };
+export function mapEasyncStatus(request, tracking) {
+  const base = { request, tracking };
+
+  if (tracking && tracking.type === EASYNC_ORDER_TRACKING_TYPES.SUCCESS && tracking.obtained) {
+    return {
+      ...base,
+      status: EASYNC_ORDER_STATUSES.COMPLETE,
+      message: request.message
+    };
+  }
 
   if (request.code && request.code === EASYNC_ORDER_RESPONSE_CODES.IN_PROCESSING) {
     return {

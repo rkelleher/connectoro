@@ -45,7 +45,7 @@ const OrderHeader = ({ order }) => {
             variant="contained"
             onClick={() => dispatch(Actions.testSendOrder(order._id))}
             {...isLoading ? {disabled: true} : ''}
-            {..._status === 'awaiting_tracker' ? {hidden: true} : ''}
+            {... !['open', 'error'].includes(_status) ? {hidden: true} : {}}
         >
             <Icon className="mr-4 text-20">shopping_cart</Icon>
             Send Order Via Easync
@@ -398,11 +398,12 @@ function OrderEasyncDetails({ order }) {
         "integrationData",
         "EASYNC"
     ]);
-    let status, message, request;
+    let status, message, request, tracking;
     if(order.hasOwnProperty('easyncOrderStatus')){
         status = order.easyncOrderStatus.status;
         message = order.easyncOrderStatus.message;
         request = order.easyncOrderStatus.request;
+        tracking = order.easyncOrderStatus.tracking;
     }else{
         status = 'undefined';
         message = '';
@@ -434,6 +435,21 @@ function OrderEasyncDetails({ order }) {
                         >
                             <Icon style={{ marginRight: 10 }}>description</Icon>
                             Info
+                        </Button>
+                    }
+                    {
+                        tracking && 
+                        <Button
+                            variant="contained"
+                            style={{ marginLeft: 10 }}
+                            onClick={() => dispatch(
+                                Actions.openDialog({
+                                    children: <DataDialog data={tracking}/>
+                                }),
+                            )}
+                        >
+                            <Icon style={{ marginRight: 10 }}>description</Icon>
+                            Tracking
                         </Button>
                     }
                 </div>

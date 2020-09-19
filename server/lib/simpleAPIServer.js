@@ -54,9 +54,9 @@ import {
 } from "./integrations/linnworks.js";
 import {
   EASYNC_INTEGRATION_TYPE,
-  EASYNC_TOKEN_CREDENTIAL_KEY
+  EASYNC_TOKEN_CREDENTIAL_KEY,
+  mapEasyncStatus
 } from "./integrations/easync/easync.js";
-import { EASYNC_ORDER_RESPONSE_CODES } from "./integrations/easync/easync.js";
 import { buildEasyncOrderPayload, buildEasyncOrderReq } from "./integrations/easync/buildEasyncOrderPayload.js";
 import {
   createProduct,
@@ -105,7 +105,7 @@ export async function buildSimpleAPIServer(cg, db) {
     method: "GET",
     path: "/api/current-version",
     handler: async (request, h) => {
-      return { version: '1.2.4 [EASYNC ORDER STATUS CRON FIXES]' };
+      return { version: '1.2.5 [TRACKING ORDER PROGRESS]' };
     }
   });
 
@@ -192,12 +192,14 @@ export async function buildSimpleAPIServer(cg, db) {
 
       const { request_id } = data;
 
+      // TODO return easyncOrderStatus to frontend and set it in reducer
       await updateOrderById(orderId, {
+        ...mapEasyncStatus(data),
         requestId: request_id,
-        status: EASYNC_ORDER_RESPONSE_CODES.IN_PROCESSING,
         idempotencyKey: easyncPayload.idempotency_key
       });
 
+      // TODO sockets
       awaitCheckAndUpdateOrder({
         orderId,
         token,
