@@ -2,9 +2,6 @@
     "name": "connectoro-web-app",
     "version": "1.0.0",
     "private": true,
-    "engines": {
-        "node": "12.x.x"
-    },
     "scripts": {
         "start": "yarn run tailwind && react-scripts start",
         "build": "yarn run tailwind && node ./purge-tailwindcss.js && cross-env GENERATE_SOURCEMAP=false react-scripts build",
