@@ -1,4 +1,5 @@
 import cron from 'node-cron';
+import Bluebird from 'bluebird';
 
 import { 
     getAccount, 
@@ -12,7 +13,7 @@ import {
     mapEasyncStatus
 } from "../integrations/easync/easync.js";
 import { updateOrderById, getAllOrdersByStatus } from '../controllers/order.controller.js';
-import { getStatusByRequestId, getTrackingByRequestId } from '../integrations/easync/getEasyncOrdedStatus.js';
+import { getStatusByRequestId } from '../integrations/easync/getEasyncOrdedStatus.js';
 
 export default cron.schedule('0 */10 * * * *',  async () => {
     console.log("Cron job");
@@ -22,33 +23,29 @@ export default cron.schedule('0 */10 * * * *',  async () => {
         EASYNC_ORDER_STATUSES.AWAITING_TRACKER
     ]);
 
-    for (let order of orders) {
+    await Bluebird.map(orders, async order => {
         const { requestId = null } = order.easyncOrderStatus;
 
-        if (!requestId) break;
+        if (!requestId) { return; };
 
         const account = await getAccount(order.accountId);
         const integration = await getIntegrationByType(
             account,
             EASYNC_INTEGRATION_TYPE
         );
-
         const token = getIntegrationCredential(
             integration,
             EASYNC_TOKEN_CREDENTIAL_KEY
         );
 
-        const request = await getStatusByRequestId(requestId, token)
+        const request = await getStatusByRequestId(requestId, token);
 
-        let tracking;
-        if (order.easyncOrderStatus.status === EASYNC_ORDER_STATUSES.AWAITING_TRACKER)
-            tracking = await getTrackingByRequestId(requestId, token);
-
-        const newValue = {...mapEasyncStatus(request, tracking)};
+        const newValue = {
+            ...mapEasyncStatus(request)
+        };
 
         await updateOrderById(order._id, newValue);
-    }
-
+    });
 }, {
     timezone: 'Europe/Kiev',
 });
