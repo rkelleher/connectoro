@@ -151,16 +151,8 @@ export const buildEasyncOrderData = order => {
   };
 };
 
-export function mapEasyncStatus(request, tracking) {
-  const base = { request, tracking };
-
-  if (tracking && tracking.type === EASYNC_ORDER_TRACKING_TYPES.SUCCESS && tracking.obtained) {
-    return {
-      ...base,
-      status: EASYNC_ORDER_STATUSES.COMPLETE,
-      message: request.message
-    };
-  }
+export function mapEasyncStatus(request) {
+  const base = { request };
 
   if (request.code && request.code === EASYNC_ORDER_RESPONSE_CODES.IN_PROCESSING) {
     return {
@@ -172,11 +164,19 @@ export function mapEasyncStatus(request, tracking) {
 
   switch (request._type) {
     case EASYNC_ORDER_RESPONSE_TYPES.SUCCESS:
-      return {
-        ...base,
-        status: EASYNC_ORDER_STATUSES.AWAITING_TRACKER,
-        message: request.message
-      };
+      if (request.tracking) {
+        return {
+          ...base,
+          status: EASYNC_ORDER_STATUSES.COMPLETE,
+          message: request.message
+        };
+      } else {
+        return {
+            ...base,
+            status: EASYNC_ORDER_STATUSES.AWAITING_TRACKER,
+            message: request.message
+        };
+      }
     case EASYNC_ORDER_RESPONSE_TYPES.ERROR:
       return {
         ...base,
