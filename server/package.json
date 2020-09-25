@@ -24,6 +24,7 @@
     "mongoose-type-email": "1.0.11",
     "nconf": "0.10.0",
     "node-cron": "^2.0.3",
+    "unirest": "^0.6.0",
     "uuid": "^7.0.2"
   },
   "devDependencies": {

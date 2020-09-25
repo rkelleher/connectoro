@@ -6,7 +6,8 @@ import {
   LINNW_INTEGRATION_TYPE,
   makeLinnworksAPISession,
   getLinnworksOpenOrdersPaged,
-  DEFAULT_LOCATION
+  DEFAULT_LOCATION,
+  getLinnworksProcess
 } from "../integrations/linnworks.js";
 import { EASYNC_INTEGRATION_TYPE } from '../integrations/easync/easync.js';
 import * as AccountService from "../services/account.service.js";
@@ -102,7 +103,24 @@ async function pullLinnworksOrdersByLocation(account, cg) {
     1
   );
 
-  return Bluebird.each(orders.Data, async order => pullLinnworksOrder(order, account));
+  await Bluebird.map(orders.Data, async order => pullLinnworksOrder(order, account));
+
+  const orderProcesses = await getLinnworksProcess(
+    integration.session.Token,
+    orders.Data.map(order => order.OrderId),
+    location
+  );
+
+  return Bluebird.map(orderProcesses, order => {
+    return Order.updateOne(
+      { [`integrationData.${LINNW_INTEGRATION_TYPE}.orderId`]: order.OrderId },
+      { 
+        $set: { 
+          [`integrationData.${LINNW_INTEGRATION_TYPE}.processed`]: order.Processed 
+        }
+      }
+    );
+  });
 }
 
 export const cronFetchFromLinworks = (cg) => cron.schedule('0 */30 * * * *',  async () => {
