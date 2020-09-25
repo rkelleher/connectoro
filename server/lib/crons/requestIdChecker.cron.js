@@ -51,7 +51,7 @@ export default cron.schedule('0 */10 * * * *',  async () => {
             order.easyncOrderStatus.status === EASYNC_ORDER_STATUSES.PROCESSING && 
             newValue.status === EASYNC_ORDER_STATUSES.AWAITING_TRACKER
         ) {
-            const { orderId } = order[`integrationData.${LINNW_INTEGRATION_TYPE}.orderId`];
+            const { orderId } = order['integrationData'][LINNW_INTEGRATION_TYPE];
 
             if (orderId) {
                 return;
