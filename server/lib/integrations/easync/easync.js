@@ -167,6 +167,7 @@ export function mapEasyncStatus(request) {
       if (request.tracking) {
         return {
           ...base,
+          processedOnSource: true,
           status: EASYNC_ORDER_STATUSES.COMPLETE,
           message: request.message
         };

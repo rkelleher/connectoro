@@ -29,9 +29,6 @@ export const linnwOrderDataShape = {
   },
   orderId: {
     type: String
-  },
-  processed: {
-    type: Boolean
   }
 };
 
@@ -133,25 +130,6 @@ export async function getLinnworksOpenOrdersPaged(token, locationId, entriesNum,
   } catch (error) {
     console.error(error);
   }
-}
-
-export async function getLinnworksProcess(token, ordersIds, locationId) {
-  return new Promise((resolve, reject) => {
-    unirest('POST', 'https://eu-ext.linnworks.net//api/Orders/ProcessOrdersInBatch')
-      .headers({
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': token
-      })
-      .send(`ordersIds=${JSON.stringify(ordersIds)}`)
-      .send(`locationId="${locationId}"`)
-      .end(function (res) { 
-        if (res.error) {
-          reject(res.error);
-        } else {
-          resolve(JSON.parse(res.raw_body));
-        }
-      });
-  });
 }
 
 export async function getLinnworksOrderDetails(token, locationId, orderId) {
