@@ -12,8 +12,11 @@ import {
     EASYNC_ORDER_STATUSES, 
     mapEasyncStatus
 } from "../integrations/easync/easync.js";
+import * as IntegrationUtil from '../utils/integration.util.js';
 import { updateOrderById, getAllOrdersByStatus } from '../controllers/order.controller.js';
 import { getStatusByRequestId } from '../integrations/easync/getEasyncOrdedStatus.js';
+import { setLinnworksOrderNote } from '../integrations/linnworks.js';
+import { LINNW_INTEGRATION_TYPE } from '../models/product.model.js';
 
 export default cron.schedule('0 */10 * * * *',  async () => {
     console.log("Cron job");
@@ -43,6 +46,37 @@ export default cron.schedule('0 */10 * * * *',  async () => {
         const newValue = {
             ...mapEasyncStatus(request)
         };
+
+        if (
+            order.easyncOrderStatus.status === EASYNC_ORDER_STATUSES.PROCESSING && 
+            newValue.status === EASYNC_ORDER_STATUSES.AWAITING_TRACKER
+        ) {
+            const { orderId } = order[`integrationData.${LINNW_INTEGRATION_TYPE}.orderId`];
+
+            if (orderId) {
+                return;
+            }
+
+            const integration = IntegrationUtil.getIntegrationByType(account, LINNW_INTEGRATION_TYPE);
+
+            if (!integration.session) {
+                const linnworksSession = await makeLinnworksAPISession(
+                    integration.appId,
+                    cg("LINNW_APP_SECRET"),
+                    integration.credentials && integration.credentials.get("INSTALL_TOKEN")
+                );
+
+                integration.session = linnworksSession;
+
+                await account.save();
+            }
+
+            setLinnworksOrderNote(
+                integration.session.Token,
+                orderId,
+                requestId
+            );
+        }
 
         await updateOrderById(order._id, newValue);
     });
