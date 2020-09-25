@@ -53,7 +53,7 @@ export default cron.schedule('0 */10 * * * *',  async () => {
         ) {
             const { orderId } = order['integrationData'][LINNW_INTEGRATION_TYPE];
 
-            if (orderId) {
+            if (!orderId) {
                 return;
             }
 
