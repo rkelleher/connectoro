@@ -33,7 +33,10 @@ export function convertLinnworksOrder(linnwOrder) {
   const integrationData = {
     [LINNW_INTEGRATION_TYPE]: {
       numOrderId: NumOrderId,
-      status: GeneralInfo.Status
+      status: GeneralInfo.Status,
+      source: GeneralInfo.Source,
+      subSource: GeneralInfo.SubSource,
+      orderId: linnwOrder.OrderId
     },
     [EASYNC_INTEGRATION_TYPE]: buildEasyncOrderData({ shippingAddress })
   };
