@@ -105,7 +105,7 @@ export async function buildSimpleAPIServer(cg, db) {
     method: "GET",
     path: "/api/current-version",
     handler: async (request, h) => {
-      return { version: '1.2.9 [LINNWORKS FIEDLS]' };
+      return { version: '1.2.8 [FIX ORDER STATUS]' };
     }
   });
 
