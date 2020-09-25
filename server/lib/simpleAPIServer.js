@@ -105,7 +105,7 @@ export async function buildSimpleAPIServer(cg, db) {
     method: "GET",
     path: "/api/current-version",
     handler: async (request, h) => {
-      return { version: '1.3.0 [PROCESSED LOGIC]' };
+      return { version: '1.3.1 [LINNWORKS NOTES]' };
     }
   });
 
