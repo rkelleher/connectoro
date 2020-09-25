@@ -170,3 +170,22 @@ export async function getLinnworksLocations(token) {
     console.error(error);
   }
 }
+
+export async function setLinnworksOrderNote(token, orderId, note) {
+  return new Promise((resolve, reject) => {
+    unirest('POST', 'https://eu-ext.linnworks.net//api/Orders/SetOrderNotes')
+      .headers({
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': token
+      })
+      .send(`orderId=${orderId}`)
+      .send(`orderNotes=[{"OrderId": "${orderId}", "Note": "${note}"}]`)
+      .end(function (res) { 
+        if (res.error) {
+          reject(res.error);
+        } else {
+          resolve(true);
+        }
+      });
+  });
+}
