@@ -102,7 +102,7 @@ async function pullLinnworksOrdersByLocation(account, cg) {
     1
   );
 
-  return Bluebird.each(orders.Data, async order => pullLinnworksOrder(order, account));
+  return Bluebird.map(orders.Data, async order => pullLinnworksOrder(order, account));
 }
 
 export const cronFetchFromLinworks = (cg) => cron.schedule('0 */30 * * * *',  async () => {

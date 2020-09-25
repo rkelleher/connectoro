@@ -4,6 +4,7 @@
 import Wreck from '@hapi/wreck';
 import querystring from 'querystring';
 import Bluebird from "bluebird";
+import unirest from "unirest";
 import { Product } from '../models/product.model.js';
 
 export const LINNW_INTEGRATION_TYPE = 'LINNW';
@@ -19,6 +20,15 @@ export const linnwOrderDataShape = {
   },
   status: {
     type: Number
+  },
+  source: {
+    type: String
+  },
+  subSource: {
+    type: String
+  },
+  orderId: {
+    type: String
   }
 };
 
