@@ -27,8 +27,6 @@ import { InlineOptions } from "app/components/InlineOptions";
 import EasyncProductOptions from "../integrations/easync/EasyncProductOptions";
 import EasyncOrderOptions from "../integrations/easync/EasyncOrderOptions";
 import './Order.css';
-import account from "app/store/reducers/account.reducer";
-import { SignalCellularNullOutlined } from "@material-ui/icons";
 
 const OrderHeader = ({ order }) => {
     const dispatch = useDispatch();
@@ -125,6 +123,7 @@ const OrderData = order => {
     data={_.omit(order, ["inputOrder"])}
         ></JSONPretty>
         </div>
+
         <div className="pb-48">
         <div className="pb-16 flex items-center">
         <Typography className="h2" color="textSecondary">
@@ -502,7 +501,7 @@ function OrderStatus({ order }) {
                 </Typography>
             </CardContent>
         </Card>
-      );
+    );
 }
 
 function GeneralTab({ order }) {
