@@ -479,23 +479,23 @@ function OrderStatus({ order }) {
                 <Typography variant="body1" className="orderStatus-paragraph">
                 <p>Order Source: {order.integrationData.LINNW ? 'Linnworks' : 'Manually'}</p>
                 {/* change logic for more sources */}
-                <p>Order Source ID: {order.integrationData.LINNW ? order.integrationData.LINNW.numOrderId : null}</p>
+                <p>Order Source ID: {order.integrationData.LINNW.numOrderId ? order.integrationData.LINNW.numOrderId : null}</p>
                 <p>Processed On Source: {order.easyncOrderStatus.processedOnSource.toString()}</p>
                 </Typography>
                 <Typography variant="body1" className="orderStatus-paragraph">
                 <p>Dropshipper: {order.integrationData.EASYNC ? 'Easync' : 'Manually'}</p>
                 {/* change logic for more sources */}
-                <p>Dropshipper Account: {order.easyncOrderStatus.request ? order.easyncOrderStatus.request.merchant_order_ids[0].account : null}</p>
+                <p>Dropshipper Account: {(order.easyncOrderStatus.request && order.easyncOrderStatus.request.merchant_order_ids[0].account) ? order.easyncOrderStatus.request.merchant_order_ids[0].account : null}</p>
                 </Typography>
                 <Typography variant="body1" className="orderStatus-paragraph">
                 <p>Request ID: {order.easyncOrderStatus.requestId}</p>
                 <p>Indempotency Key: {order.easyncOrderStatus.idempotencyKey}</p>
                 </Typography>
                 <Typography variant="body1" className="orderStatus-paragraph">
-                <p>Dropship Date: {order.easyncOrderStatus.request ? moment(order.easyncOrderStatus.request.merchant_order_ids[0].placed_at).format('DD MM YYYY') : null}</p>
-                <p>Retailer: {order.integrationData.EASYNC ? order.integrationData.EASYNC.retailerCode.replace("_", " ") : null}</p>
-                <p>Retailer Order ID: {order.easyncOrderStatus.request ? order.easyncOrderStatus.request.merchant_order_ids[0].merchant_order_id : null}</p>
-                <p>Total Paid: {order.easyncOrderStatus.request ? order.easyncOrderStatus.request.price_components.subtotal : null}</p>
+                <p>Dropship Date: {(order.easyncOrderStatus.request && order.easyncOrderStatus.request.merchant_order_ids[0].placed_at) ? moment(order.easyncOrderStatus.request.merchant_order_ids[0].placed_at).format('DD MM YYYY') : null}</p>
+                <p>Retailer: {order.integrationData.EASYNC.retailerCode ? order.integrationData.EASYNC.retailerCode.replace("_", " ") : null}</p>
+                <p>Retailer Order ID: {(order.easyncOrderStatus.request && order.easyncOrderStatus.request.merchant_order_ids[0].merchant_order_id) ? order.easyncOrderStatus.request.merchant_order_ids[0].merchant_order_id : null}</p>
+                <p>Total Paid: {(order.easyncOrderStatus.request && order.easyncOrderStatus.request.price_components.subtotal) ? order.easyncOrderStatus.request.price_components.subtotal : null}</p>
                 </Typography>
                 <Typography variant="body1" className="orderStatus-paragraph">
                 <p>Tracker Obtained: {(order.easyncOrderStatus.request && order.easyncOrderStatus.request.tracking) ? 'True' : 'False'}</p>
