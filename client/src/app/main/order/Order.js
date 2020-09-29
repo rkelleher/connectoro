@@ -11,7 +11,8 @@ import {
     Button,
     TextField,
     Divider,
-    Card
+    Card,
+    CardContent
 } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import RefreshIcon from "@material-ui/icons/Refresh";
@@ -124,7 +125,6 @@ const OrderData = order => {
     data={_.omit(order, ["inputOrder"])}
         ></JSONPretty>
         </div>
-
         <div className="pb-48">
         <div className="pb-16 flex items-center">
         <Typography className="h2" color="textSecondary">
@@ -463,7 +463,6 @@ function OrderEasyncDetails({ order }) {
 }
 
 function OrderStatus({ order }) {
-    console.log(moment("2020-09-25T18:55:50.000Z").format('DD MM YYYY'));
     return (
         <Card className="orderStatus">
             <CardContent className="orderStatus-content">
