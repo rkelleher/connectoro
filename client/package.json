@@ -72,7 +72,6 @@
         "redux": "4.0.4",
         "redux-thunk": "2.3.0",
         "styled-components": "4.4.1",
-        "trim-right": "^1.0.1",
         "typeface-muli": "0.0.71",
         "velocity-react": "1.4.3"
     },
