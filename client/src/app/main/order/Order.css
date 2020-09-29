@@ -44,26 +44,4 @@
     height: 50px;
 }
 
-.orderStatus {
-    min-width: 200px;
-    margin-left: 50px;
-}
-
-.orderStatus .orderStatus-paragraph {
-    margin-bottom: 1rem;
-}
-
-.orderStatus .orderStatus-icon {
-    font-size: 3rem;
-    margin-right: 10px;
-}
-
-.orderStatus-header {
-    margin-bottom: 1rem;
-}
-
-.orderStatus-tracker {
-    text-transform: capitalize;
-}
-
 
