@@ -1,5 +1,6 @@
 import _ from "lodash";
 import React, { useEffect, useState } from "react";
+import moment from 'moment';
 import JSONPretty from "react-json-pretty";
 import {
     Icon,
@@ -9,7 +10,9 @@ import {
     Typography,
     Button,
     TextField,
-    Divider
+    Divider,
+    Card,
+    CardContent
 } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import RefreshIcon from "@material-ui/icons/Refresh";
@@ -458,10 +461,56 @@ function OrderEasyncDetails({ order }) {
     );
 }
 
+function OrderStatus({ order }) {
+    return (
+        <Card className="orderStatus">
+            <CardContent className="orderStatus-content">
+                <Typography className="orderStatus-header pb-12" variant="h5" component="h2">
+                    Order Status
+                </Typography>
+                <Typography className="flex pb-24">
+                    <Icon className="orderStatus-icon">local_shipping</Icon>
+                    <Typography color="textSecondary"  variant="body1" gutterBottom>
+                        <Typography variant="h6" className="block orderStatus-tracker" >{order.easyncOrderStatus.status.replace("_", " ")}</Typography>
+                        Message: {order.easyncOrderStatus.message}
+                    </Typography>
+                </Typography>
+                <Typography variant="body1" className="orderStatus-paragraph">
+                <p>Order Source: {order.integrationData.LINNW ? 'Linnworks' : 'Manually'}</p>
+                {/* change logic for more sources */}
+                <p>Order Source ID: {order.integrationData.LINNW.numOrderId ? order.integrationData.LINNW.numOrderId : null}</p>
+                <p>Processed On Source: {order.easyncOrderStatus.processedOnSource.toString()}</p>
+                </Typography>
+                <Typography variant="body1" className="orderStatus-paragraph">
+                <p>Dropshipper: {order.integrationData.EASYNC ? 'Easync' : 'Manually'}</p>
+                {/* change logic for more sources */}
+                <p>Dropshipper Account: {(order.easyncOrderStatus.request && order.easyncOrderStatus.request.merchant_order_ids[0].account) ? order.easyncOrderStatus.request.merchant_order_ids[0].account : null}</p>
+                </Typography>
+                <Typography variant="body1" className="orderStatus-paragraph">
+                <p>Request ID: {order.easyncOrderStatus.requestId}</p>
+                <p>Indempotency Key: {order.easyncOrderStatus.idempotencyKey}</p>
+                </Typography>
+                <Typography variant="body1" className="orderStatus-paragraph">
+                <p>Dropship Date: {(order.easyncOrderStatus.request && order.easyncOrderStatus.request.merchant_order_ids[0].placed_at) ? moment(order.easyncOrderStatus.request.merchant_order_ids[0].placed_at).format('DD MM YYYY') : null}</p>
+                <p>Retailer: {order.integrationData.EASYNC.retailerCode ? order.integrationData.EASYNC.retailerCode.replace("_", " ") : null}</p>
+                <p>Retailer Order ID: {(order.easyncOrderStatus.request && order.easyncOrderStatus.request.merchant_order_ids[0].merchant_order_id) ? order.easyncOrderStatus.request.merchant_order_ids[0].merchant_order_id : null}</p>
+                <p>Total Paid: {(order.easyncOrderStatus.request && order.easyncOrderStatus.request.price_components.subtotal) ? order.easyncOrderStatus.request.price_components.subtotal : null}</p>
+                </Typography>
+                <Typography variant="body1" className="orderStatus-paragraph">
+                <p>Tracker Obtained: {(order.easyncOrderStatus.request && order.easyncOrderStatus.request.tracking) ? 'True' : 'False'}</p>
+                </Typography>
+            </CardContent>
+        </Card>
+    );
+}
+
 function GeneralTab({ order }) {
     return (
         <>
-            <OrderCustomer order={order} />
+            <div style={{ display: 'flex' }}>
+                <OrderCustomer order={order}/>
+                <OrderStatus order={order} />
+            </div>
             <OrderOptions order={order} />
             <OrderEasyncDetails order={order} />
             <Divider />
