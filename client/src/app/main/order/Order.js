@@ -478,7 +478,7 @@ function OrderStatus({ order }) {
                 <Typography variant="body1" className="orderStatus-paragraph">
                 <p>Order Source: {order.integrationData.LINNW ? 'Linnworks' : 'Manually'}</p>
                 {/* change logic for more sources */}
-                <p>Order Source ID: {order.integrationData.LINNW.numOrderId ? order.integrationData.LINNW.numOrderId : null}</p>
+                <p>Order Source ID: {order.integrationData.LINNW && order.integrationData.LINNW.numOrderId ? order.integrationData.LINNW.numOrderId : null}</p>
                 <p>Processed On Source: {order.easyncOrderStatus.processedOnSource.toString()}</p>
                 </Typography>
                 <Typography variant="body1" className="orderStatus-paragraph">
