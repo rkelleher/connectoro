@@ -45,8 +45,9 @@
 }
 
 .orderStatus {
-    min-width: 200px;
-    margin-left: 50px;
+    margin-left: 20px;
+    max-width: 400px;
+    width: 100%;
 }
 
 .orderStatus .orderStatus-paragraph {
