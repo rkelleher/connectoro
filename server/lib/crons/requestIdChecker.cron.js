@@ -21,10 +21,7 @@ import { LINNW_INTEGRATION_TYPE } from '../models/product.model.js';
 export default cron.schedule('0 */10 * * * *',  async () => {
     console.log("Cron job");
 
-    const orders = await getAllOrdersByStatus([
-        EASYNC_ORDER_STATUSES.PROCESSING,
-        EASYNC_ORDER_STATUSES.AWAITING_TRACKER
-    ]);
+    const orders = await getAllOrdersByStatus([EASYNC_ORDER_STATUSES.PROCESSING]);
 
     await Bluebird.map(orders, async order => {
         const { requestId = null } = order.easyncOrderStatus;
@@ -49,7 +46,7 @@ export default cron.schedule('0 */10 * * * *',  async () => {
 
         if (
             order.easyncOrderStatus.status === EASYNC_ORDER_STATUSES.PROCESSING && 
-            newValue.status === EASYNC_ORDER_STATUSES.AWAITING_TRACKER
+            newValue.status === EASYNC_ORDER_STATUSES.COMPLETE
         ) {
             const { orderId } = order['integrationData'][LINNW_INTEGRATION_TYPE];
 
