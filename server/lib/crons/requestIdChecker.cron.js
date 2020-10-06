@@ -1,5 +1,4 @@
 import cron from 'node-cron';
-import Bluebird from 'bluebird';
 
 import { 
     getAccount, 
@@ -23,7 +22,7 @@ export default cron.schedule('0 */10 * * * *',  async () => {
 
     const orders = await getAllOrdersByStatus([EASYNC_ORDER_STATUSES.PROCESSING]);
 
-    await Bluebird.map(orders, async order => {
+    for (const order of orders) {
         const { requestId = null } = order.easyncOrderStatus;
 
         if (!requestId) { return; };
@@ -76,7 +75,7 @@ export default cron.schedule('0 */10 * * * *',  async () => {
         }
 
         await updateOrderById(order._id, newValue);
-    });
+    }
 }, {
     timezone: 'Europe/Kiev',
 });
