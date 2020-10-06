@@ -1,5 +1,4 @@
 import cron from 'node-cron';
-import Bluebird from 'bluebird';
 
 import { 
     getAccount, 
