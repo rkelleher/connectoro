@@ -469,6 +469,9 @@ function orderData(order) {
         orderSource: 'Manually', // change logic for more sources
         dropshipper: 'Manually', // change logic for more dropshippers
         trackerObtained: 'False',
+        trackingStatus: null,
+        trackingNumber: null,
+        trackingURL: null,
         orderSourceID: null,
         retailer: null,
         totalPaid: null, 
@@ -477,7 +480,7 @@ function orderData(order) {
         retailerOrderID: null
     };
 
-    if (order.LINNW) {
+    if (LINNW) {
         data.orderSource = 'Linnworks'; // change logic for more sources
         data.orderSourceID = LINNW.numOrderId; // change logic for more sources
     }
@@ -487,6 +490,21 @@ function orderData(order) {
 
         if (EASYNC.retailerCode) {
             data.retailer = EASYNC.retailerCode.replace("_", "");
+        }
+    }
+
+    if (order.easyncTracking) {
+        if (order.easyncTracking.isObtained) {
+            data.trackerObtained = 'True';
+        }
+
+        if (order.easyncTracking.status) {
+            data.trackingStatus = order.easyncTracking.status;
+        }
+
+        if (order.easyncTracking.trackingNumber) {
+            data.trackingNumber = order.easyncTracking.trackingNumber;
+            data.trackingURL = `https://aquiline-tracking.com/data/TrackPackage${order.easyncTracking.trackingNumber}`;
         }
     }
 
@@ -519,9 +537,12 @@ function OrderStatus({ order }) {
         retailer, 
         totalPaid, 
         trackerObtained,
+        trackingStatus,
+        trackingNumber,
+        trackingURL,
         dropshipperAccount,
         dropshipDate,
-        retailerOrderID 
+        retailerOrderID
     } = orderData(order);
 
     return (
@@ -538,26 +559,32 @@ function OrderStatus({ order }) {
                     </Typography>
                 </Typography>
                 <Typography variant="subtitle1" className="orderStatus-paragraph">
-                <p><span class="font-bold">Order Source:</span> {orderSource}</p>
-                <p><span class="font-bold">Order Source ID: </span> {orderSourceID}</p>
-                <p><span class="font-bold">Processed On Source: </span> {processedOnSource.toString()}</p>
+                    <p><span class="font-bold">Order Source:</span> {orderSource}</p>
+                    <p><span class="font-bold">Order Source ID: </span> {orderSourceID}</p>
+                    <p><span class="font-bold">Processed On Source: </span> {processedOnSource.toString()}</p>
                 </Typography>
                 <Typography variant="body1" className="orderStatus-paragraph">
-                <p><span class="font-bold">Dropshipper: </span> {dropshipper}</p>
-                <p><span class="font-bold">Dropshipper Account: </span> {dropshipperAccount}</p>
+                    <p><span class="font-bold">Dropshipper: </span> {dropshipper}</p>
+                    <p><span class="font-bold">Dropshipper Account: </span> {dropshipperAccount}</p>
                 </Typography>
                 <Typography variant="body1" className="orderStatus-paragraph">
-                <p><span class="font-bold">Request ID: </span> {requestId}</p>
-                <p><span class="font-bold">Indempotency Key:</span> {idempotencyKey}</p>
+                    <p><span class="font-bold">Request ID: </span> {requestId}</p>
+                    <p><span class="font-bold">Indempotency Key:</span> {idempotencyKey}</p>
                 </Typography>
                 <Typography variant="body1" className="orderStatus-paragraph">
-                <p><span class="font-bold">Dropship Date: </span> {dropshipDate}</p>
-                <p><span class="font-bold">Retailer: </span>{retailer}</p>
-                <p><span class="font-bold">Retailer Order ID: </span> {retailerOrderID}</p>
-                <p><span class="font-bold">Total Paid: </span>{totalPaid}</p>
+                    <p><span class="font-bold">Dropship Date: </span> {dropshipDate}</p>
+                    <p><span class="font-bold">Retailer: </span>{retailer}</p>
+                    <p><span class="font-bold">Retailer Order ID: </span> {retailerOrderID}</p>
+                    <p><span class="font-bold">Total Paid: </span>{totalPaid}</p>
                 </Typography>
                 <Typography variant="body1" className="orderStatus-paragraph">
-                <p><span class="font-bold">Tracker Obtained: </span>{trackerObtained}</p>
+                    <p><span class="font-bold">Tracker Obtained: </span>{trackerObtained}</p>
+                    <p><span class="font-bold">Tracking Status: </span>{trackingStatus}</p>
+                    <p><span class="font-bold">Tracking Number: </span>{trackingNumber}</p>
+                    <p>
+                        <span class="font-bold">Tracking URL: </span>
+                        <a href={trackingURL}>{trackingURL}</a>
+                    </p>
                 </Typography>
             </CardContent>
         </Card>

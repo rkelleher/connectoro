@@ -67,7 +67,7 @@ export function Options({
                 {Object.keys(data) &&
                     Object.keys(data).map(key => {
                         return (
-                            <Grid item xs={6} sm={smCol}>
+                            <Grid item xs={6} sm={smCol} key={key}>
                                 <Option
                                     isInline={isInline}
                                     optionKey={key}
