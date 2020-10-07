@@ -17,7 +17,7 @@ import { getStatusByRequestId } from '../integrations/easync/getEasyncOrdedStatu
 import { setLinnworksOrderNote } from '../integrations/linnworks.js';
 import { LINNW_INTEGRATION_TYPE } from '../models/product.model.js';
 
-export default cron.schedule('0 */10 * * * *',  async () => {
+export default (cg) => cron.schedule('0 */10 * * * *',  async () => {
     console.log("Cron job");
 
     const orders = await getAllOrdersByStatus([EASYNC_ORDER_STATUSES.PROCESSING]);
