@@ -36,8 +36,8 @@ import Mongo from 'mongodb';
   const apiServer = await buildSimpleAPIServer(cg, db);
 
   await apiServer.start();
-  await ServiceOrderChecker.start();
-  await cronFetchFromLinworks().start(cg);
+  await ServiceOrderChecker(cg).start();
+  await cronFetchFromLinworks(cg).start();
 
   console.log("Connectoro API Server running on %s", apiServer.info.uri);
 })()
