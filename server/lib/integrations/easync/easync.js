@@ -18,9 +18,11 @@ export const EASYNC_ORDER_RESPONSE_TYPES = {
 export const EASYNC_ORDER_RESPONSE_CODES = {
     IN_PROCESSING: "request_processing",
 };
-export const EASYNC_ORDER_TRACKING_TYPES = {
-  SUCCESS: 'success'
-};
+
+export const EASYNC_TRACKING_RESPONSE_TYPES = {
+  SUCCESS: 'success',
+  FAILURE: 'failure'
+}
 
 export const easyncOrderProductDataShape = {
   externalId: String,
