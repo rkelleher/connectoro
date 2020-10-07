@@ -25,7 +25,7 @@ export default (cg) => cron.schedule('0 */10 * * * *',  async () => {
     for (const order of orders) {
         const { requestId = null } = order.easyncOrderStatus;
 
-        if (!requestId) { return; };
+        if (!requestId) { continue; };
 
         const account = await getAccount(order.accountId);
         const integration = await getIntegrationByType(
@@ -50,7 +50,7 @@ export default (cg) => cron.schedule('0 */10 * * * *',  async () => {
             const { orderId } = order['integrationData'][LINNW_INTEGRATION_TYPE];
 
             if (!orderId) {
-                return;
+                continue;
             }
 
             const integration = IntegrationUtil.getIntegrationByType(account, LINNW_INTEGRATION_TYPE);
@@ -76,6 +76,6 @@ export default (cg) => cron.schedule('0 */10 * * * *',  async () => {
 
         await updateOrderById(order._id, newValue);
     }
-}, {
+},  {
     timezone: 'Europe/Kiev',
 });
