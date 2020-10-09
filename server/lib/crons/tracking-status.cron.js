@@ -4,6 +4,8 @@ import { getAccount, getIntegrationByType, getIntegrationCredential } from '../c
 import { getAwaitingTrackerOrders } from '../controllers/order.controller.js';
 import { EASYNC_INTEGRATION_TYPE,  EASYNC_TOKEN_CREDENTIAL_KEY, EASYNC_TRACKING_RESPONSE_TYPES } from "../integrations/easync/easync.js";
 import { getTrackingByRequestId } from "../integrations/easync/getEasyncOrdedStatus.js";
+import { LINNW_INTEGRATION_TYPE, markLinnworkOrderAsProcessed, sendTrackingNumberToLinnw } from '../integrations/linnworks.js';
+import * as IntegrationUtil from '../utils/integration.util.js';
 
 export const TrackingStatusCron = cron.schedule('0 */90 * * * *',  async () => {
   console.log('-------------------------');
@@ -35,6 +37,43 @@ export const TrackingStatusCron = cron.schedule('0 */90 * * * *',  async () => {
       order.easyncTracking.isObtained = true;
       order.easyncTracking.status = request.result.status;
       order.easyncTracking.trackingNumber = request.result.tracking.aquiline;
+
+      const { orderId } = !order.integrationData[LINNW_INTEGRATION_TYPE];
+
+      if (!orderId) {
+        await order.save();
+        continue;
+      }
+
+      const linnwIntegration = IntegrationUtil.getIntegrationByType(account, LINNW_INTEGRATION_TYPE);
+      
+      if (!linnwIntegration .session) {
+        const linnworksSession = await makeLinnworksAPISession(
+          linnwIntegration.appId,
+          cg("LINNW_APP_SECRET"),
+          linnwIntegration.credentials && linnwIntegration.credentials.get("INSTALL_TOKEN")
+        );
+
+        linnwIntegration.session = linnworksSession;
+        await account.save();
+      }
+
+      await sendTrackingNumberToLinnw(
+        linnwIntegration.session.Token,
+        orderId,
+        request.result.tracking.aquiline
+      );
+
+      const res = await markLinnworkOrderAsProcessed(
+        linnwIntegration.session.Token,
+        orderId
+      );
+
+      if (!res) {
+        continue;
+      }
+
+      order.easyncTracking.processedOnSource = res.Processed;
       await order.save();
     }
   }
