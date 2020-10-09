@@ -468,6 +468,7 @@ function orderData(order) {
     const data = {
         orderSource: 'Manually', // change logic for more sources
         dropshipper: 'Manually', // change logic for more dropshippers
+        processedOnSource: 'False',
         trackerObtained: 'False',
         trackingStatus: null,
         trackingNumber: null,
@@ -479,6 +480,10 @@ function orderData(order) {
         dropshipDate: null,
         retailerOrderID: null
     };
+
+    if (order.processedOnSource) {
+        data.processedOnSource = 'True';
+    }
 
     if (LINNW) {
         data.orderSource = 'Linnworks'; // change logic for more sources
@@ -528,11 +533,12 @@ function orderData(order) {
 }
 
 function OrderStatus({ order }) {
-    const { message, status, processedOnSource, requestId, idempotencyKey } = order.easyncOrderStatus;
+    const { message, status, requestId, idempotencyKey } = order.easyncOrderStatus;
 
     const {
         orderSource, 
         orderSourceID, 
+        processedOnSource,
         dropshipper, 
         retailer, 
         totalPaid, 
