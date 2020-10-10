@@ -171,6 +171,44 @@ export async function getLinnworksLocations(token) {
   }
 }
 
+export async function markLinnworkOrderAsProcessed(token, orderId) {
+  const uri = 'https://eu-ext.linnworks.net//api/Orders/ProcessFulfilmentCentreOrder';
+
+  const request = {
+    headers: {
+      'Authorization': token,
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    payload: querystring.stringify({ orderId })
+  };
+
+  try {
+    const { payload } = await Wreck.post(uri, request);
+    return JSON.parse(payload);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function sendTrackingNumberToLinnw(token, orderId, TrackingNumber) {
+  return new Promise((resolve, reject) => {
+    unirest('POST', 'https://eu-ext.linnworks.net//api/Orders/SetOrderShippingInfo')
+      .headers({
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': token
+      })
+      .send(`orderId=${orderId}`)
+      .send(`info={"TrackingNumber": "${TrackingNumber}"}`)
+      .end(function (res) { 
+        if (res.error) {
+          reject(res.error);
+        } else {
+          resolve(JSON.parse(res.raw_body));
+        }
+      });
+  });
+}
+
 export async function setLinnworksOrderNote(token, orderId, note) {
   return new Promise((resolve, reject) => {
     unirest('POST', 'https://eu-ext.linnworks.net//api/Orders/SetOrderNotes')

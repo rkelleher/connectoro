@@ -67,6 +67,18 @@ const OrderSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     index: true
   },
+  easyncTracking: {
+    isObtained: {
+      type: Boolean,
+      default: false
+    },
+    status: {
+      type: String
+    },
+    trackingNumber: {
+      type: String
+    }
+  },
   easyncOrderStatus: {
     requestId: {
       type: String
@@ -81,15 +93,15 @@ const OrderSchema = new mongoose.Schema({
     idempotencyKey: {
       type: String
     },
-    processedOnSource: {
-      type: Boolean,
-      default: false
-    },
     request: mongoose.Schema.Types.Mixed,
     tracking: mongoose.Schema.Types.Mixed
   },
   orderProducts: [OrderProductSchema],
   orderStatus: String,
+  processedOnSource: {
+    type: Boolean,
+    default: false
+  },
   shippingAddress: {
     type: AddressSchema,
     default: () => ({})

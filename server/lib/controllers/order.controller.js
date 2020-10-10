@@ -4,7 +4,8 @@ import mongoose from "mongoose";
 import {
   buildEasyncOrderData,
   buildEasyncOrderProductData,
-  EASYNC_INTEGRATION_TYPE
+  EASYNC_INTEGRATION_TYPE,
+  EASYNC_ORDER_STATUSES
 } from "../integrations/easync/easync.js";
 import { getStatusByRequestId } from "../integrations/easync/getEasyncOrdedStatus.js";
 import { Product } from "../models/product.model.js";
@@ -38,6 +39,15 @@ export async function getAllOrdersByStatus(status) {
   const orders = await Order.find(query);
 
   return orders;
+}
+
+export async function getAwaitingTrackerOrders() {
+  return Order.find({
+    'easyncOrderStatus.status': EASYNC_ORDER_STATUSES.COMPLETE,
+    'easyncTracking.isObtained': {
+      $ne: false
+    }
+  });
 }
 
 export async function updateOrderById(orderId, { requestId = null, status = null, message = null, idempotencyKey = null, request = null, tracking = null }) {

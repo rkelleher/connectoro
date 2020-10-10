@@ -35,8 +35,6 @@ import { InlineOptions } from "app/components/InlineOptions";
 import EasyncProductOptions from "../integrations/easync/EasyncProductOptions";
 import EasyncOrderOptions from "../integrations/easync/EasyncOrderOptions";
 import './Order.css';
-import account from "app/store/reducers/account.reducer";
-import { SignalCellularNullOutlined } from "@material-ui/icons";
 
 const OrderHeader = ({ order }) => {
     const dispatch = useDispatch();
@@ -176,6 +174,7 @@ const OrderData = order => {
     data={_.omit(order, ["inputOrder"])}
         ></JSONPretty>
         </div>
+
         <div className="pb-48">
         <div className="pb-16 flex items-center">
         <Typography className="h2" color="textSecondary">
@@ -513,7 +512,96 @@ function OrderEasyncDetails({ order }) {
     );
 }
 
+function orderData(order) {
+    const { EASYNC, LINNW} = order.integrationData;
+    const { request } = order.easyncOrderStatus;
+
+    const data = {
+        orderSource: 'Manually', // change logic for more sources
+        dropshipper: 'Manually', // change logic for more dropshippers
+        processedOnSource: 'False',
+        trackerObtained: 'False',
+        trackingStatus: null,
+        trackingNumber: null,
+        trackingURL: null,
+        orderSourceID: null,
+        retailer: null,
+        totalPaid: null, 
+        dropshipperAccount: null,
+        dropshipDate: null,
+        retailerOrderID: null
+    };
+
+    if (order.processedOnSource) {
+        data.processedOnSource = 'True';
+    }
+
+    if (LINNW) {
+        data.orderSource = 'Linnworks'; // change logic for more sources
+        data.orderSourceID = LINNW.numOrderId; // change logic for more sources
+    }
+
+    if (EASYNC) {
+        data.dropshipper = 'Easync'; // change logic for more dropshippers
+
+        if (EASYNC.retailerCode) {
+            data.retailer = EASYNC.retailerCode.replace("_", " ");
+        }
+    }
+
+    if (order.easyncTracking) {
+        if (order.easyncTracking.isObtained) {
+            data.trackerObtained = 'True';
+        }
+
+        if (order.easyncTracking.status) {
+            data.trackingStatus = order.easyncTracking.status;
+        }
+
+        if (order.easyncTracking.trackingNumber) {
+            data.trackingNumber = order.easyncTracking.trackingNumber;
+            data.trackingURL = `https://aquiline-tracking.com/data/TrackPackage${order.easyncTracking.trackingNumber}`;
+        }
+    }
+
+    if (request) {
+        if (request.price_components && request.price_components.subtotal) {
+            data.totalPaid =  request.price_components.subtotal;
+        }
+
+        if (request.tracking) {
+            data.trackerObtained = 'True';
+        }
+
+        if (request.merchant_order_ids && request.merchant_order_ids.length) {
+            data.dropshipperAccount = request.merchant_order_ids[0].account;
+            data.dropshipDate = moment(request.merchant_order_ids[0].placed_at).format('DD MM YYYY');
+            data.retailerOrderID = request.merchant_order_ids[0].merchant_order_id;
+        }
+    }
+
+    return data;
+}
+
 function OrderStatus({ order }) {
+    const { message, status, requestId, idempotencyKey } = order.easyncOrderStatus;
+
+    const {
+        orderSource, 
+        orderSourceID, 
+        processedOnSource,
+        dropshipper, 
+        retailer, 
+        totalPaid, 
+        trackerObtained,
+        trackingStatus,
+        trackingNumber,
+        trackingURL,
+        dropshipperAccount,
+        dropshipDate,
+        retailerOrderID
+    } = orderData(order);
+
     return (
         <Card className="orderStatus">
             <CardContent className="orderStatus-content">
@@ -523,40 +611,41 @@ function OrderStatus({ order }) {
                 <Typography className="flex pb-24">
                     <Icon className="orderStatus-icon">local_shipping</Icon>
                     <Typography variant="subtitle1">
-                        <Typography variant="h6" className="block orderStatus-tracker" >{order.easyncOrderStatus.status.replace("_", " ")}</Typography>
-                        <span class="font-bold">Message: </span> {order.easyncOrderStatus.message}
+                        <Typography variant="h6" className="block orderStatus-tracker" >{status.replace("_", " ")}</Typography>
+                        <span class="font-bold">Message: </span> {message}
                     </Typography>
                 </Typography>
                 <Typography variant="subtitle1" className="orderStatus-paragraph">
-                <p><span class="font-bold">Order Source:</span> {order.integrationData.LINNW ? 'Linnworks' : 'Manually'}</p>
-                {/* change logic for more sources */}
-                <p><span class="font-bold">Order Source ID: </span> {order.integrationData.LINNW.numOrderId ? order.integrationData.LINNW.numOrderId : null}</p>
-                <p><span class="font-bold">Processed On Source: </span> {order.easyncOrderStatus.processedOnSource.toString()}</p>
+                    <p><span class="font-bold">Order Source:</span> {orderSource}</p>
+                    <p><span class="font-bold">Order Source ID: </span> {orderSourceID}</p>
+                    <p><span class="font-bold">Processed On Source: </span> {processedOnSource.toString()}</p>
                 </Typography>
                 <Typography variant="body1" className="orderStatus-paragraph">
-                <p><span class="font-bold">Dropshipper: </span> {order.integrationData.EASYNC ? 'Easync' : 'Manually'}</p>
-                {/* change logic for more sources */}
-                <p><span class="font-bold">Dropshipper Account: </span> {(order.easyncOrderStatus.request && order.easyncOrderStatus.request.merchant_order_ids[0].account) ? order.easyncOrderStatus.request.merchant_order_ids[0].account : null}</p>
+                    <p><span class="font-bold">Dropshipper: </span> {dropshipper}</p>
+                    <p><span class="font-bold">Dropshipper Account: </span> {dropshipperAccount}</p>
                 </Typography>
                 <Typography variant="body1" className="orderStatus-paragraph">
-                <p><span class="font-bold">Request ID: </span> {order.easyncOrderStatus.requestId}</p>
-                <p><span class="font-bold">Indempotency Key:</span> {order.easyncOrderStatus.idempotencyKey}</p>
+                    <p><span class="font-bold">Request ID: </span> {requestId}</p>
+                    <p><span class="font-bold">Indempotency Key:</span> {idempotencyKey}</p>
                 </Typography>
                 <Typography variant="body1" className="orderStatus-paragraph">
-                <p><span class="font-bold">Dropship Date: </span> {(order.easyncOrderStatus.request && order.easyncOrderStatus.request.merchant_order_ids[0].placed_at) ? moment(order.easyncOrderStatus.request.merchant_order_ids[0].placed_at).format('DD MM YYYY') : null}</p>
-                <p><span class="font-bold">Retailer: </span>{order.integrationData.EASYNC.retailerCode ? order.integrationData.EASYNC.retailerCode.replace("_", " ") : null}</p>
-                <p><span class="font-bold">Retailer Order ID: </span> {(order.easyncOrderStatus.request && order.easyncOrderStatus.request.merchant_order_ids[0].merchant_order_id) ? order.easyncOrderStatus.request.merchant_order_ids[0].merchant_order_id : null}</p>
-                <p><span class="font-bold">Total Paid: </span>{(order.easyncOrderStatus.request && order.easyncOrderStatus.request.price_components.subtotal) ? order.easyncOrderStatus.request.price_components.subtotal : null}</p>
+                    <p><span class="font-bold">Dropship Date: </span> {dropshipDate}</p>
+                    <p><span class="font-bold">Retailer: </span>{retailer}</p>
+                    <p><span class="font-bold">Retailer Order ID: </span> {retailerOrderID}</p>
+                    <p><span class="font-bold">Total Paid: </span>{totalPaid}</p>
                 </Typography>
                 <Typography variant="body1" className="orderStatus-paragraph">
-                <p><span class="font-bold">Tracker Obtained: </span>{(order.easyncOrderStatus.request && order.easyncOrderStatus.request.tracking) ? 'True' : 'False'}</p>
-                <p><span class="font-bold">Tracking Status: </span>Status</p>
-                <p><span class="font-bold">Tracking Number: </span>1234567890</p>
-                <p><span class="font-bold">Tracker URL: </span>tracker.com/19234</p>
+                    <p><span class="font-bold">Tracker Obtained: </span>{trackerObtained}</p>
+                    <p><span class="font-bold">Tracking Status: </span>{trackingStatus}</p>
+                    <p><span class="font-bold">Tracking Number: </span>{trackingNumber}</p>
+                    <p>
+                        <span class="font-bold">Tracking URL: </span>
+                        <a href={trackingURL}>{trackingURL}</a>
+                    </p>
                 </Typography>
             </CardContent>
         </Card>
-      );
+    );
 }
 
 function GeneralTab({ order }) {

@@ -105,7 +105,7 @@ export async function buildSimpleAPIServer(cg, db) {
     method: "GET",
     path: "/api/current-version",
     handler: async (request, h) => {
-      return { version: '1.3.3 [FIX VALIDATION ORDER ID ON REQUEST CRON]' };
+      return { version: '1.3.8 [TRACKING STATUS CRON]' };
     }
   });
 

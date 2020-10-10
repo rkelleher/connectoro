@@ -1,5 +1,4 @@
 import cron from 'node-cron';
-import Bluebird from 'bluebird';
 
 import { 
     getAccount, 
@@ -18,18 +17,15 @@ import { getStatusByRequestId } from '../integrations/easync/getEasyncOrdedStatu
 import { setLinnworksOrderNote } from '../integrations/linnworks.js';
 import { LINNW_INTEGRATION_TYPE } from '../models/product.model.js';
 
-export default cron.schedule('0 */10 * * * *',  async () => {
+export default (cg) => cron.schedule('0 */10 * * * *',  async () => {
     console.log("Cron job");
 
-    const orders = await getAllOrdersByStatus([
-        EASYNC_ORDER_STATUSES.PROCESSING,
-        EASYNC_ORDER_STATUSES.AWAITING_TRACKER
-    ]);
+    const orders = await getAllOrdersByStatus([EASYNC_ORDER_STATUSES.PROCESSING]);
 
-    await Bluebird.map(orders, async order => {
+    for (const order of orders) {
         const { requestId = null } = order.easyncOrderStatus;
 
-        if (!requestId) { return; };
+        if (!requestId) { continue; };
 
         const account = await getAccount(order.accountId);
         const integration = await getIntegrationByType(
@@ -49,12 +45,12 @@ export default cron.schedule('0 */10 * * * *',  async () => {
 
         if (
             order.easyncOrderStatus.status === EASYNC_ORDER_STATUSES.PROCESSING && 
-            newValue.status === EASYNC_ORDER_STATUSES.AWAITING_TRACKER
+            newValue.status === EASYNC_ORDER_STATUSES.COMPLETE
         ) {
             const { orderId } = order['integrationData'][LINNW_INTEGRATION_TYPE];
 
             if (!orderId) {
-                return;
+                continue;
             }
 
             const integration = IntegrationUtil.getIntegrationByType(account, LINNW_INTEGRATION_TYPE);
@@ -79,7 +75,7 @@ export default cron.schedule('0 */10 * * * *',  async () => {
         }
 
         await updateOrderById(order._id, newValue);
-    });
-}, {
+    }
+},  {
     timezone: 'Europe/Kiev',
 });
