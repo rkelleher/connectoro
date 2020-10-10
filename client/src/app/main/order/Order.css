@@ -44,6 +44,10 @@
     height: 50px;
 }
 
+.SendOrderButtonKey {
+    width: auto !important;
+}
+
 .orderStatus {
     margin-left: 20px;
     max-width: 400px;

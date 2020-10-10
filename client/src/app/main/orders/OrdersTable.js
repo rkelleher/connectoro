@@ -94,7 +94,7 @@ function OrdersTable(props) {
     return (
         <div className="w-full flex flex-col">
             <FuseScrollbars className="flex-grow overflow-x-auto">
-                <Table className="min-w-xl order-table" aria-labelledby="tableTitle">
+                <Table className="min-w-xl order-table" aria-labelledby="tableTitle" stickyHeader aria-label="sticky table">
                     <OrdersTableHead
                         numSelected={selected.length}
                         order={order}
@@ -181,6 +181,14 @@ function OrdersTable(props) {
                                             >
                                                 {n.easyncOrderStatus && n.easyncOrderStatus.status}
                                             </TableCell>
+                                            <TableCell
+                                                component="th"
+                                                scope="row"
+                                            >
+                                                <p><span class="font-bold">Tracking Status: </span>Status</p>
+                                                <p><span class="font-bold">Tracking Number: </span>1234567890</p>
+                                                <p><span class="font-bold">Tracker URL: </span>tracker.com/19234</p>
+                                            </TableCell>
 
                                             <TableCell
                                                 component="th"
@@ -192,6 +200,13 @@ function OrdersTable(props) {
                                                     }
                                                 >
                                                     <Icon>shopping_cart</Icon>
+                                                </Button>
+                                                <Button variant="contained" className="mr-8"
+                                                    onClick={event =>
+                                                        event.stopPropagation()
+                                                    }
+                                                >
+                                                    <Icon>refresh</Icon>
                                                 </Button>
                                                 <Button variant="contained" className="mr-8"
                                                     onClick={event =>

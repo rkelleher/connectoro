@@ -47,6 +47,13 @@ const rows = [
         sort: true
     },
     {
+        id: "tracking",
+        align: "left",
+        disablePadding: false,
+        label: "Tracking",
+        sort: true
+    },
+    {
         id: "controls",
         align: "left",
         disablePadding: false,
@@ -84,7 +91,7 @@ function OrdersTableHead(props) {
             <TableRow className="h-64">
                 <TableCell
                     padding="checkbox"
-                    className="relative pl-4 sm:pl-12"
+                    className="pl-4 sm:pl-12"
                 >
                     <Checkbox
                         indeterminate={

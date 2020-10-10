@@ -153,9 +153,10 @@ export async function buildSimpleAPIServer(cg, db) {
     method: "POST",
     path: "/api/easync/order-test",
     handler: async (request, h) => {
-      const { orderId } = request.payload;
+      const { orderId, key } = request.payload;
       const userId = request.headers.authenticatedUserId;
       const user = await getUser(userId);
+      console.log(key);
       if (user.role !== "admin") {
         return Boom.unauthorized();
       }
@@ -176,7 +177,7 @@ export async function buildSimpleAPIServer(cg, db) {
         throw Boom.badRequest("No Easync api token!");
       }
 
-      const easyncPayload = await buildEasyncOrderPayload({ order });
+      const easyncPayload = await buildEasyncOrderPayload({ order, key });
 
       const easyncReq = await buildEasyncOrderReq(easyncPayload, token);
 

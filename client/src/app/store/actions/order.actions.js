@@ -206,14 +206,16 @@ export const changeStatus = (status) =>{
 }
 
 
-export function testSendOrder(order) {
+export function testSendOrder(order, key = false) {
+    console.log(key + 'action');
     return async dispatch => {
         dispatch({
             type: GET_EASYNC_ORDER_STATUS
         });
 
         const {data} = await axios.post(`/api/easync/order-test`, {
-            orderId: order
+            orderId: order,
+            key: key
         });
         if (data) {
             let payload;

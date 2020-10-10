@@ -12,8 +12,16 @@ import {
     TextField,
     Divider,
     Card,
-    CardContent
+    CardContent,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
 } from "@material-ui/core";
+import {
+    closeDialog,
+    openDialog
+} from "app/store/actions";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import { makeStyles } from "@material-ui/core/styles";
@@ -57,6 +65,48 @@ const OrderHeader = ({ order }) => {
         </Button>
     );
 
+    const buttonVariantKey = (_status) => (
+        // <Button
+        //     className='SendOrderButtonKey SendOrderButton mr-8'
+        //     variant="contained"
+        //     onClick={() => dispatch(Actions.testSendOrder(order._id, true))}
+        //     {...isLoading ? {disabled: true} : ''}
+        //     {... !['open', 'error'].includes(_status) ? {hidden: true} : {}}
+        // >
+        //     <Icon className="mr-4 text-20">refresh</Icon>
+        //     With new key
+        // </Button>
+        <Button
+            className='SendOrderButtonKey SendOrderButton mr-8'
+            variant="contained"
+            {...isLoading ? {disabled: true} : ''}
+            {... !['open', 'error'].includes(_status) ? {hidden: true} : {}}
+            onClick={()=> dispatch(openDialog({
+            children: (
+                <React.Fragment>
+                    <DialogTitle id="alert-dialog-title" className="text-red-500">Warning</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description" className="font-bold text-black text-base">
+                            This action can make a DUBLICATE of order. Are you sure to continue ?
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={()=> dispatch(closeDialog())} color="primary" className='text-green-500'>
+                            Exit
+                        </Button>
+                        <Button onClick={()=> dispatch(closeDialog())} color="primary" autoFocus startIcon={<RefreshIcon />} className="text-orange-400">
+                            With new key.
+                        </Button>
+                    </DialogActions>
+                </React.Fragment>
+                 )
+             }))}
+    >
+        <Icon className="mr-4 text-20">refresh</Icon>
+        With new key
+    </Button>
+    );
+
     return (
         <div className="flex flex-1 flex-col sm:flex-row w-full items-center justify-between">
             <div className="flex flex-1 flex-col items-center sm:items-start">
@@ -93,6 +143,7 @@ const OrderHeader = ({ order }) => {
             <FuseAnimate animation="transition.slideRightIn" delay={300}>
                 <div className="order-page-header">
                     {buttonVariant(_status)}
+                    {buttonVariantKey(_status)}
                     <Button variant="contained" className="mr-8">
                         <Icon>block</Icon>
                     </Button>
@@ -499,6 +550,9 @@ function OrderStatus({ order }) {
                 </Typography>
                 <Typography variant="body1" className="orderStatus-paragraph">
                 <p><span class="font-bold">Tracker Obtained: </span>{(order.easyncOrderStatus.request && order.easyncOrderStatus.request.tracking) ? 'True' : 'False'}</p>
+                <p><span class="font-bold">Tracking Status: </span>Status</p>
+                <p><span class="font-bold">Tracking Number: </span>1234567890</p>
+                <p><span class="font-bold">Tracker URL: </span>tracker.com/19234</p>
                 </Typography>
             </CardContent>
         </Card>
