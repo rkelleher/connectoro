@@ -45,7 +45,7 @@ export async function getAwaitingTrackerOrders() {
   return Order.find({
     'easyncOrderStatus.status': EASYNC_ORDER_STATUSES.COMPLETE,
     'easyncTracking.isObtained': {
-      $ne: false
+      $ne: true
     }
   });
 }

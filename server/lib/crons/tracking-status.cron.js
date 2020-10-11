@@ -7,7 +7,7 @@ import { getTrackingByRequestId } from "../integrations/easync/getEasyncOrdedSta
 import { LINNW_INTEGRATION_TYPE, markLinnworkOrderAsProcessed, sendTrackingNumberToLinnw } from '../integrations/linnworks.js';
 import * as IntegrationUtil from '../utils/integration.util.js';
 
-export const TrackingStatusCron = cron.schedule('0 */90 * * * *',  async () => {
+export const TrackingStatusCron = (cg) => cron.schedule('0 */90 * * * *',  async () => {
   console.log('-------------------------');
   console.log("Cron tracking status job");
   console.log('-------------------------');
