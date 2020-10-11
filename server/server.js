@@ -40,7 +40,7 @@ import { TrackingStatusCron } from './lib/crons/tracking-status.cron.js';
   await apiServer.start();
   await ServiceOrderChecker(cg).start();
   await cronFetchFromLinworks(cg).start();
-  await TrackingStatusCron.start();
+  await TrackingStatusCron(cg).start();
 
   console.log("Connectoro API Server running on %s", apiServer.info.uri);
 })()
