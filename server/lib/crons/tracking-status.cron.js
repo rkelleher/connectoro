@@ -33,49 +33,51 @@ export const TrackingStatusCron = (cg) => cron.schedule('0 */90 * * * *',  async
 
     const request = await getTrackingByRequestId(requestId, token);
 
-    if (request.type === EASYNC_TRACKING_RESPONSE_TYPES.SUCCESS) {
-      order.easyncTracking.isObtained = true;
-      order.easyncTracking.status = request.result.status;
-      order.easyncTracking.trackingNumber = request.result.tracking.aquiline;
-
-      const { orderId } = !order.integrationData[LINNW_INTEGRATION_TYPE];
-
-      if (!orderId) {
-        await order.save();
-        continue;
-      }
-
-      const linnwIntegration = IntegrationUtil.getIntegrationByType(account, LINNW_INTEGRATION_TYPE);
-      
-      if (!linnwIntegration .session) {
-        const linnworksSession = await makeLinnworksAPISession(
-          linnwIntegration.appId,
-          cg("LINNW_APP_SECRET"),
-          linnwIntegration.credentials && linnwIntegration.credentials.get("INSTALL_TOKEN")
-        );
-
-        linnwIntegration.session = linnworksSession;
-        await account.save();
-      }
-
-      await sendTrackingNumberToLinnw(
-        linnwIntegration.session.Token,
-        orderId,
-        request.result.tracking.aquiline
-      );
-
-      const res = await markLinnworkOrderAsProcessed(
-        linnwIntegration.session.Token,
-        orderId
-      );
-
-      if (!res) {
-        continue;
-      }
-
-      order.easyncTracking.processedOnSource = res.Processed;
-      await order.save();
+    if (request.type !== EASYNC_TRACKING_RESPONSE_TYPES.SUCCESS) {
+      continue;
     }
+
+    order.easyncTracking.isObtained = true;
+    order.easyncTracking.status = request.result.status;
+    order.easyncTracking.trackingNumber = request.result.tracking.aquiline;
+
+    const { orderId } = order.integrationData[LINNW_INTEGRATION_TYPE];
+
+    if (!orderId) {
+      await order.save();
+      continue;
+    }
+
+    const linnwIntegration = IntegrationUtil.getIntegrationByType(account, LINNW_INTEGRATION_TYPE);
+    
+    if (!linnwIntegration .session) {
+      const linnworksSession = await makeLinnworksAPISession(
+        linnwIntegration.appId,
+        cg("LINNW_APP_SECRET"),
+        linnwIntegration.credentials && linnwIntegration.credentials.get("INSTALL_TOKEN")
+      );
+
+      linnwIntegration.session = linnworksSession;
+      await account.save();
+    }
+
+    await sendTrackingNumberToLinnw(
+      linnwIntegration.session.Token,
+      orderId,
+      request.result.tracking.aquiline
+    );
+
+    const res = await markLinnworkOrderAsProcessed(
+      linnwIntegration.session.Token,
+      orderId
+    );
+
+    if (!res) {
+      continue;
+    }
+
+    order.easyncTracking.processedOnSource = res.Processed;
+    await order.save();
   }
 }, {
   timezone: 'Europe/Kiev',
