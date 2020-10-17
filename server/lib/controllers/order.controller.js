@@ -50,6 +50,18 @@ export async function getAwaitingTrackerOrders() {
   });
 }
 
+export async function getAllOrdersWithTracker() {
+  return Order.find({
+    'easyncOrderStatus.status': EASYNC_ORDER_STATUSES.COMPLETE,
+    'easyncTracking.isObtained': {
+      $eq: true
+    },
+    'order.easyncTracking.status': {
+      $ne: 'delivered'
+    }
+  });
+}
+
 export async function updateOrderById(orderId, { requestId = null, status = null, message = null, idempotencyKey = null, request = null, tracking = null }) {
   if (!orderId) {
     throw new Error("Order id not exist");

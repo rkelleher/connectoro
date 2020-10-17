@@ -105,7 +105,7 @@ export async function buildSimpleAPIServer(cg, db) {
     method: "GET",
     path: "/api/current-version",
     handler: async (request, h) => {
-      return { version: '1.4.2 [CHANGE TRACKING STATUS CRON TIME]' };
+      return { version: '1.4.3 [ADD TRACKING UPDATE CRON]' };
     }
   });
 
