@@ -7,14 +7,25 @@ import {
     TableRow,
     Checkbox,
     Button,
-    Icon
+    Icon,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    Tooltip,
 } from "@material-ui/core";
+import {
+    closeDialog,
+    openDialog
+} from "app/store/actions";
+import { VpnKey,  CheckCircle, QueryBuilder, Warning } from "@material-ui/icons";
 import { FuseScrollbars } from "@fuse";
 import { withRouter } from "react-router-dom";
 import _ from "@lodash";
 import OrdersTableHead from "./OrdersTableHead";
 import * as Actions from "app/store/actions";
 import { useDispatch, useSelector } from "react-redux";
+import moment from 'moment';
 
 function OrdersTable(props) {
     const dispatch = useDispatch();
@@ -59,8 +70,12 @@ function OrdersTable(props) {
         setSelected([]);
     }
 
-    function handleClick(item) {
+    function handleClick(item, event) {
+        // if (event.target === event.currentTarget) {
+        //     props.history.push(`/orders/${item._id}`);
+        // }
         props.history.push(`/orders/${item._id}`);
+        
     }
 
     function handleCheck(event, id) {
@@ -128,6 +143,50 @@ function OrdersTable(props) {
                                 .map(n => {
                                     const isSelected =
                                         selected.indexOf(n._id) !== -1;
+                                    const data = {
+                                        trackingStatus: null,
+                                        trackingNumber: null,
+                                        trackingURL: null,
+                                        easyncOrderStatus: null,
+                                        easyncOrderMessage: null,
+                                        orderSource: 'Manually',
+                                        orderSourceID: null,
+                                    }
+                                    if (n.easyncTracking) {
+                                
+                                        if (n.easyncTracking.status) {
+                                            data.trackingStatus = n.easyncTracking.status;
+                                        }
+                                
+                                        if (n.easyncTracking.trackingNumber) {
+                                            data.trackingNumber = n.easyncTracking.trackingNumber;
+                                            data.trackingURL = `https://aquiline-tracking.com/data/TrackPackage${n.easyncTracking.trackingNumber}`;
+                                        }
+                                    }
+                                    let icon;
+                                    if (n.easyncOrderStatus) {
+                                        data.easyncOrderStatus = n.easyncOrderStatus.status;
+                                        data.easyncOrderMessage = n.easyncOrderStatus.message;
+                                        switch (n.easyncOrderStatus.status) {
+                                            case 'proccesing':
+                                                icon = <QueryBuilder className="text-orange-500 mr-6"/>
+                                                break;
+                                            case 'complete':
+                                                icon = <CheckCircle className="text-green-700 mr-6"/>
+                                                break;
+                                            case 'error':
+                                                icon = <Warning className="text-red-700 mr-6"/>
+                                                break;
+                                            default:
+                                                icon = null;
+                                        }
+                                    }
+                                    const { EASYNC, LINNW} = n.integrationData;
+                                    if (LINNW) {
+                                        data.orderSource = 'Linnworks'; // change logic for more sources
+                                        data.orderSourceID = LINNW.numOrderId; // change logic for more sources
+                                    }
+                                    
                                     return (
                                         <TableRow
                                             className="h-64 cursor-pointer"
@@ -137,7 +196,7 @@ function OrdersTable(props) {
                                             tabIndex={-1}
                                             key={n._id}
                                             selected={isSelected}
-                                            onClick={event => handleClick(n)}
+                                            onClick={event => handleClick(n, event)}
                                         >
                                             <TableCell
                                                 className="w-48 pl-4 sm:pl-12"
@@ -158,7 +217,12 @@ function OrdersTable(props) {
                                                 component="th"
                                                 scope="row"
                                             >
-                                                {new Date(n.createdDate).toUTCString()}
+                                                <div className="flex flex-col">
+                                                {/* <p>{moment(n.createdDate).format('DD', 'MM', 'YY', 'HH', 'mm', 'A')}</p> */}
+                                                <p>Date :<span className="font-medium">{moment(n.createdDate).format('L LT')}</span></p>
+                                                <p>Channel :{data.orderSource}</p>
+                                                <p>Order ID :{data.orderSourceID}</p>
+                                                </div>
                                             </TableCell>
 
                                             <TableCell
@@ -179,35 +243,68 @@ function OrdersTable(props) {
                                                 component="th"
                                                 scope="row"
                                             >
-                                                {n.easyncOrderStatus && n.easyncOrderStatus.status}
+                                                <div className="flex">{icon}
+                                                    <div className="flex flex-col">
+                                                        <p className="capitalize font-semibold">{data.easyncOrderStatus}</p>
+                                                        <p>{data.easyncOrderMessage}</p>
+                                                    </div>
+                                                </div>
                                             </TableCell>
                                             <TableCell
                                                 component="th"
                                                 scope="row"
                                             >
-                                                <p><span class="font-bold">Tracking Status: </span>Status</p>
-                                                <p><span class="font-bold">Tracking Number: </span>1234567890</p>
-                                                <p><span class="font-bold">Tracker URL: </span>tracker.com/19234</p>
+                                                <div className="flex"><QueryBuilder  style={{color : 'yellow'}}/>
+                                                    <div className="flex flex-col">
+                                                        <p>{data.trackingStatus}</p>
+                                                        <p><a href={data.trackingURL} target="_blank">{data.trackingNumber}</a></p>
+                                                    </div>
+                                                </div>
                                             </TableCell>
 
                                             <TableCell
                                                 component="th"
                                                 scope="row"
                                             >
-                                                <Button variant="contained" className="mr-8"
-                                                    onClick={event =>
-                                                        event.stopPropagation()
-                                                    }
+                                                <Tooltip title ="Send Order Via Easync">
+                                                    <Button variant="contained" className="mr-8"
+                                                        onClick={event =>
+                                                            event.stopPropagation()
+                                                        }
+                                                    >
+                                                        <Icon>shopping_cart</Icon>
+                                                    </Button>
+                                                </Tooltip>
+                                                <Tooltip title="Create New Key">
+                                                    <Button
+                                                        className='mr-8'
+                                                        variant="contained"
+                                                        // {...isLoading ? {disabled: true} : ''}
+                                                        // {... !['open', 'error'].includes(_status) ? {hidden: true} : {}}
+                                                        onClick={()=> dispatch(openDialog({
+                                                        children: (
+                                                            <React.Fragment>
+                                                                <DialogTitle id="alert-dialog-title" className="text-red-500">Warning</DialogTitle>
+                                                                <DialogContent>
+                                                                    <DialogContentText id="alert-dialog-description" className="font-bold text-black text-base">
+                                                                    This may result in a duplicate order. Are you sure you want to continue?
+                                                                    </DialogContentText>
+                                                                </DialogContent>
+                                                                <DialogActions>
+                                                                    <Button onClick={()=> dispatch(closeDialog())} color="primary" className='text-green-500'>
+                                                                        Exit
+                                                                    </Button>
+                                                                    <Button onClick={()=> dispatch(closeDialog())} color="primary" autoFocus startIcon={<VpnKey />} className="text-orange-400">
+                                                                        Create New Key
+                                                                    </Button>
+                                                                </DialogActions>
+                                                            </React.Fragment>
+                                                            )
+                                                        }))}
                                                 >
-                                                    <Icon>shopping_cart</Icon>
-                                                </Button>
-                                                <Button variant="contained" className="mr-8"
-                                                    onClick={event =>
-                                                        event.stopPropagation()
-                                                    }
-                                                >
-                                                    <Icon>refresh</Icon>
-                                                </Button>
+                                                    <Icon>vpn_key</Icon>
+                                                    </Button>
+                                                </Tooltip>
                                                 <Button variant="contained" className="mr-8"
                                                     onClick={event =>
                                                         event.stopPropagation()

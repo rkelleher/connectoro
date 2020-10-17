@@ -22,14 +22,14 @@ const rows = [
         id: "createdDate",
         align: "left",
         disablePadding: false,
-        label: "Date",
+        label: "Details",
         sort: true
     },
     {
         id: "customerFullName",
         align: "left",
         disablePadding: false,
-        label: "Customer Name",
+        label: "Customer",
         sort: true
     },
     {

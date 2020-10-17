@@ -17,13 +17,14 @@ import {
     DialogContent,
     DialogContentText,
     DialogTitle,
+    Tooltip,
 } from "@material-ui/core";
 import {
     closeDialog,
     openDialog
 } from "app/store/actions";
 import Autocomplete from "@material-ui/lab/Autocomplete";
-import RefreshIcon from "@material-ui/icons/Refresh";
+import {Refresh, VpnKey} from "@material-ui/icons";
 import { makeStyles } from "@material-ui/core/styles";
 import { FuseAnimate, FusePageCarded, FuseLoading } from "@fuse";
 import { Link } from "react-router-dom";
@@ -51,58 +52,50 @@ const OrderHeader = ({ order }) => {
     }
 
     const buttonVariant = (_status) => (
-        <Button
-            className='SendOrderButton mr-8'
-            variant="contained"
-            onClick={() => dispatch(Actions.testSendOrder(order._id))}
-            {...isLoading ? {disabled: true} : ''}
-            {... !['open', 'error'].includes(_status) ? {hidden: true} : {}}
-        >
-            <Icon className="mr-4 text-20">shopping_cart</Icon>
-            Send Order Via Easync
-        </Button>
+        <Tooltip title="Send Order Via Easync">
+            <Button
+                className='mr-8 h-50'
+                variant="contained"
+                onClick={() => dispatch(Actions.testSendOrder(order._id))}
+                {...isLoading ? {disabled: true} : ''}
+                {... !['open', 'error'].includes(_status) ? {hidden: true} : {}}
+            >
+                <Icon>shopping_cart</Icon>
+            </Button>
+        </Tooltip>
     );
 
     const buttonVariantKey = (_status) => (
-        // <Button
-        //     className='SendOrderButtonKey SendOrderButton mr-8'
-        //     variant="contained"
-        //     onClick={() => dispatch(Actions.testSendOrder(order._id, true))}
-        //     {...isLoading ? {disabled: true} : ''}
-        //     {... !['open', 'error'].includes(_status) ? {hidden: true} : {}}
-        // >
-        //     <Icon className="mr-4 text-20">refresh</Icon>
-        //     With new key
-        // </Button>
-        <Button
-            className='SendOrderButtonKey SendOrderButton mr-8'
-            variant="contained"
-            {...isLoading ? {disabled: true} : ''}
-            {... !['open', 'error'].includes(_status) ? {hidden: true} : {}}
-            onClick={()=> dispatch(openDialog({
-            children: (
-                <React.Fragment>
-                    <DialogTitle id="alert-dialog-title" className="text-red-500">Warning</DialogTitle>
-                    <DialogContent>
-                        <DialogContentText id="alert-dialog-description" className="font-bold text-black text-base">
-                            This action can make a DUBLICATE of order. Are you sure to continue ?
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={()=> dispatch(closeDialog())} color="primary" className='text-green-500'>
-                            Exit
-                        </Button>
-                        <Button onClick={()=> dispatch(closeDialog())} color="primary" autoFocus startIcon={<RefreshIcon />} className="text-orange-400">
-                            With new key.
-                        </Button>
-                    </DialogActions>
-                </React.Fragment>
-                 )
-             }))}
-    >
-        <Icon className="mr-4 text-20">refresh</Icon>
-        With new key
-    </Button>
+        <Tooltip title="Create New Key">
+            <Button
+                className='mr-8'
+                variant="contained"
+                {...isLoading ? {disabled: true} : ''}
+                {... !['open', 'error'].includes(_status) ? {hidden: true} : {}}
+                onClick={()=> dispatch(openDialog({
+                children: (
+                    <React.Fragment>
+                        <DialogTitle id="alert-dialog-title" className="text-red-500">Warning</DialogTitle>
+                        <DialogContent>
+                            <DialogContentText id="alert-dialog-description" className="font-bold text-black text-base">
+                            This may result in a duplicate order. Are you sure you want to continue?
+                            </DialogContentText>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={()=> dispatch(closeDialog())} color="primary" className='text-green-500'>
+                                Exit
+                            </Button>
+                            <Button onClick={()=> dispatch(closeDialog())} color="primary" autoFocus startIcon={<VpnKey />} className="text-orange-400">
+                                Create New Key
+                            </Button>
+                        </DialogActions>
+                    </React.Fragment>
+                     )
+                 }))}
+        >
+            <Icon>vpn_key</Icon>
+            </Button>
+        </Tooltip>
     );
 
     return (
@@ -240,7 +233,7 @@ const AddProductForm = ({ order }) => {
     return (
         <div style={{ display: "flex" }}>
 <IconButton onClick={onRefreshBtnClick}>
-        <RefreshIcon fontSize="inherit" />
+        <Refresh fontSize="inherit" />
         </IconButton>
         <Autocomplete
     style={{ width: 300 }}
