@@ -20,7 +20,7 @@ async function pullLinnworksOrder(order, account) {
   });
 
   // UPDATE ORDER
-  if (isOrderExists) {
+  if (!!isOrderExists) {
     for (const product of order.Items || []) {
       const dbProduct = await Product.findOne({ SKU: product.SKU });
 
@@ -30,7 +30,7 @@ async function pullLinnworksOrder(order, account) {
 
       if (
         isOrderExists.orderProducts.find(p => dbProduct._id.equals(p.productId))
-      ) { return; }
+      ) { continue; }
 
       isOrderExists.orderProducts.push({
         productId: dbProduct._id,
@@ -102,7 +102,7 @@ async function pullLinnworksOrdersByLocation(account, cg) {
     1
   );
 
-  return Bluebird.map(orders.Data, async order => pullLinnworksOrder(order, account));
+  return Bluebird.each(orders.Data, async order => pullLinnworksOrder(order, account));
 }
 
 export const cronFetchFromLinworks = (cg) => cron.schedule('0 */30 * * * *',  async () => {
