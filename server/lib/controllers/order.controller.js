@@ -56,7 +56,7 @@ export async function getAllOrdersWithTracker() {
     'easyncTracking.isObtained': {
       $eq: true
     },
-    'order.easyncTracking.status': {
+    'easyncTracking.status': {
       $ne: 'delivered'
     }
   });

@@ -2,14 +2,14 @@ import cron from 'node-cron';
 
 import { getAccount, getIntegrationByType, getIntegrationCredential } from '../controllers/account.controller.js';
 import { getAllOrdersWithTracker } from '../controllers/order.controller.js';
-import { EASYNC_TOKEN_CREDENTIAL_KEY, EASYNC_TRACKING_RESPONSE_TRACKER_PROGRESS_STATUS } from "../integrations/easync/easync.js";
+import { EASYNC_INTEGRATION_TYPE, EASYNC_TOKEN_CREDENTIAL_KEY, EASYNC_TRACKING_RESPONSE_TRACKER_PROGRESS_STATUS, EASYNC_TRACKING_RESPONSE_TYPES } from "../integrations/easync/easync.js";
 import { getTrackingByRequestId } from "../integrations/easync/getEasyncOrdedStatus.js";
 import { LINNW_INTEGRATION_TYPE, markLinnworkOrderAsProcessed, sendTrackingNumberToLinnw, makeLinnworksAPISession } from '../integrations/linnworks.js';
 import * as IntegrationUtil from '../utils/integration.util.js';
 
 export const TrackingUpdateStatusCron = (cg) => cron.schedule('0 * */8 * * *',  async () => {
   console.log('-------------------------');
-  console.log("Cron tracking status job");
+  console.log("Cron tracking UPDATE status job");
   console.log('-------------------------');
 
   const orders = await getAllOrdersWithTracker();
@@ -33,6 +33,9 @@ export const TrackingUpdateStatusCron = (cg) => cron.schedule('0 * */8 * * *',  
       );
 
       const request = await getTrackingByRequestId(requestId, token);
+      if (request.type !== EASYNC_TRACKING_RESPONSE_TYPES.SUCCESS) {
+        continue;
+      }
 
       if (request.result.status === EASYNC_TRACKING_RESPONSE_TRACKER_PROGRESS_STATUS.SHIPPING) {
         if (order.easyncTracking.status === request.result.status) {
