@@ -26,6 +26,9 @@ import OrdersTableHead from "./OrdersTableHead";
 import * as Actions from "app/store/actions";
 import { useDispatch, useSelector } from "react-redux";
 import moment from 'moment';
+import delivered from "../../../app/assets/icons/delivered.svg"
+import shipping from "../../../app/assets/icons/shipping.svg"
+import './OrderTable.css';
 
 function OrdersTable(props) {
     const dispatch = useDispatch();
@@ -151,7 +154,16 @@ function OrdersTable(props) {
                                         easyncOrderMessage: null,
                                         orderSource: 'Manually',
                                         orderSourceID: null,
+                                        first_name: '',
+                                        last_name :'',
+                                        address_line1: '',
+                                        address_line2: '',
+                                        zip_code: '',
+                                        country: '',
+                                        total_price: '',
                                     }
+
+                                    let iconTracking;
                                     if (n.easyncTracking) {
                                 
                                         if (n.easyncTracking.status) {
@@ -162,13 +174,33 @@ function OrdersTable(props) {
                                             data.trackingNumber = n.easyncTracking.trackingNumber;
                                             data.trackingURL = `https://aquiline-tracking.com/data/TrackPackage${n.easyncTracking.trackingNumber}`;
                                         }
+
+                                        switch (data.trackingStatus) {
+                                            case 'shipping':
+                                                iconTracking = <img src={shipping} alt="" className="mr-6 tracking-status text-orange-500"/>
+                                                break;
+                                            case 'delivered':
+                                                iconTracking = <img src={delivered} alt="" className="mr-6 tracking-status text-green-700"/>
+                                                break;
+                                            case 'error':
+                                                iconTracking = <Warning className="text-red-700 mr-6"/>
+                                                break;
+                                            default:
+                                                iconTracking = null;
+                                        }
+
                                     }
                                     let icon;
                                     if (n.easyncOrderStatus) {
                                         data.easyncOrderStatus = n.easyncOrderStatus.status;
                                         data.easyncOrderMessage = n.easyncOrderStatus.message;
+                                        if (n.easyncOrderStatus.request) {
+                                            if (n.easyncOrderStatus.request.price_components && n.easyncOrderStatus.request.price_components.total) {
+                                                data.total_price = n.easyncOrderStatus.request.price_components.total;
+                                            }
+                                        }
                                         switch (n.easyncOrderStatus.status) {
-                                            case 'proccesing':
+                                            case 'processing':
                                                 icon = <QueryBuilder className="text-orange-500 mr-6"/>
                                                 break;
                                             case 'complete':
@@ -186,17 +218,36 @@ function OrdersTable(props) {
                                         data.orderSource = 'Linnworks'; // change logic for more sources
                                         data.orderSourceID = LINNW.numOrderId; // change logic for more sources
                                     }
-                                    
+                                    if (n.shippingAddress) { 
+                                        console.log(n.shippingAddress);
+                                        if (n.shippingAddress.firstName) {
+                                            data.first_name = n.shippingAddress.firstName;
+                                        }
+                                        if (n.shippingAddress.lastName) {
+                                            data.last_name = n.shippingAddress.lastName;
+                                        }
+                                        if (n.shippingAddress.addressLine1) {
+                                            data.address_line1 = n.shippingAddress.addressLine1;
+                                        }
+                                        if (n.shippingAddress.addressLine2) {
+                                            data.address_line2 = n.shippingAddress.addressLine2;
+                                        }
+                                        if (n.shippingAddress.zipCode) {
+                                            data.zip_code = n.shippingAddress.zipCode;
+                                        }
+                                        if (n.shippingAddress.countryName) {
+                                            data.country = n.shippingAddress.countryName;
+                                        }
+                                    }
                                     return (
                                         <TableRow
-                                            className="h-64 cursor-pointer"
+                                            className="h-64"
                                             hover
                                             role="checkbox"
                                             aria-checked={isSelected}
                                             tabIndex={-1}
                                             key={n._id}
                                             selected={isSelected}
-                                            onClick={event => handleClick(n, event)}
                                         >
                                             <TableCell
                                                 className="w-48 pl-4 sm:pl-12"
@@ -218,10 +269,9 @@ function OrdersTable(props) {
                                                 scope="row"
                                             >
                                                 <div className="flex flex-col">
-                                                {/* <p>{moment(n.createdDate).format('DD', 'MM', 'YY', 'HH', 'mm', 'A')}</p> */}
-                                                <p>Date :<span className="font-medium">{moment(n.createdDate).format('L LT')}</span></p>
-                                                <p>Channel :{data.orderSource}</p>
-                                                <p>Order ID :{data.orderSourceID}</p>
+                                                <p>Date: <span className="font-medium">{moment(n.createdDate).format('L LT')}</span></p>
+                                                <p>Channel: {data.orderSource}</p>
+                                                <p>Order ID: {data.orderSourceID}</p>
                                                 </div>
                                             </TableCell>
 
@@ -229,14 +279,22 @@ function OrdersTable(props) {
                                                 component="th"
                                                 scope="row"
                                             >
-                                                {`${n.shippingAddress.firstName} ${n.shippingAddress.lastName}`}
+                                                <div className="flex flex-col">
+                                                <p>{data.first_name + ' ' + data.last_name}</p>
+                                                <p>{data.address_line1 + ' ' + data.address_line2}</p>
+                                                <p>{data.zip_code + ' ' + data.country}</p>
+                                                </div>
                                             </TableCell>
 
                                             <TableCell
                                                 component="th"
                                                 scope="row"
                                             >
-                                                {n.orderProducts.length}
+                                                <div className="flex flex-col">
+                                                <p>Total: {'£' + data.total_price}</p>
+                                                <p>SKU: {n.orderProducts[0].product.SKU + ' QTY: ' + n.orderProducts[0].quantity}</p>
+                                                </div>
+                                                {}
                                             </TableCell>
 
                                             <TableCell
@@ -254,10 +312,11 @@ function OrdersTable(props) {
                                                 component="th"
                                                 scope="row"
                                             >
-                                                <div className="flex"><QueryBuilder  style={{color : 'yellow'}}/>
+                                                <div className="flex">{iconTracking}
                                                     <div className="flex flex-col">
-                                                        <p>{data.trackingStatus}</p>
+                                                        <p className="capitalize font-semibold">{data.trackingStatus}</p>
                                                         <p><a href={data.trackingURL} target="_blank">{data.trackingNumber}</a></p>
+                                                        {n.easyncTracking.message ? n.easyncTracking.message : null}
                                                     </div>
                                                 </div>
                                             </TableCell>
@@ -326,13 +385,15 @@ function OrdersTable(props) {
                                                 >
                                                     <Icon>backspace</Icon>
                                                 </Button>
-                                                <Button variant="contained"
-                                                    onClick={event =>
-                                                        event.stopPropagation()
-                                                    }
-                                                >
-                                                    <Icon>format_list_bulleted</Icon>
-                                                </Button>
+                                                <Tooltip title ="View Order Details">
+                                                    <Button variant="contained"
+                                                        onClick={event => 
+                                                            handleClick(n, event)
+                                                        }
+                                                    >
+                                                        <Icon>format_list_bulleted</Icon>
+                                                    </Button>
+                                                </Tooltip>
                                             </TableCell>
                                         </TableRow>
                                     );
