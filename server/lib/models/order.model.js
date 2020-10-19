@@ -77,6 +77,9 @@ const OrderSchema = new mongoose.Schema({
     },
     trackingNumber: {
       type: String
+    },
+    message: {
+      type: String
     }
   },
   easyncOrderStatus: {

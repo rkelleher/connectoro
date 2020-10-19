@@ -7,14 +7,29 @@ import {
     TableRow,
     Checkbox,
     Button,
-    Icon
+    Icon,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    Tooltip,
 } from "@material-ui/core";
+import {
+    closeDialog,
+    openDialog
+} from "app/store/actions";
+import { VpnKey,  CheckCircle, QueryBuilder, Warning } from "@material-ui/icons";
 import { FuseScrollbars } from "@fuse";
 import { withRouter } from "react-router-dom";
 import _ from "@lodash";
 import OrdersTableHead from "./OrdersTableHead";
 import * as Actions from "app/store/actions";
 import { useDispatch, useSelector } from "react-redux";
+import moment from 'moment';
+import TextField from '@material-ui/core/TextField';
+import delivered from "../../../app/assets/icons/delivered.svg"
+import shipping from "../../../app/assets/icons/shipping.svg"
+import './OrderTable.css';
 
 function OrdersTable(props) {
     const dispatch = useDispatch();
@@ -59,8 +74,12 @@ function OrdersTable(props) {
         setSelected([]);
     }
 
-    function handleClick(item) {
+    function handleClick(item, event) {
+        // if (event.target === event.currentTarget) {
+        //     props.history.push(`/orders/${item._id}`);
+        // }
         props.history.push(`/orders/${item._id}`);
+        
     }
 
     function handleCheck(event, id) {
@@ -94,7 +113,7 @@ function OrdersTable(props) {
     return (
         <div className="w-full flex flex-col">
             <FuseScrollbars className="flex-grow overflow-x-auto">
-                <Table className="min-w-xl order-table" aria-labelledby="tableTitle">
+                <Table className="min-w-xl order-table" aria-labelledby="tableTitle" stickyHeader aria-label="sticky table">
                     <OrdersTableHead
                         numSelected={selected.length}
                         order={order}
@@ -128,19 +147,117 @@ function OrdersTable(props) {
                                 .map(n => {
                                     const isSelected =
                                         selected.indexOf(n._id) !== -1;
+                                    const data = {
+                                        trackingStatus: null,
+                                        trackingNumber: null,
+                                        trackingURL: null,
+                                        easyncOrderStatus: null,
+                                        easyncOrderMessage: null,
+                                        orderSource: 'Manually',
+                                        orderSourceID: null,
+                                        first_name: '',
+                                        last_name :'',
+                                        address_line1: '',
+                                        address_line2: '',
+                                        zip_code: '',
+                                        country: '',
+                                        total_price: '',
+                                        retailerOrderID: null,
+                                    }
+
+                                    let iconTracking;
+                                    if (n.easyncTracking) {
+                                
+                                        if (n.easyncTracking.status) {
+                                            data.trackingStatus = n.easyncTracking.status;
+                                        }
+                                
+                                        if (n.easyncTracking.trackingNumber) {
+                                            data.trackingNumber = n.easyncTracking.trackingNumber;
+                                            data.trackingURL = `https://aquiline-tracking.com/data/TrackPackage${n.easyncTracking.trackingNumber}`;
+                                        }
+
+                                        switch (data.trackingStatus) {
+                                            case 'shipping':
+                                                iconTracking = <img src={shipping} alt="" className="mr-6 tracking-status text-orange-500"/>
+                                                break;
+                                            case 'delivered':
+                                                iconTracking = <img src={delivered} alt="" className="mr-6 tracking-status text-green-700"/>
+                                                break;
+                                            case 'error':
+                                                iconTracking = <Warning className="text-red-700 mr-6"/>
+                                                break;
+                                            default:
+                                                iconTracking = null;
+                                        }
+
+                                    }
+                                    let icon;
+                                    if (n.easyncOrderStatus) {
+                                        data.easyncOrderStatus = n.easyncOrderStatus.status;
+                                        data.easyncOrderMessage = n.easyncOrderStatus.message;
+                                        if (n.easyncOrderStatus.request) {
+                                            if (n.easyncOrderStatus.request.price_components && n.easyncOrderStatus.request.price_components.total) {
+                                                data.total_price = n.easyncOrderStatus.request.price_components.total;
+                                            }
+                                        }
+                                        switch (n.easyncOrderStatus.status) {
+                                            case 'processing':
+                                                icon = <QueryBuilder className="text-orange-500 mr-6"/>
+                                                break;
+                                            case 'complete':
+                                                icon = <CheckCircle className="text-green-700 mr-6"/>
+                                                break;
+                                            case 'error':
+                                                icon = <Warning className="text-red-700 mr-6"/>
+                                                break;
+                                            default:
+                                                icon = null;
+                                        }
+                                    }
+                                    const { EASYNC, LINNW} = n.integrationData;
+                                    if (LINNW) {
+                                        data.orderSource = 'Linnworks'; // change logic for more sources
+                                        data.orderSourceID = LINNW.numOrderId; // change logic for more sources
+                                    }
+                                    if (n.shippingAddress) { 
+                                        if (n.shippingAddress.firstName) {
+                                            data.first_name = n.shippingAddress.firstName;
+                                        }
+                                        if (n.shippingAddress.lastName) {
+                                            data.last_name = n.shippingAddress.lastName;
+                                        }
+                                        if (n.shippingAddress.addressLine1) {
+                                            data.address_line1 = n.shippingAddress.addressLine1;
+                                        }
+                                        if (n.shippingAddress.addressLine2) {
+                                            data.address_line2 = n.shippingAddress.addressLine2;
+                                        }
+                                        if (n.shippingAddress.zipCode) {
+                                            data.zip_code = n.shippingAddress.zipCode;
+                                        }
+                                        if (n.shippingAddress.countryName) {
+                                            data.country = n.shippingAddress.countryName;
+                                        }
+                                    }
+                                    const { request } = n.easyncOrderStatus;
+                                    if (request) {
+                                        if (request.merchant_order_ids && request.merchant_order_ids.length) {
+                                            data.retailerOrderID = request.merchant_order_ids[0].merchant_order_id;
+                                        }
+                                    }
                                     return (
                                         <TableRow
-                                            className="h-64 cursor-pointer"
+                                            className="h-64 p8"
                                             hover
                                             role="checkbox"
                                             aria-checked={isSelected}
                                             tabIndex={-1}
                                             key={n._id}
                                             selected={isSelected}
-                                            onClick={event => handleClick(n)}
                                         >
                                             <TableCell
-                                                className="w-48 pl-4 sm:pl-12"
+                                                className="w-48 pl-4 sm:pl-12 p8"
                                                 padding="checkbox"
                                             >
                                                 <Checkbox
@@ -157,70 +274,144 @@ function OrdersTable(props) {
                                             <TableCell
                                                 component="th"
                                                 scope="row"
+                                                className="details p8"
                                             >
-                                                {new Date(n.createdDate).toUTCString()}
+                                                <div className="flex flex-col">
+                                                <p>Date: <span className="font-medium">{moment(n.createdDate).format("DD/MM/YY h:mm A")}</span></p>
+                                                <p>Channel: {data.orderSource}</p>
+                                                <p>Order ID: {data.orderSourceID}</p>
+                                                </div>
                                             </TableCell>
 
                                             <TableCell
                                                 component="th"
                                                 scope="row"
+                                                className="customer p8"
                                             >
-                                                {`${n.shippingAddress.firstName} ${n.shippingAddress.lastName}`}
+                                                <div className="flex flex-col">
+                                                <p>{data.first_name + ' ' + data.last_name}</p>
+                                                <p>{data.address_line1 + ' ' + data.address_line2}</p>
+                                                <p>{data.zip_code + ',  ' + data.country}</p>
+                                                </div>
                                             </TableCell>
 
                                             <TableCell
                                                 component="th"
                                                 scope="row"
+                                                className="products p8"
                                             >
-                                                {n.orderProducts.length}
+                                                <div className="flex flex-col">
+                                                <p>Total: {'£' + (data.total_price/100)}</p>
+                                                <p>SKU: {n.orderProducts[0].product.SKU + ' QTY: ' + n.orderProducts[0].quantity}</p>
+                                                </div>
+                                                {}
                                             </TableCell>
 
                                             <TableCell
                                                 component="th"
                                                 scope="row"
+                                                className="status p8"
                                             >
-                                                {n.easyncOrderStatus && n.easyncOrderStatus.status}
+                                                <div className="flex">{icon}
+                                                    <div className="flex flex-col">
+                                                        <p className="capitalize font-semibold">{data.easyncOrderStatus}</p>
+                                                        <p>{data.easyncOrderStatus === 'complete' ? data.retailerOrderID : data.easyncOrderMessage}</p>
+                                                    </div>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell
+                                                component="th"
+                                                scope="row"
+                                                className="p8"
+                                            >
+                                                <div className="flex">{iconTracking}
+                                                    <div className="flex flex-col">
+                                                        <p className="capitalize font-semibold">{data.trackingStatus}</p>
+                                                        <p><a href={data.trackingURL} target="_blank">{data.trackingNumber}</a></p>
+                                                        {n.easyncTracking.message ? n.easyncTracking.message : null}
+                                                    </div>
+                                                </div>
                                             </TableCell>
 
                                             <TableCell
                                                 component="th"
                                                 scope="row"
+                                                className="p8"
                                             >
-                                                <Button variant="contained" className="mr-8"
-                                                    onClick={event =>
-                                                        event.stopPropagation()
-                                                    }
-                                                >
-                                                    <Icon>shopping_cart</Icon>
-                                                </Button>
-                                                <Button variant="contained" className="mr-8"
-                                                    onClick={event =>
-                                                        event.stopPropagation()
-                                                    }
-                                                >
-                                                    <Icon>block</Icon>
-                                                </Button>
-                                                <Button variant="contained" className="mr-8"
-                                                    onClick={event =>
-                                                        event.stopPropagation()
-                                                    }
-                                                >
-                                                    <Icon>local_shipping</Icon>
-                                                </Button>
-                                                <Button variant="contained" className="mr-8"
-                                                    onClick={event =>
-                                                        event.stopPropagation()
-                                                    }
-                                                >
-                                                    <Icon>backspace</Icon>
-                                                </Button>
-                                                <Button variant="contained"
-                                                    onClick={event =>
-                                                        event.stopPropagation()
-                                                    }
-                                                >
-                                                    <Icon>format_list_bulleted</Icon>
-                                                </Button>
+                                                <div>
+                                                    <Tooltip title ="Send Order Via Easync">
+                                                        <Button variant="contained" className="mr-8"
+                                                            onClick={event =>
+                                                                event.stopPropagation()
+                                                            }
+                                                        >
+                                                            <Icon>shopping_cart</Icon>
+                                                        </Button>
+                                                    </Tooltip>
+                                                    <Tooltip title="Create New Key">
+                                                        <Button
+                                                            className='mr-8'
+                                                            variant="contained"
+                                                            // {...isLoading ? {disabled: true} : ''}
+                                                            // {... !['open', 'error'].includes(_status) ? {hidden: true} : {}}
+                                                            onClick={()=> dispatch(openDialog({
+                                                            children: (
+                                                                <React.Fragment>
+                                                                    <DialogTitle id="alert-dialog-title" className="text-red-500">Warning</DialogTitle>
+                                                                    <DialogContent>
+                                                                        <DialogContentText id="alert-dialog-description" className="font-bold text-black text-base">
+                                                                        This may result in a duplicate order. Are you sure you want to continue?
+                                                                        </DialogContentText>
+                                                                    </DialogContent>
+                                                                    <DialogActions>
+                                                                        <Button onClick={()=> dispatch(closeDialog())} color="primary" className='text-green-500'>
+                                                                            Exit
+                                                                        </Button>
+                                                                        <Button onClick={()=> dispatch(closeDialog())} color="primary" autoFocus startIcon={<VpnKey />} className="text-orange-400">
+                                                                            Create New Key
+                                                                        </Button>
+                                                                    </DialogActions>
+                                                                </React.Fragment>
+                                                                )
+                                                            }))}
+                                                    >
+                                                        <Icon>vpn_key</Icon>
+                                                        </Button>
+                                                    </Tooltip>
+                                                    <Button variant="contained" className="mr-8"
+                                                        onClick={event =>
+                                                            event.stopPropagation()
+                                                        }
+                                                    >
+                                                        <Icon>block</Icon>
+                                                    </Button>
+                                                    <Button variant="contained" className="mr-8"
+                                                        onClick={event =>
+                                                            event.stopPropagation()
+                                                        }
+                                                    >
+                                                        <Icon>local_shipping</Icon>
+                                                    </Button>
+                                                    <Button variant="contained" className="mr-8"
+                                                        onClick={event =>
+                                                            event.stopPropagation()
+                                                        }
+                                                    >
+                                                        <Icon>backspace</Icon>
+                                                    </Button>
+                                                    <Tooltip title ="View Order Details">
+                                                        <Button variant="contained"
+                                                            onClick={event => 
+                                                                handleClick(n, event)
+                                                            }
+                                                        >
+                                                            <Icon>format_list_bulleted</Icon>
+                                                        </Button>
+                                                    </Tooltip>
+                                                </div>
+                                                <form noValidate autoComplete="off">
+                                                    <TextField id="outlined-basic" label="Notes" variant="outlined" size="small" className="w-full mt-8"/>
+                                                </form>
                                             </TableCell>
                                         </TableRow>
                                     );
