@@ -79,7 +79,7 @@ const OrderSchema = new mongoose.Schema({
       type: String
     },
     message: {
-      type: string
+      type: String
     }
   },
   easyncOrderStatus: {
