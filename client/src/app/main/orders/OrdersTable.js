@@ -26,6 +26,7 @@ import OrdersTableHead from "./OrdersTableHead";
 import * as Actions from "app/store/actions";
 import { useDispatch, useSelector } from "react-redux";
 import moment from 'moment';
+import TextField from '@material-ui/core/TextField';
 import delivered from "../../../app/assets/icons/delivered.svg"
 import shipping from "../../../app/assets/icons/shipping.svg"
 import './OrderTable.css';
@@ -161,6 +162,7 @@ function OrdersTable(props) {
                                         zip_code: '',
                                         country: '',
                                         total_price: '',
+                                        retailerOrderID: null,
                                     }
 
                                     let iconTracking;
@@ -219,7 +221,6 @@ function OrdersTable(props) {
                                         data.orderSourceID = LINNW.numOrderId; // change logic for more sources
                                     }
                                     if (n.shippingAddress) { 
-                                        console.log(n.shippingAddress);
                                         if (n.shippingAddress.firstName) {
                                             data.first_name = n.shippingAddress.firstName;
                                         }
@@ -239,9 +240,15 @@ function OrdersTable(props) {
                                             data.country = n.shippingAddress.countryName;
                                         }
                                     }
+                                    const { request } = n.easyncOrderStatus;
+                                    if (request) {
+                                        if (request.merchant_order_ids && request.merchant_order_ids.length) {
+                                            data.retailerOrderID = request.merchant_order_ids[0].merchant_order_id;
+                                        }
+                                    }
                                     return (
                                         <TableRow
-                                            className="h-64"
+                                            className="h-64 p8"
                                             hover
                                             role="checkbox"
                                             aria-checked={isSelected}
@@ -250,7 +257,7 @@ function OrdersTable(props) {
                                             selected={isSelected}
                                         >
                                             <TableCell
-                                                className="w-48 pl-4 sm:pl-12"
+                                                className="w-48 pl-4 sm:pl-12 p8"
                                                 padding="checkbox"
                                             >
                                                 <Checkbox
@@ -267,9 +274,10 @@ function OrdersTable(props) {
                                             <TableCell
                                                 component="th"
                                                 scope="row"
+                                                className="details p8"
                                             >
                                                 <div className="flex flex-col">
-                                                <p>Date: <span className="font-medium">{moment(n.createdDate).format('L LT')}</span></p>
+                                                <p>Date: <span className="font-medium">{moment(n.createdDate).format("DD/MM/YY h:mm A")}</span></p>
                                                 <p>Channel: {data.orderSource}</p>
                                                 <p>Order ID: {data.orderSourceID}</p>
                                                 </div>
@@ -278,20 +286,22 @@ function OrdersTable(props) {
                                             <TableCell
                                                 component="th"
                                                 scope="row"
+                                                className="customer p8"
                                             >
                                                 <div className="flex flex-col">
                                                 <p>{data.first_name + ' ' + data.last_name}</p>
                                                 <p>{data.address_line1 + ' ' + data.address_line2}</p>
-                                                <p>{data.zip_code + ' ' + data.country}</p>
+                                                <p>{data.zip_code + ',  ' + data.country}</p>
                                                 </div>
                                             </TableCell>
 
                                             <TableCell
                                                 component="th"
                                                 scope="row"
+                                                className="products p8"
                                             >
                                                 <div className="flex flex-col">
-                                                <p>Total: {'£' + data.total_price}</p>
+                                                <p>Total: {'£' + (data.total_price/100)}</p>
                                                 <p>SKU: {n.orderProducts[0].product.SKU + ' QTY: ' + n.orderProducts[0].quantity}</p>
                                                 </div>
                                                 {}
@@ -300,17 +310,19 @@ function OrdersTable(props) {
                                             <TableCell
                                                 component="th"
                                                 scope="row"
+                                                className="status p8"
                                             >
                                                 <div className="flex">{icon}
                                                     <div className="flex flex-col">
                                                         <p className="capitalize font-semibold">{data.easyncOrderStatus}</p>
-                                                        <p>{data.easyncOrderMessage}</p>
+                                                        <p>{data.easyncOrderStatus === 'complete' ? data.retailerOrderID : data.easyncOrderMessage}</p>
                                                     </div>
                                                 </div>
                                             </TableCell>
                                             <TableCell
                                                 component="th"
                                                 scope="row"
+                                                className="p8"
                                             >
                                                 <div className="flex">{iconTracking}
                                                     <div className="flex flex-col">
@@ -324,76 +336,82 @@ function OrdersTable(props) {
                                             <TableCell
                                                 component="th"
                                                 scope="row"
+                                                className="p8"
                                             >
-                                                <Tooltip title ="Send Order Via Easync">
+                                                <div>
+                                                    <Tooltip title ="Send Order Via Easync">
+                                                        <Button variant="contained" className="mr-8"
+                                                            onClick={event =>
+                                                                event.stopPropagation()
+                                                            }
+                                                        >
+                                                            <Icon>shopping_cart</Icon>
+                                                        </Button>
+                                                    </Tooltip>
+                                                    <Tooltip title="Create New Key">
+                                                        <Button
+                                                            className='mr-8'
+                                                            variant="contained"
+                                                            // {...isLoading ? {disabled: true} : ''}
+                                                            // {... !['open', 'error'].includes(_status) ? {hidden: true} : {}}
+                                                            onClick={()=> dispatch(openDialog({
+                                                            children: (
+                                                                <React.Fragment>
+                                                                    <DialogTitle id="alert-dialog-title" className="text-red-500">Warning</DialogTitle>
+                                                                    <DialogContent>
+                                                                        <DialogContentText id="alert-dialog-description" className="font-bold text-black text-base">
+                                                                        This may result in a duplicate order. Are you sure you want to continue?
+                                                                        </DialogContentText>
+                                                                    </DialogContent>
+                                                                    <DialogActions>
+                                                                        <Button onClick={()=> dispatch(closeDialog())} color="primary" className='text-green-500'>
+                                                                            Exit
+                                                                        </Button>
+                                                                        <Button onClick={()=> dispatch(closeDialog())} color="primary" autoFocus startIcon={<VpnKey />} className="text-orange-400">
+                                                                            Create New Key
+                                                                        </Button>
+                                                                    </DialogActions>
+                                                                </React.Fragment>
+                                                                )
+                                                            }))}
+                                                    >
+                                                        <Icon>vpn_key</Icon>
+                                                        </Button>
+                                                    </Tooltip>
                                                     <Button variant="contained" className="mr-8"
                                                         onClick={event =>
                                                             event.stopPropagation()
                                                         }
                                                     >
-                                                        <Icon>shopping_cart</Icon>
+                                                        <Icon>block</Icon>
                                                     </Button>
-                                                </Tooltip>
-                                                <Tooltip title="Create New Key">
-                                                    <Button
-                                                        className='mr-8'
-                                                        variant="contained"
-                                                        // {...isLoading ? {disabled: true} : ''}
-                                                        // {... !['open', 'error'].includes(_status) ? {hidden: true} : {}}
-                                                        onClick={()=> dispatch(openDialog({
-                                                        children: (
-                                                            <React.Fragment>
-                                                                <DialogTitle id="alert-dialog-title" className="text-red-500">Warning</DialogTitle>
-                                                                <DialogContent>
-                                                                    <DialogContentText id="alert-dialog-description" className="font-bold text-black text-base">
-                                                                    This may result in a duplicate order. Are you sure you want to continue?
-                                                                    </DialogContentText>
-                                                                </DialogContent>
-                                                                <DialogActions>
-                                                                    <Button onClick={()=> dispatch(closeDialog())} color="primary" className='text-green-500'>
-                                                                        Exit
-                                                                    </Button>
-                                                                    <Button onClick={()=> dispatch(closeDialog())} color="primary" autoFocus startIcon={<VpnKey />} className="text-orange-400">
-                                                                        Create New Key
-                                                                    </Button>
-                                                                </DialogActions>
-                                                            </React.Fragment>
-                                                            )
-                                                        }))}
-                                                >
-                                                    <Icon>vpn_key</Icon>
-                                                    </Button>
-                                                </Tooltip>
-                                                <Button variant="contained" className="mr-8"
-                                                    onClick={event =>
-                                                        event.stopPropagation()
-                                                    }
-                                                >
-                                                    <Icon>block</Icon>
-                                                </Button>
-                                                <Button variant="contained" className="mr-8"
-                                                    onClick={event =>
-                                                        event.stopPropagation()
-                                                    }
-                                                >
-                                                    <Icon>local_shipping</Icon>
-                                                </Button>
-                                                <Button variant="contained" className="mr-8"
-                                                    onClick={event =>
-                                                        event.stopPropagation()
-                                                    }
-                                                >
-                                                    <Icon>backspace</Icon>
-                                                </Button>
-                                                <Tooltip title ="View Order Details">
-                                                    <Button variant="contained"
-                                                        onClick={event => 
-                                                            handleClick(n, event)
+                                                    <Button variant="contained" className="mr-8"
+                                                        onClick={event =>
+                                                            event.stopPropagation()
                                                         }
                                                     >
-                                                        <Icon>format_list_bulleted</Icon>
+                                                        <Icon>local_shipping</Icon>
                                                     </Button>
-                                                </Tooltip>
+                                                    <Button variant="contained" className="mr-8"
+                                                        onClick={event =>
+                                                            event.stopPropagation()
+                                                        }
+                                                    >
+                                                        <Icon>backspace</Icon>
+                                                    </Button>
+                                                    <Tooltip title ="View Order Details">
+                                                        <Button variant="contained"
+                                                            onClick={event => 
+                                                                handleClick(n, event)
+                                                            }
+                                                        >
+                                                            <Icon>format_list_bulleted</Icon>
+                                                        </Button>
+                                                    </Tooltip>
+                                                </div>
+                                                <form noValidate autoComplete="off">
+                                                    <TextField id="outlined-basic" label="Notes" variant="outlined" size="small" className="w-full mt-8"/>
+                                                </form>
                                             </TableCell>
                                         </TableRow>
                                     );

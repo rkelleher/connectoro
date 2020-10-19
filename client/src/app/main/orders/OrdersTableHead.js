@@ -30,7 +30,7 @@ const rows = [
         align: "left",
         disablePadding: false,
         label: "Customer",
-        sort: true
+        sort: true,
     },
     {
         id: "numProd",
@@ -91,7 +91,7 @@ function OrdersTableHead(props) {
             <TableRow className="h-64">
                 <TableCell
                     padding="checkbox"
-                    className="pl-4 sm:pl-12"
+                    className="pl-4 sm:pl-12 p8"
                 >
                     <Checkbox
                         indeterminate={
@@ -146,7 +146,8 @@ function OrdersTableHead(props) {
                         <TableCell
                             key={row.id}
                             align={row.align}
-                            padding={row.disablePadding ? "none" : "default"}
+                            // padding={row.disablePadding ? "none" : "default"}
+                            className="p8"
                             sortDirection={
                                 props.order.id === row.id
                                     ? props.order.direction

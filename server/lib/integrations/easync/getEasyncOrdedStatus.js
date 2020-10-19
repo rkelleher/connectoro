@@ -30,7 +30,7 @@ export async function getTrackingByRequestId(requestId, token) {
         method: 'GET',
         headers,
     });
-
+    
     return data;
 }
 

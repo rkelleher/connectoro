@@ -24,6 +24,12 @@ export const EASYNC_TRACKING_RESPONSE_TYPES = {
   FAILURE: 'failure'
 }
 
+export const EASYNC_TRACKING_RESPONSE_TRACKER_PROGRESS_STATUS = {
+  DELIVERED: 'delivered',
+  SHIPPING: 'shipping',
+  ERROR: 'error',
+}
+
 export const easyncOrderProductDataShape = {
   externalId: String,
   selectionCriteria: {
