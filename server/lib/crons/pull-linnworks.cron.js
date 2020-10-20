@@ -13,6 +13,7 @@ import * as AccountService from "../services/account.service.js";
 import * as IntegrationUtil from '../utils/integration.util.js';
 import { Order } from '../models/order.model.js';
 import { Product } from '../models/product.model.js';
+import { Log } from '../models/logs.model.js';
 
 async function pullLinnworksOrder(order, account) {
   const isOrderExists = await Order.findOne({
@@ -105,10 +106,11 @@ async function pullLinnworksOrdersByLocation(account, cg) {
   return Bluebird.each(orders.Data, async order => pullLinnworksOrder(order, account));
 }
 
-export const cronFetchFromLinworks = (cg) => cron.schedule('0 */30 * * * *',  async () => {
+export const cronFetchFromLinworks = (cg) => cron.schedule('0 */11 * * * *',  async () => {
   const accounts = await AccountService.findByIntegrationType(LINNW_INTEGRATION_TYPE);
 
   if (!accounts.length) return;
+  await Log.create({log: 'Pull-linnworks'});
 
   await Bluebird.each(accounts, async account => pullLinnworksOrdersByLocation(account, cg));
 }, {

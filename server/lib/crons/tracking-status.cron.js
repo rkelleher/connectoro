@@ -6,11 +6,13 @@ import { EASYNC_INTEGRATION_TYPE,  EASYNC_TOKEN_CREDENTIAL_KEY, EASYNC_TRACKING_
 import { getTrackingByRequestId } from "../integrations/easync/getEasyncOrdedStatus.js";
 import { LINNW_INTEGRATION_TYPE, markLinnworkOrderAsProcessed, sendTrackingNumberToLinnw, makeLinnworksAPISession } from '../integrations/linnworks.js';
 import * as IntegrationUtil from '../utils/integration.util.js';
+import { Log } from '../models/logs.model.js';
 
 export const TrackingStatusCron = (cg) => cron.schedule('0 */30 * * * *',  async () => {
   console.log('-------------------------');
   console.log("Cron tracking status job");
   console.log('-------------------------');
+  await Log.create({log: 'Tracking cron'});
 
   const orders = await getAwaitingTrackerOrders();
 
