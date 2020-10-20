@@ -5,12 +5,14 @@ import { getAllOrdersWithTracker } from '../controllers/order.controller.js';
 import { EASYNC_INTEGRATION_TYPE, EASYNC_TOKEN_CREDENTIAL_KEY, EASYNC_TRACKING_RESPONSE_TRACKER_PROGRESS_STATUS, EASYNC_TRACKING_RESPONSE_TYPES } from "../integrations/easync/easync.js";
 import { getTrackingByRequestId } from "../integrations/easync/getEasyncOrdedStatus.js";
 import { LINNW_INTEGRATION_TYPE, markLinnworkOrderAsProcessed, sendTrackingNumberToLinnw, makeLinnworksAPISession } from '../integrations/linnworks.js';
+import { Log } from '../models/logs.model.js';
 import * as IntegrationUtil from '../utils/integration.util.js';
 
 export const TrackingUpdateStatusCron = (cg) => cron.schedule('0 * */8 * * *',  async () => {
   console.log('-------------------------');
   console.log("Cron tracking UPDATE status job");
   console.log('-------------------------');
+  await Log.create({log: 'Tracking update cron'});
 
   const orders = await getAllOrdersWithTracker();
 

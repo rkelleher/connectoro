@@ -16,9 +16,11 @@ import { updateOrderById, getAllOrdersByStatus } from '../controllers/order.cont
 import { getStatusByRequestId } from '../integrations/easync/getEasyncOrdedStatus.js';
 import { setLinnworksOrderNote } from '../integrations/linnworks.js';
 import { LINNW_INTEGRATION_TYPE } from '../models/product.model.js';
+import { Log } from '../models/logs.model.js';
 
 export default (cg) => cron.schedule('0 */10 * * * *',  async () => {
-    console.log("Cron job");
+    console.log("Cron job request");
+    await Log.create({log: "requestID cron"});
 
     const orders = await getAllOrdersByStatus([EASYNC_ORDER_STATUSES.PROCESSING]);
 
