@@ -18,7 +18,7 @@ import { setLinnworksOrderNote } from '../integrations/linnworks.js';
 import { LINNW_INTEGRATION_TYPE } from '../models/product.model.js';
 import { Log } from '../models/logs.model.js';
 
-export default (cg) => cron.schedule('0 */10 * * * *',  async () => {
+export default (cg) => cron.schedule('*/10 * * * *',  async () => {
     console.log("Cron job request");
     await Log.create({log: "requestID cron"});
 

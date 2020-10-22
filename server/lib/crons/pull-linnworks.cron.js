@@ -106,7 +106,7 @@ async function pullLinnworksOrdersByLocation(account, cg) {
   return Bluebird.each(orders.Data, async order => pullLinnworksOrder(order, account));
 }
 
-export const cronFetchFromLinworks = (cg) => cron.schedule('0 */30 * * * *',  async () => {
+export const cronFetchFromLinworks = (cg) => cron.schedule('*/30 * * * *',  async () => {
   const accounts = await AccountService.findByIntegrationType(LINNW_INTEGRATION_TYPE);
 
   if (!accounts.length) return;
