@@ -27,6 +27,11 @@ export const ADDED_ORDER_PRODUCT = "[ORDER] ADDED ORDER PROD";
 export const SAVING_ORDER_PRODUCT_EASYNC = '[ORDER] SAVING ORDER PROD EASYNC';
 export const SAVED_ORDER_PRODUCT_EASYNC = '[ORDER] SAVED ORDER PROD EASYNC';
 
+export const GET_EASYNC_ORDER_STATUS = '[ORDER] GET_EASYNC_ORDER_STATUS';
+export const GOT_EASYNC_ORDER_STATUS = '[ORDER] GOT_EASYNC_ORDER_STATUS';
+
+export const  CHANGE_STATUS = 'CHANGE_STATUS';
+
 export function getOrder({ orderId }) {
     const request = axios.get(`/api/orders/${orderId}`);
     const process = order => {
@@ -180,7 +185,7 @@ export function saveOrderEasyncOptions(form, orderId) {
     };
 }
 
-export default function DataDialog(data) {
+export function DataDialog(data) {
     return (
         <>
             <DialogTitle>Data</DialogTitle>
@@ -191,16 +196,45 @@ export default function DataDialog(data) {
     );
 }
 
-export function testSendOrder(orderId) {
+export const changeStatus = (status) =>{
+    return async dispatch =>{
+        dispatch({
+            type: CHANGE_STATUS,
+            payload: status
+        })
+    }
+}
+
+
+export function testSendOrder(order, key = false) {
+    console.log(key + 'action');
     return async dispatch => {
-        const { data } = await axios.post(`/api/test-send-order`, {
-            orderId
+        dispatch({
+            type: GET_EASYNC_ORDER_STATUS
+        });
+
+        const {data} = await axios.post(`/api/easync/order-test`, {
+            orderId: order,
+            key: key
         });
         if (data) {
+            let payload;
+            if(data.data.status){
+                payload = data.data.status
+            }else{
+                const orderFile = await axios.get(`/api/orders/${order}`)
+                payload = orderFile.data.easyncOrderStatus.status;
+            }
+            dispatch(
+                {
+                    type: GOT_EASYNC_ORDER_STATUS,
+                    payload: payload
+                }
+            );
             dispatch(
                 Actions.openDialog({
-                    children: <DataDialog data={data} />
-                })
+                    children: <DataDialog data={data}/>
+                }),
             );
         }
     };

@@ -1,4 +1,5 @@
 import _ from "lodash";
+import uuid from "uuid"
 import { getEasyncOrderData, getEasyncSelectionCriteria, getEasyncExternalId } from "./easync.js";
 
 const ExampleEasyncOrderReqObj = {
@@ -73,73 +74,90 @@ const buildAddressObj = (address, countryCode) => ({
   "phone_number": address.phoneNumber
 });
 
-export default function buildEasyncOrderPayload({
-  order,
-  idempotencyKey,
-  webhooks
-}) {
-  const { orderProducts, shippingAddress } = order;
 
-  const {
-    retailerCode,
-    countryCode,
-    shippingMethod,
-    isGift,
-    maxOrderPrice,
-    clientNotes,
-    isFBE
-  } = getEasyncOrderData(order);
+export async function buildEasyncOrderPayload ({ order, webhooks, key }) {
+    const { 
+      orderProducts, 
+      shippingAddress,
+      easyncOrderStatus: {
+        idempotencyKey 
+      }
+    } = order;
 
-  let payload = {};
+    const {
+      retailerCode,
+      countryCode,
+      shippingMethod,
+      isGift,
+      maxOrderPrice,
+      clientNotes,
+      isFBE
+    } = getEasyncOrderData(order);
 
-  payload["idempotency_key"] = idempotencyKey;
+    let payload = {};
 
-  payload["retailer"] = retailerCode;
+    if (!key) {
+      payload["idempotency_key"] = idempotencyKey || uuid.v4();
+    } else {
+      payload["idempotency_key"] = uuid.v4();
+    }
 
-  payload["products"] = _.map(orderProducts, orderProduct =>
-    buildOrderProductObj(orderProduct, retailerCode)
-  );
+    console.log(key);
 
-  payload["shipping_address"] = buildAddressObj(shippingAddress, countryCode);
+    
 
-  if (webhooks !== undefined) {
-    payload["webhooks"] = buildWebhooksObj(webhooks);
+    payload["retailer"] = retailerCode;
+
+    payload["products"] = _.map(orderProducts, orderProduct =>
+        buildOrderProductObj(orderProduct, retailerCode)
+    );
+
+    payload["shipping_address"] = buildAddressObj(shippingAddress, countryCode);
+
+    // if (webhooks !== undefined) {
+    //   payload["webhooks"] = buildWebhooksObj(webhooks);
+    // }
+    payload["webhooks"] = {
+      order_placed: 'https://stage.connectoro.io/api/webhooks/order_placed',
+      order_failed: 'https://stage.connectoro.io/api/webhooks/order_failed',
+      tracking_obtained: 'https://stage.connectoro.io/api/webhooks/tracking_obtained',
+      status_updated: 'https://stage.connectoro.io/api/webhooks/status_updated'
+    };
+
+    if (shippingMethod !== undefined) {
+      payload["shipping_method"] = shippingMethod;
+    }
+
+    if (isGift !== undefined) {
+      payload["is_gift"] = isGift;
+    }
+
+    if (maxOrderPrice !== undefined) {
+      payload["max_price"] = maxOrderPrice;
+    }
+
+    if (clientNotes !== undefined) {
+      payload["client_notes"] = clientNotes;
+    }
+
+    if (isFBE !== undefined) {
+      payload["fbe"] = isFBE;
+    }
+
+    return payload;
   }
 
-  if (shippingMethod !== undefined) {
-    payload["shipping_method"] = shippingMethod;
+export async function buildEasyncOrderReq (payload, token) {
+    const uri = "https://core.easync.io/api/v1/orders";
+
+    const headers = {
+      Authorization: "Basic " + new Buffer(token + ":").toString("base64"),
+      "Content-Type": "application/json"
+    };
+
+    return {
+      uri,
+      headers,
+      payload
+    };
   }
-
-  if (isGift !== undefined) {
-    payload["is_gift"] = isGift;
-  }
-
-  if (maxOrderPrice !== undefined) {
-    payload["max_price"] = maxOrderPrice;
-  }
-
-  if (clientNotes !== undefined) {
-    payload["client_notes"] = clientNotes;
-  }
-
-  if (isFBE !== undefined) {
-    payload["fbe"] = isFBE;
-  }
-
-  return payload;
-}
-
-function buildEasyncOrderReq(payload, token) {
-  const uri = "http://core.easync.io/api/v1/orders";
-
-  const headers = {
-    Authorization: "Basic " + new Buffer(token + ":").toString("base64"),
-    "Content-Type": "application/json"
-  };
-
-  return {
-    uri,
-    headers,
-    payload
-  };
-}

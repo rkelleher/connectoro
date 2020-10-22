@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import "mongoose-type-email";
-import { LINNW_INTEGRATION_TYPE } from "../integrations/linnworks.js";
+import { LINNW_INTEGRATION_TYPE, DEFAULT_LOCATION } from "../integrations/linnworks.js";
 import { EASYNC_INTEGRATION_TYPE, easyncAccountDataShape } from "../integrations/easync/easync.js";
 
 export const INTEGRATION_TYPES = [
@@ -44,7 +44,17 @@ const AccountSchema = new mongoose.Schema({
     required: true
   },
   integrationData: {
-    [EASYNC_INTEGRATION_TYPE]: easyncAccountDataShape
+    [EASYNC_INTEGRATION_TYPE]: easyncAccountDataShape,
+    [LINNW_INTEGRATION_TYPE]: {
+      locations: {
+        type: Array,
+        default: [DEFAULT_LOCATION]
+      },
+      choosedLocation: { 
+        type: mongoose.SchemaTypes.Mixed,
+        default: DEFAULT_LOCATION
+      }
+    }
   }
 }, {toObject: {flattenMaps: true}});
 

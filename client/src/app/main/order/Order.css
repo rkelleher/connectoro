@@ -1,0 +1,78 @@
+@media (max-width: 660px) {
+    .SendOrderButton{
+        font-size: 10px;
+        padding: 2px;
+        width: 10em;
+    }
+    .OrderId{
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 560px) {
+    .SendOrderButton{
+        font-size: 10px;
+        padding: 2px;
+        width: 10em;
+    }
+    .OrderId{
+        font-size: 10px;
+    }
+}
+
+.FaSyncIcon{
+    font-size: 18px;
+}
+
+.FaSyncButton{
+    padding: 9px;
+    margin-left: 0.5em;
+    min-width: 2em;
+}
+
+.order-table tr th:last-child {
+    white-space: nowrap;
+}
+
+.order-page-header button:first-child {
+    height: 50px;
+}
+
+.order-table tr th:last-child button {
+    min-width: 0!important;
+    width: 35px;
+    height: 35px;
+}
+
+.order-page-header button {
+    min-width: 0 !important;
+    width: 50px;
+    height: 50px;
+}
+
+.SendOrderButtonKey {
+    width: auto !important;
+}
+
+.orderStatus {
+    margin-left: 20px;
+    max-width: 400px;
+    width: 100%;
+}
+
+.orderStatus .orderStatus-paragraph {
+    margin-bottom: 1rem;
+}
+
+.orderStatus .orderStatus-icon {
+    font-size: 3rem;
+    margin-right: 10px;
+}
+
+.orderStatus-header {
+    margin-bottom: 1rem;
+}
+
+.orderStatus-tracker {
+    text-transform: capitalize;
+}

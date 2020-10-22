@@ -19,11 +19,18 @@ import { makeStyles } from "@material-ui/styles";
 
 const rows = [
     {
-        id: "id",
+        id: "createdDate",
         align: "left",
         disablePadding: false,
-        label: "ID",
+        label: "Details",
         sort: true
+    },
+    {
+        id: "customerFullName",
+        align: "left",
+        disablePadding: false,
+        label: "Customer",
+        sort: true,
     },
     {
         id: "numProd",
@@ -33,17 +40,24 @@ const rows = [
         sort: true
     },
     {
-        id: "customerFullName",
+        id: "status",
         align: "left",
         disablePadding: false,
-        label: "Customer Name",
+        label: "Status",
         sort: true
     },
     {
-        id: "date",
+        id: "tracking",
         align: "left",
         disablePadding: false,
-        label: "Date",
+        label: "Tracking",
+        sort: true
+    },
+    {
+        id: "controls",
+        align: "left",
+        disablePadding: false,
+        label: "Controls",
         sort: true
     }
 ];
@@ -77,7 +91,7 @@ function OrdersTableHead(props) {
             <TableRow className="h-64">
                 <TableCell
                     padding="checkbox"
-                    className="relative pl-4 sm:pl-12"
+                    className="pl-4 sm:pl-12 p8"
                 >
                     <Checkbox
                         indeterminate={
@@ -132,7 +146,8 @@ function OrdersTableHead(props) {
                         <TableCell
                             key={row.id}
                             align={row.align}
-                            padding={row.disablePadding ? "none" : "default"}
+                            // padding={row.disablePadding ? "none" : "default"}
+                            className="p8"
                             sortDirection={
                                 props.order.id === row.id
                                     ? props.order.direction

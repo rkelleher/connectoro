@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import * as Actions from "app/store/actions";
 import EasyncProductOptions from "./EasyncProductOptions";
 import EasyncOrderOptions from "./EasyncOrderOptions";
+import { Typography, Divider } from "@material-ui/core";
 
 export default ({ data }) => {
     const { orderData, orderProductData } = data;
@@ -16,9 +17,11 @@ export default ({ data }) => {
 
     return (
         <div>
-            <h2>Easync Options</h2>
             <div>
-                <h3>Default Order Options</h3>
+                <Typography variant="h6" component="h6" style={{ marginTop: 20 }}>
+                    Easync Order Settings
+                </Typography>
+
                 <div>
                     <EasyncOrderOptions
                         // TODO clean up this override business
@@ -31,16 +34,25 @@ export default ({ data }) => {
                         ]}
                         saveAction={Actions.saveAccountEasyncOrderOptions}
                         isSaving={orderOptionsIsSaving}
+                        isInline
+                        smCol={2}
                     />
                 </div>
-                <h3>Default Product Options</h3>
+
+                <Divider className="HorizontalLine"/>
+                <Typography variant="h6" component="h6" style={{ marginTop: 20 }}>
+                    Default Product Options
+                </Typography>
+
                 <div>
                     <EasyncProductOptions
                         data={orderProductData}
                         isSaving={productOptionsIsSaving}
+                        isInline
                         saveAction={
                                 Actions.saveAccountEasyncProductSelectionCriteriaOptions
                         }
+                        smCol={2}
                     />
                 </div>
             </div>

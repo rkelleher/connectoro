@@ -16,7 +16,8 @@ export default ({
     saveAction,
     saveActionParam,
     saveActionParam2,
-    isInline
+    isInline,
+    smCol
 }) => {
     const selectionCriteria = data.selectionCriteria;
     return (
@@ -34,6 +35,7 @@ export default ({
                             saveActionParam2={saveActionParam2}
                             isSaving={isSaving}
                             getArrayChoices={getSelectionCriteriaArrayChoices}
+                            smCol={smCol}
                         />
                     </div>
                 </>

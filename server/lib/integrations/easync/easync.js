@@ -5,22 +5,49 @@ import countryDetails from "../../countryDetails.js";
 
 export const EASYNC_INTEGRATION_TYPE = "EASYNC";
 export const EASYNC_TOKEN_CREDENTIAL_KEY = "API_TOKEN";
+export const EASYNC_ORDER_STATUSES = {
+  OPEN: 'open',
+  PROCESSING: 'processing',
+  ERROR: 'error',
+  COMPLETE: 'complete'
+};
+export const EASYNC_ORDER_RESPONSE_TYPES = {
+    ERROR: "error",
+    SUCCESS: "order_response",
+};
+export const EASYNC_ORDER_RESPONSE_CODES = {
+    IN_PROCESSING: "request_processing",
+};
+
+export const EASYNC_TRACKING_RESPONSE_TYPES = {
+  SUCCESS: 'success',
+  FAILURE: 'failure'
+}
+
+export const EASYNC_TRACKING_RESPONSE_TRACKER_PROGRESS_STATUS = {
+  DELIVERED: 'delivered',
+  SHIPPING: 'shipping',
+  ERROR: 'error',
+}
 
 export const easyncOrderProductDataShape = {
   externalId: String,
   selectionCriteria: {
-    conditionIn: [String],
+    conditionIn: {
+      type: [String],
+      default: ['New']
+    },
     handlingDaysMax: {
       type: Number,
-      default: 0
+      default: 4
     },
     maxItemPrice: {
       type: Number,
-      default: 0
+      default: 1339
     },
     isPrime: {
       type: Boolean,
-      default: false
+      default: true
     }
   }
 };
@@ -32,7 +59,7 @@ export const easyncOrderDataShape = {
   },
   shippingMethod: {
     type: String,
-    default: ""
+    default: "free"
   },
   countryCode: {
     type: String,
@@ -40,15 +67,15 @@ export const easyncOrderDataShape = {
   },
   isGift: {
     type: Boolean,
-    default: false
+    default: true
   },
   isFBE: {
     type: Boolean,
-    default: false
+    default: true
   },
   maxOrderPrice: {
     type: Number,
-    default: 0
+    default: 2199
   }
 };
 
@@ -130,3 +157,33 @@ export const buildEasyncOrderData = order => {
     retailerCode
   };
 };
+
+export function mapEasyncStatus(request) {
+  const base = { request };
+
+  if (
+    request._type === EASYNC_ORDER_RESPONSE_TYPES.ERROR &&
+    request.code && request.code === EASYNC_ORDER_RESPONSE_CODES.IN_PROCESSING
+  ) {
+    return {
+      ...base,
+      status: EASYNC_ORDER_STATUSES.PROCESSING,
+      message: request.message
+    };
+  }
+
+  switch (request._type) {
+    case EASYNC_ORDER_RESPONSE_TYPES.SUCCESS:
+      return {
+        ...base,
+        status: EASYNC_ORDER_STATUSES.COMPLETE,
+        message: request.message
+      };
+    case EASYNC_ORDER_RESPONSE_TYPES.ERROR:
+      return {
+        ...base,
+        status: EASYNC_ORDER_STATUSES.ERROR,
+        message: request.message
+      };
+  } 
+}

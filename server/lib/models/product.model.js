@@ -4,6 +4,7 @@ import {
   EASYNC_INTEGRATION_TYPE,
   easyncProductDataShape
 } from "../integrations/easync/easync.js";
+export const LINNW_INTEGRATION_TYPE = 'LINNW';
 
 const ProductShape = {
   createdDate: {

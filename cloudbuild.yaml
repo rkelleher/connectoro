@@ -1,0 +1,26 @@
+steps:
+  - id: install_packages
+    name: gcr.io/cloud-builders/npm
+    args: ['install', '--prefix', 'client/']
+    
+  - id: prerender_build_files
+    name: gcr.io/cloud-builders/npm
+    args: ['run','build', '--prefix', 'client/']
+
+  - id: copy_prerendered_files
+    name: gcr.io/cloud-builders/gsutil
+    args: ['cp','-r', './client/build/*', './server/static/']
+    waitFor:
+    - prerender_build_files
+
+  - name: gcr.io/cloud-builders/gsutil
+    args: ['cp', 'gs://$_BUCKET/app.yaml', 'server/app.yaml']
+    waitFor:
+    - copy_prerendered_files
+
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: ['app', 'deploy','server/' ,'--project', '$_PROJECT_ID', 
+            '-q', '$_GAE_PROMOTE', '-v', '$_GAE_VERSION']
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: ['app', 'services', '--project', '$_PROJECT_ID', 
+            'set-traffic', '--splits', '$_GAE_TRAFFIC']

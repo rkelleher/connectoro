@@ -3,8 +3,10 @@ import mongoose from "mongoose";
 import {
   EASYNC_INTEGRATION_TYPE,
   easyncOrderDataShape,
-  easyncOrderProductDataShape
+  easyncOrderProductDataShape,
+  EASYNC_ORDER_STATUSES
 } from "../integrations/easync/easync.js";
+import { LINNW_INTEGRATION_TYPE, linnwOrderDataShape } from "../integrations/linnworks.js";
 
 const OrderProductSchema = new mongoose.Schema({
   productId: mongoose.Schema.Types.ObjectId,
@@ -65,14 +67,51 @@ const OrderSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     index: true
   },
+  easyncTracking: {
+    isObtained: {
+      type: Boolean,
+      default: false
+    },
+    status: {
+      type: String
+    },
+    trackingNumber: {
+      type: String
+    },
+    message: {
+      type: String
+    }
+  },
+  easyncOrderStatus: {
+    requestId: {
+      type: String
+    },
+    status: {
+      type: String,
+      default: EASYNC_ORDER_STATUSES.OPEN
+    },
+    message: {
+      type: String
+    },
+    idempotencyKey: {
+      type: String
+    },
+    request: mongoose.Schema.Types.Mixed,
+    tracking: mongoose.Schema.Types.Mixed
+  },
   orderProducts: [OrderProductSchema],
   orderStatus: String,
+  processedOnSource: {
+    type: Boolean,
+    default: false
+  },
   shippingAddress: {
     type: AddressSchema,
     default: () => ({})
   },
   integrationData: {
-    [EASYNC_INTEGRATION_TYPE]: easyncOrderDataShape
+    [EASYNC_INTEGRATION_TYPE]: easyncOrderDataShape,
+    [LINNW_INTEGRATION_TYPE]: linnwOrderDataShape
   },
   createdDate: {
     type: Date,

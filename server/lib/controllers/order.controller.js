@@ -4,9 +4,12 @@ import mongoose from "mongoose";
 import {
   buildEasyncOrderData,
   buildEasyncOrderProductData,
-  EASYNC_INTEGRATION_TYPE
+  EASYNC_INTEGRATION_TYPE,
+  EASYNC_ORDER_STATUSES
 } from "../integrations/easync/easync.js";
+import { getStatusByRequestId } from "../integrations/easync/getEasyncOrdedStatus.js";
 import { Product } from "../models/product.model.js";
+import { mapEasyncStatus } from "../integrations/easync/easync.js";
 
 const orderProductJoinProductLookup = {
   from: "products",
@@ -20,9 +23,97 @@ export async function getOrder(orderId) {
   return order;
 }
 
-export async function getOrderByInputId(inputId) {
-  const order = await Order.findOne({ inputId });
+export async function getOrderByLinworkId(linwId) {
+  const order = await Order.findOne({ linwId: String(linwId) });
   return order;
+}
+
+export async function getAllOrdersByStatus(status) {
+  const query = {};
+
+  if (Array.isArray(status))
+    query['easyncOrderStatus.status'] = { $in: status }
+  else
+    query['easyncOrderStatus.status'] = status;
+
+  const orders = await Order.find(query);
+
+  return orders;
+}
+
+export async function getAwaitingTrackerOrders() {
+  return Order.find({
+    'easyncOrderStatus.status': EASYNC_ORDER_STATUSES.COMPLETE,
+    'easyncTracking.isObtained': {
+      $ne: true
+    }
+  });
+}
+
+export async function getAllOrdersWithTracker() {
+  return Order.find({
+    'easyncOrderStatus.status': EASYNC_ORDER_STATUSES.COMPLETE,
+    'easyncTracking.isObtained': {
+      $eq: true
+    },
+    'easyncTracking.status': {
+      $ne: 'delivered'
+    }
+  });
+}
+
+export async function updateOrderById(orderId, { requestId = null, status = null, message = null, idempotencyKey = null, request = null, tracking = null }) {
+  if (!orderId) {
+    throw new Error("Order id not exist");
+  }
+
+  const order = await Order.findById(orderId);
+
+  let easyncOrderStatus = {};
+
+  if (Object.keys(order.easyncOrderStatus).length) {
+    easyncOrderStatus = order.easyncOrderStatus.toObject();
+  }
+
+  if (requestId)
+    easyncOrderStatus.requestId = requestId;
+
+  if (status)
+    easyncOrderStatus.status = status;
+
+  if (message)
+    easyncOrderStatus.message = message;
+
+  if (idempotencyKey)
+    easyncOrderStatus.idempotencyKey = idempotencyKey;
+
+  if (request)
+    easyncOrderStatus.request = request;
+
+  if (tracking)
+    easyncOrderStatus.tracking = tracking;
+
+  if (Object.keys(easyncOrderStatus).length) {
+    await Order.updateOne(
+        { _id: orderId },
+        { $set: { easyncOrderStatus }}
+    );
+  }
+}
+
+export function awaitCheckAndUpdateOrder({ orderId, requestId, token }) {
+
+  if (!token || !orderId && !requestId) return null;
+
+  setTimeout(async () => {
+    const request = await getStatusByRequestId(requestId, token);
+
+    return await updateOrderById(orderId, {
+      requestId,
+      ...mapEasyncStatus(request)
+    });
+
+  }, 15000)
 }
 
 export async function createOrders(docs) {
@@ -75,7 +166,7 @@ export async function syncOrderEasyncData(order) {
   order["integrationData"][EASYNC_INTEGRATION_TYPE] = buildEasyncOrderData(
     order
   );
-  order.orderProducts.forEach(async orderProduct => {
+  const arrayPromises = order.orderProducts.map(async orderProduct => {
     const product = await Product.findById(orderProduct.productId);
     const { externalId } = buildEasyncOrderProductData(
       order,
@@ -94,4 +185,6 @@ export async function syncOrderEasyncData(order) {
       }
     );
   });
+
+  await Promise.all(arrayPromises);
 }

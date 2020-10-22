@@ -7,6 +7,17 @@ class AccountService extends FuseUtils.EventEmitter {
         return data;
     };
 
+    fetchAccountLinnworksData = async () => {
+        const { data } = await axios.get("/api/account/refresh-locations");
+        return data;
+    };
+
+    sendLinnworksLocationData = async id => {
+        return await axios.put("/api/account/change-location", {
+            StockLocationId: id
+        });
+    };
+
     sendNewIntegration = async type => {
         const { data } = await axios.post("/api/account/integrations", {
             type
@@ -61,6 +72,38 @@ class AccountService extends FuseUtils.EventEmitter {
         const { data } = await axios.patch("/api/account", {
             changes
         });
+        return data;
+    }
+
+    fetchAccountUsers = async () => {
+        const { data } = await axios.get("/api/account/users");
+        return data;
+    }
+
+    fetchAccountRetailerCodes = async () => {
+        const { data } = await axios.get("/api/account/retailer-codes");
+        return data;
+    }
+
+    deleteAccountRetailerCode = async id => {
+        const { data } = await axios({
+            method: "delete",
+            url: `/api/account/retailer-codes/${id}`
+        });
+        return data;
+    };
+
+    updateAccountRetailerCode = async payload => {
+        const { data } = await axios({
+            method: "put",
+            url: `/api/account/retailer-codes/${payload.retailerCode}`,
+            data: payload
+        });
+        return data;
+    };
+
+    fetchAccountCountries = async () => {
+        const { data } = await axios.get("/api/account/countries");
         return data;
     }
 }

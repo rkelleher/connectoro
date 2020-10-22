@@ -7,6 +7,8 @@ const initialState = {
     isSavingEasyncProductOptions: false,
     email: "",
     integrations: [],
+    integrationData: [],
+    StockLocationId: "",
     users: []
 };
 
@@ -67,6 +69,65 @@ const account = function(state = initialState, action) {
                 integrations: action.payload
             };
         }
+        case Actions.SET_INTEGRATION_DATA: {
+            return {
+                ...state,
+                integrationData: action.payload
+            };
+        }
+        case Actions.GET_INTEGRATION_DATA: {
+            return {
+                ...state,
+            };
+        }
+        case Actions.SET_LINNWORKS_LOCATION_ID: {
+            return {
+                ...state,
+                StockLocationId: action.payload
+            };
+        }
+        case Actions.SET_ACCOUNT_USERS: {
+            return {
+                ...state,
+                users: action.payload,
+                isFetching: false
+            };
+        }
+        case Actions.SET_ACCOUNT_RETAILER_CODES: {
+            return {
+                ...state,
+                retailerCodes: action.payload,
+                isFetching: false
+            };
+        }
+        case Actions.DELETE_ACCOUNT_RETAILER_CODE: {
+            return {
+                ...state,
+                retailerCodes: state.retailerCodes.filter(
+                    ({ retailerCode })  => retailerCode !== action.payload
+                )
+            };
+        }
+        case Actions.UPDATE_ACCOUNT_RETAILER_CODE: {
+            return {
+                ...state,
+                retailerCodes: state.retailerCodes.map(
+                    code  => {
+                        return code.retailerCode === action.payload.retailerCode 
+                            ? action.payload
+                            : code;
+                    }
+                )
+            };
+        }
+        case Actions.SET_ACCOUNT_COUNTRIES: {
+            return {
+                ...state,
+                countries: action.payload,
+                isFetching: false
+            };
+        }
+
         default: {
             return state;
         }

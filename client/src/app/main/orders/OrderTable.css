@@ -1,0 +1,36 @@
+.tracking-status{
+  width: 24px;
+  height: 24px;
+}
+
+.details {
+  width: 25rem;
+}
+
+.customer {
+  width: 27rem;
+}
+
+.products {
+  width: 17rem;
+}
+
+.status {
+  width: 27rem;
+}
+
+.order-table .MuiInputLabel-outlined.MuiInputLabel-shrink {
+    transform: translate(14px, 4px) scale(0.75);
+  }
+  
+.order-table .MuiOutlinedInput-input {
+    padding: 6px 0 7px;
+  }
+  
+.order-table .MuiInputLabel-formControl {
+    top: -10px;
+  }
+  
+.order-table  .p8 {
+    padding: 8px;
+  }

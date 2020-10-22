@@ -3,29 +3,67 @@ const navigationConfig = [
         id: "dashboard",
         title: "Dashboard",
         type: "item",
-        icon: "whatshot",
+        icon: "dashboard",
         url: "/dashboard"
     },
     {
-        id: "products",
-        title: "Products",
-        type: "item",
-        icon: "whatshot",
-        url: "/products"
+        id      : 'inventory',
+        title   : 'Inventory',
+        type    : 'collapse',
+        icon    : 'category',
+        children: [
+            {
+                id: "products",
+                title: "Products",
+                type: "item",
+                url: "/products",
+                'exact': true
+            }
+        ]
     },
     {
-        id: "orders",
-        title: "Orders",
-        type: "item",
-        icon: "whatshot",
-        url: "/orders"
+        id      : 'dropshipping',
+        title   : 'Dropshipping',
+        type    : 'collapse',
+        icon    : 'shopping_cart',
+        children: [
+            {
+                id: "orders",
+                title: "Orders",
+                type: "item",
+                url: "/orders",
+                'exact': true
+            }
+        ]
     },
     {
-        id: "account-settings",
-        title: "Account Settings",
-        type: "item",
+        id      : 'settings',
+        title   : 'Settings',
+        type    : 'collapse',
         icon: "settings",
-        url: "/account"
+        children: [
+            {
+                id: "account-settings",
+                title: "Account Settings",
+                type: "item",
+                url: "/account",
+                exact: true
+            },
+            {
+                id: "integrations",
+                title: "Integrations",
+                type: "item",
+                url: "/integrations",
+                exact: true
+            },
+            {
+                id: "email settings",
+                title: "Email settings",
+                type: "item",
+                url: "/email-settings",
+                exact: true
+            }
+        ]
     }
 ];
 

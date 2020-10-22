@@ -1,4 +1,5 @@
 import _ from "lodash";
+import axios from 'axios';
 
 const get = _.get;
 
@@ -18,7 +19,9 @@ import {
   getUserByEmail,
   createAdminUser,
   removeUser,
-  getUser
+  getUser,
+  getUsers,
+  getUserAccount
 } from "./controllers/user.controller.js";
 import {
   createNewLinkedAccount,
@@ -27,27 +30,34 @@ import {
   deleteIntegration,
   updateIntegration,
   getIntegrationCredential,
-  getIntegrationByType
+  getIntegrationByType,
+  getAccountRetailerCodes,
+  deleteAccountRetailerCode,
+  updateAccountRetailerCode,
+  getAccountCountries
 } from "./controllers/account.controller.js";
 import {
   buildPopulatedOrdersForAccount,
-  getOrderByInputId,
   createOrders,
   getOrder,
+  awaitCheckAndUpdateOrder,
   buildPopulatedOrder,
-  syncOrderEasyncData
+  syncOrderEasyncData,
+  getOrderByLinworkId
 } from "./controllers/order.controller.js";
 import {
   LINNW_INTEGRATION_TYPE,
   makeLinnworksAPISession,
   getLinnworksOpenOrdersPaged,
-  convertLinnworksOrder
+  convertLinnworksOrder,
+  getLinnworksLocations
 } from "./integrations/linnworks.js";
 import {
   EASYNC_INTEGRATION_TYPE,
-  EASYNC_TOKEN_CREDENTIAL_KEY
+  EASYNC_TOKEN_CREDENTIAL_KEY,
+  mapEasyncStatus
 } from "./integrations/easync/easync.js";
-import buildEasyncOrderPayload from "./integrations/easync/buildEasyncOrderPayload.js";
+import { buildEasyncOrderPayload, buildEasyncOrderReq } from "./integrations/easync/buildEasyncOrderPayload.js";
 import {
   createProduct,
   getProductsForAccount
@@ -56,6 +66,7 @@ import { INTEGRATION_TYPES } from "./models/account.model.js";
 import { recursiveMongooseUpdate } from "./utils.js";
 import { Order } from "./models/order.model.js";
 import { Product } from "./models/product.model.js";
+import { updateOrderById } from "./controllers/order.controller.js";
 
 const ERR_NO_USER_WITH_EMAIL = "ERR_NO_USER_WITH_EMAIL";
 const ERR_EMAIL_TAKEN = "ERR_EMAIL_TAKEN";
@@ -88,6 +99,15 @@ export async function buildSimpleAPIServer(cg, db) {
   });
 
   server.auth.default("jwt");
+
+  // Get current version
+  server.route({
+    method: "GET",
+    path: "/api/current-version",
+    handler: async (request, h) => {
+      return { version: '1.4.10 [Tested crons v2]' };
+    }
+  });
 
   // Test send order
   server.route({
@@ -125,6 +145,69 @@ export async function buildSimpleAPIServer(cg, db) {
           orderId: Joi.string().required()
         })
       }
+    }
+  });
+
+  // test send order to easync
+  server.route({
+    method: "POST",
+    path: "/api/easync/order-test",
+    handler: async (request, h) => {
+      const { orderId, key } = request.payload;
+      const userId = request.headers.authenticatedUserId;
+      const user = await getUser(userId);
+      console.log(key);
+      if (user.role !== "admin") {
+        return Boom.unauthorized();
+      }
+      const order = await getOrder(orderId);
+      if (!order) {
+        return Boom.badRequest("No order found");
+      }
+      const account = await getAccount(user.account);
+      const integration = await getIntegrationByType(
+          account,
+          EASYNC_INTEGRATION_TYPE
+      );
+      const token = getIntegrationCredential(
+          integration,
+          EASYNC_TOKEN_CREDENTIAL_KEY
+      );
+      if (!token) {
+        throw Boom.badRequest("No Easync api token!");
+      }
+
+      const easyncPayload = await buildEasyncOrderPayload({ order, key });
+
+      const easyncReq = await buildEasyncOrderReq(easyncPayload, token);
+
+      const { data } = await axios({
+        method: "POST",
+        url: easyncReq.uri,
+        headers: easyncReq.headers,
+        data: easyncReq.payload,
+      })
+      .catch(err => {
+        console.error(err);
+      });
+
+      const { request_id } = data;
+
+      // TODO return easyncOrderStatus to frontend and set it in reducer
+      await updateOrderById(orderId, {
+        ...mapEasyncStatus(data),
+        requestId: request_id,
+        idempotencyKey: easyncPayload.idempotency_key
+      });
+
+      // TODO sockets
+      awaitCheckAndUpdateOrder({
+        orderId,
+        token,
+        requestId: request_id
+      });
+
+      return { data };
     }
   });
 
@@ -638,6 +721,12 @@ export async function buildSimpleAPIServer(cg, db) {
           product.title = changes.title;
         }
         if (changeKey === "SKU") {
+          const isSKUexists = await Product.findOne({ SKU: changes.SKU });
+
+          if (isSKUexists) {
+            return Boom.badRequest("This SKU already exists");
+          }
+
           product.SKU = changes.SKU;
         }
       }
@@ -710,7 +799,7 @@ export async function buildSimpleAPIServer(cg, db) {
           let orderDocs = [];
           for (const inputOrder of someOrders["Data"]) {
             const inputId = inputOrder["OrderId"];
-            const existingOrder = await getOrderByInputId(inputId);
+            const existingOrder = await getOrderByLinworkId(inputId);
             if (!existingOrder) {
               const orderDoc = {
                 inputId,
@@ -1001,6 +1090,255 @@ export async function buildSimpleAPIServer(cg, db) {
           changes: Joi.object().required()
         })
       }
+    }
+  });
+
+  server.route({
+    method: "GET",
+    path: "/api/account/refresh-locations",
+    handler: async (request, h) => {
+      const { authenticatedUserId } = request.headers;
+      const user = await getUser(authenticatedUserId);
+      const account = await getAccount(user.account);
+
+      if (!account.integrations.length) {
+        throw Boom.badRequest('You don\'t have any integrations!');
+      }
+
+      const linnwIntegration = account.integrations.find(el => {
+        return el.integrationType === LINNW_INTEGRATION_TYPE
+      });
+
+      if (!linnwIntegration) {
+        throw Boom.badRequest('You don\'t have linnwork integration!');
+      }
+
+      const { appId, credentials, session } = linnwIntegration;
+
+      const appInstallToken = credentials && credentials.get("INSTALL_TOKEN");
+      if (!appInstallToken) {
+        throw Boom.badRequest("No Linnworks Install Token");
+      }
+
+      if (!session) {
+        const appSecret = cg("LINNW_APP_SECRET");
+        const linnworksSession = await makeLinnworksAPISession(
+          appId,
+          appSecret,
+          appInstallToken
+        );
+        linnwIntegration.session = linnworksSession;
+        await account.save();
+      }
+
+      const locations = await getLinnworksLocations(linnwIntegration.session.Token);
+
+      if (!locations.length) {
+        throw Boom.badRequest('There aren\'t any locations!');
+      }
+
+      const linnwIntegrationData = account.integrationData[LINNW_INTEGRATION_TYPE];
+
+      linnwIntegrationData.locations = locations;
+      if (
+        !linnwIntegrationData.choosedLocation ||
+        !locations.find(el => {
+          return el.StockLocationId === linnwIntegrationData.choosedLocation.StockLocationId
+        })
+      ) {
+        linnwIntegrationData.choosedLocation = locations[0];
+      }
+
+      return await account.save();;
+    }
+  });
+
+  server.route({
+    method: "PUT",
+    path: "/api/account/change-location",
+    handler: async (request, h) => {
+      const { authenticatedUserId } = request.headers;
+      const user = await getUser(authenticatedUserId);
+      const account = await getAccount(user.account);
+
+      if (!account.integrations.length) {
+        throw Boom.badRequest('You don\'t have any integrations!');
+      }
+
+      const linnwIntegration = account.integrations.find(el => {
+        return el.integrationType === LINNW_INTEGRATION_TYPE
+      });
+
+      if (!linnwIntegration) {
+        throw Boom.badRequest('You don\'t have linnwork integration!');
+      }
+
+      const { StockLocationId } = request.payload;
+
+      const linnwIntegrationData = account.integrationData[LINNW_INTEGRATION_TYPE];
+
+      const newLocation = linnwIntegrationData.locations.find(el =>
+        el.StockLocationId === StockLocationId
+      );
+
+      if (!newLocation) {
+        throw Boom.badRequest('There aren\'t location with this id!');
+      }
+
+      linnwIntegrationData.choosedLocation = newLocation;
+      await account.save();
+
+      return newLocation;
+    },
+    options: {
+      validate: {
+        payload: Joi.object({
+          StockLocationId: Joi.string().required()
+        })
+      }
+    }
+  });
+
+  server.route({
+    method: "GET",
+    path: "/api/account/users",
+    handler: async (request, h) => {
+      const { authenticatedUserId } = request.headers;
+
+      const account = await getUserAccount(authenticatedUserId);
+
+      return getUsers(account.users);
+    }
+  });
+
+  server.route({
+    method: "GET",
+    path: "/api/account/retailer-codes",
+    handler: async (request, h) => {
+      const { authenticatedUserId } = request.headers;
+
+      const user = await getUser(authenticatedUserId);
+
+      return getAccountRetailerCodes(user.account);
+    }
+  });
+
+  server.route({
+    method: "DELETE",
+    path: "/api/account/retailer-codes/{retailerCode}",
+    handler: async (request, h) => {
+      const { authenticatedUserId } = request.headers;
+      const { retailerCode } = request.params;
+
+      const account = await getUserAccount(authenticatedUserId);
+
+      return deleteAccountRetailerCode(account._id, retailerCode);
+    }
+  });
+
+  server.route({
+    method: "PUT",
+    path: "/api/account/retailer-codes/{retailerCode}",
+    handler: async (request, h) => {
+      const { payload } = request;
+      const { authenticatedUserId } = request.headers;
+      const { retailerCode } = request.params;
+
+      const account = await getUserAccount(authenticatedUserId);
+
+      return updateAccountRetailerCode(account._id, retailerCode, payload);
+    }
+  });
+
+  server.route({
+    method: "GET",
+    path: "/api/account/countries",
+    handler: async (request, h) => {
+      const { authenticatedUserId } = request.headers;
+
+      const user = await getUser(authenticatedUserId);
+
+      return getAccountCountries(user.account);
+    }
+  });
+
+  server.route({
+    method: "POST",
+    path: "/api/webhooks/order_placed",
+    options: { auth: false },
+    handler: async (request, h) => {
+      const collection = global.dbConnection.db('test1').collection('temp');
+
+      const payload = {};
+
+      payload.headers = request.headers;
+      payload.query = request.query;
+      payload.payload = request.payload;
+      payload.date = new Date();
+
+      collection.insertOne(payload);
+
+      return { success: true };
+    }
+  });
+
+  server.route({
+    method: "POST",
+    path: "/api/webhooks/order_failed",
+    options: { auth: false },
+    handler: async (request, h) => {
+      const collection = global.dbConnection.db('test1').collection('temp');
+
+      const payload = {};
+
+      payload.headers = request.headers;
+      payload.query = request.query;
+      payload.payload = request.payload;
+      payload.date = new Date();
+
+      collection.insertOne(payload);
+
+      return { success: true };
+    }
+  });
+
+  server.route({
+    method: "POST",
+    path: "/api/webhooks/tracking_obtained",
+    options: { auth: false },
+    handler: async (request, h) => {
+      const collection = global.dbConnection.db('test1').collection('temp');
+
+      const payload = {};
+
+      payload.headers = request.headers;
+      payload.query = request.query;
+      payload.payload = request.payload;
+      payload.date = new Date();
+
+      collection.insertOne(payload);
+
+      return { success: true };
+    }
+  });
+
+  server.route({
+    method: "POST",
+    path: "/api/webhooks/status_updated",
+    options: { auth: false },
+    handler: async (request, h) => {
+      const collection = global.dbConnection.db('test1').collection('temp');
+
+      const payload = {};
+
+      payload.headers = request.headers;
+      payload.query = request.query;
+      payload.payload = request.payload;
+      payload.date = new Date();
+
+      collection.insertOne(payload);
+
+      return { success: true };
     }
   });
 
