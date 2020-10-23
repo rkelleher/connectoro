@@ -8,7 +8,7 @@ import { LINNW_INTEGRATION_TYPE, markLinnworkOrderAsProcessed, sendTrackingNumbe
 import { Log } from '../models/logs.model.js';
 import * as IntegrationUtil from '../utils/integration.util.js';
 
-export const TrackingUpdateStatusCron = (cg) => cron.schedule('0 */8 * * *',  async () => {
+export const TrackingUpdateStatusCron = (cg) => cron.schedule('0 0 */4 * * *',  async () => {
   console.log('-------------------------');
   console.log("Cron tracking UPDATE status job");
   console.log('-------------------------');
