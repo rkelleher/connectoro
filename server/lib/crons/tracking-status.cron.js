@@ -1,4 +1,5 @@
 import cron from 'node-cron';
+import config from 'nconf';
 
 import { getAccount, getIntegrationByType, getIntegrationCredential } from '../controllers/account.controller.js';
 import { getAwaitingTrackerOrders } from '../controllers/order.controller.js';
@@ -8,7 +9,7 @@ import { LINNW_INTEGRATION_TYPE, markLinnworkOrderAsProcessed, sendTrackingNumbe
 import * as IntegrationUtil from '../utils/integration.util.js';
 import { Log } from '../models/logs.model.js';
 
-export const TrackingStatusCron = (cg) => cron.schedule('0 */30 * * * *',  async () => {
+export const TrackingStatusCron = cron.schedule('0 */90 * * * *',  async () => {
   console.log('-------------------------');
   console.log("Cron tracking status job");
   console.log('-------------------------');
@@ -56,7 +57,7 @@ export const TrackingStatusCron = (cg) => cron.schedule('0 */30 * * * *',  async
       if (!linnwIntegration .session) {
         const linnworksSession = await makeLinnworksAPISession(
           linnwIntegration.appId,
-          cg("LINNW_APP_SECRET"),
+          config.get("LINNW_APP_SECRET"),
           linnwIntegration.credentials && linnwIntegration.credentials.get("INSTALL_TOKEN")
         );
 
