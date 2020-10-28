@@ -105,7 +105,7 @@ export async function buildSimpleAPIServer(cg, db) {
     method: "GET",
     path: "/api/current-version",
     handler: async (request, h) => {
-      return { version: '1.4.12 [default crons]' };
+      return { version: '1.4.13 [new crons]' };
     }
   });
 
