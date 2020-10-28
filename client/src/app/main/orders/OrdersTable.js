@@ -163,8 +163,6 @@ function OrdersTable(props) {
                                         country: '',
                                         total_price: '',
                                         retailerOrderID: null,
-                                        SKU: '',
-                                        quantity: '',
                                     }
 
                                     let iconTracking;
@@ -248,11 +246,6 @@ function OrdersTable(props) {
                                             data.retailerOrderID = request.merchant_order_ids[0].merchant_order_id;
                                         }
                                     }
-
-                                    if (n.orderProducts[0]) {
-                                        data.SKU = n.orderProducts[0].product.SKU;
-                                        data.quantity = n.orderProducts[0].quantity
-                                    }
                                     return (
                                         <TableRow
                                             className="h-64 p8"
@@ -309,7 +302,7 @@ function OrdersTable(props) {
                                             >
                                                 <div className="flex flex-col">
                                                 <p>Total: {'£' + (data.total_price/100)}</p>
-                                                <p>SKU: {data.SKU + ' QTY: ' + data.quantity}</p>
+                                                <p>SKU: {n.orderProducts[0].product.SKU + ' QTY: ' + n.orderProducts[0].quantity}</p>
                                                 </div>
                                                 {}
                                             </TableCell>
