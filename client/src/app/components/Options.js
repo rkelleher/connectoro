@@ -59,19 +59,20 @@ export function Options({
 
     // TODO collapse into saveActionParam and just use objects
     const handleSubmit = () => {
-        // if (errors.length > 0)  {
-        //     dispatch(
-        //         showMessage({
-        //             message     : 'Hi, how are you?',//text or html
-        //             autoHideDuration: 6000,//ms
-        //             anchorOrigin: {
-        //                 vertical  : 'top',//top bottom
-        //                 horizontal: 'center'//left center right
-        //             },
-        //             variant: 'error'//success error info warning null
-        //         }))
-        //         return;
-        // }
+        if (errors.length > 0)  {
+            let fields = errors.join(', ');
+            dispatch(
+                showMessage({
+                    message     : `This fields: ${fields} are required !`,
+                    autoHideDuration: 6000,
+                    anchorOrigin: {
+                        vertical  : 'top',
+                        horizontal: 'center'
+                    },
+                    variant: 'error'
+                }))
+                return;
+        }
         dispatch(saveAction(form, saveActionParam, saveActionParam2));
     };
 
