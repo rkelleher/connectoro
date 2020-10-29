@@ -64,6 +64,7 @@ const OrderHeader = ({ order }) => {
             </Button>
         </Tooltip>
     );
+    const key = true;
 
     const buttonVariantKey = (_status) => (
         <Tooltip title="Create New Key">
@@ -85,7 +86,7 @@ const OrderHeader = ({ order }) => {
                             <Button onClick={()=> dispatch(closeDialog())} color="primary" className='text-green-500'>
                                 Exit
                             </Button>
-                            <Button onClick={()=> dispatch(closeDialog())} color="primary" autoFocus startIcon={<VpnKey />} className="text-orange-400">
+                            <Button onClick={() => dispatch(Actions.testSendOrder(order._id, key))} color="primary" autoFocus startIcon={<VpnKey />} className="text-orange-400">
                                 Create New Key
                             </Button>
                         </DialogActions>
