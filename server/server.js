@@ -3,8 +3,8 @@ import Mongo from 'mongodb';
 
 import { buildDatabase } from './lib/services/database.js';
 import { buildSimpleAPIServer } from './lib/simpleAPIServer.js';
-import ServiceOrderChecker from './lib/crons/requestIdChecker.cron.js';
 import { cronFetchFromLinworks } from './lib/crons/pull-linnworks.cron.js';
+import { ServiceOrderChecker } from './lib/crons/requestIdChecker.cron.js';
 import { TrackingStatusCron } from './lib/crons/tracking-status.cron.js';
 import { TrackingUpdateStatusCron } from './lib/crons/tracking-status-update.cron.js';
 
@@ -39,10 +39,10 @@ import { TrackingUpdateStatusCron } from './lib/crons/tracking-status-update.cro
   const apiServer = await buildSimpleAPIServer(cg, db);
 
   await apiServer.start();
-  await ServiceOrderChecker(cg).start();
-  await cronFetchFromLinworks(cg).start();
-  await TrackingStatusCron(cg).start();
-  await TrackingUpdateStatusCron(cg).start();
+  cronFetchFromLinworks.start();
+  ServiceOrderChecker.start();
+  TrackingStatusCron.start();
+  TrackingUpdateStatusCron.start();
 
   console.log("Connectoro API Server running on %s", apiServer.info.uri);
 })()
