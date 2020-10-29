@@ -246,7 +246,6 @@ function OrdersTable(props) {
                                             data.retailerOrderID = request.merchant_order_ids[0].merchant_order_id;
                                         }
                                     }
-                                    const key = true;
                                     return (
                                         <TableRow
                                             className="h-64 p8"
@@ -342,7 +341,9 @@ function OrdersTable(props) {
                                                 <div>
                                                     <Tooltip title ="Send Order Via Easync">
                                                         <Button variant="contained" className="mr-8"
-                                                            onClick={() => dispatch(Actions.testSendOrder(n._id))}
+                                                            onClick={event =>
+                                                                event.stopPropagation()
+                                                            }
                                                         >
                                                             <Icon>shopping_cart</Icon>
                                                         </Button>
@@ -366,7 +367,7 @@ function OrdersTable(props) {
                                                                         <Button onClick={()=> dispatch(closeDialog())} color="primary" className='text-green-500'>
                                                                             Exit
                                                                         </Button>
-                                                                        <Button onClick={() => dispatch(Actions.testSendOrder(n._id, key))} color="primary" autoFocus startIcon={<VpnKey />} className="text-orange-400">
+                                                                        <Button onClick={()=> dispatch(closeDialog())} color="primary" autoFocus startIcon={<VpnKey />} className="text-orange-400">
                                                                             Create New Key
                                                                         </Button>
                                                                     </DialogActions>
