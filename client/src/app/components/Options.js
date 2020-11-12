@@ -2,6 +2,7 @@ import isEqual from "lodash/isEqual";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useForm } from "@fuse/hooks";
+import { showMessage } from 'app/store/actions';
 import { Option } from "./Option";
 import { Grid, Button, makeStyles } from "@material-ui/core";
 
@@ -63,6 +64,8 @@ export function Options({
             .replace(/([A-Z]+)([A-Z][a-z\d]+)/g, '$1' + separator + '$2')
             .toLowerCase();
     }
+
+    const errors =[];
 
     // TODO collapse into saveActionParam and just use objects
     const handleSubmit = () => {
