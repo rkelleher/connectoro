@@ -4,7 +4,6 @@ import { useDispatch } from "react-redux";
 import { useForm } from "@fuse/hooks";
 import { Option } from "./Option";
 import { Grid, Button, makeStyles } from "@material-ui/core";
-import { showMessage } from 'app/store/actions';
 
 const useStyles = makeStyles(theme => ({
     saveBtnContainer: {
@@ -33,7 +32,6 @@ export function Options({
     const dispatch = useDispatch();
     const { form, handleChange, setForm, setInForm } = useForm(null);
     const [formId, setFormId] = useState(null);
-    const errors = [];
 
     useEffect(() => {
         if ((data && !form) || id !== formId) {
@@ -68,6 +66,7 @@ export function Options({
 
     // TODO collapse into saveActionParam and just use objects
     const handleSubmit = () => {
+<<<<<<< HEAD
         if (errors.length > 0)  {
             const display = errors.map((field => {
                 field = decamelize(field)
@@ -86,6 +85,8 @@ export function Options({
                 }))
                 return;
         }
+=======
+>>>>>>> bc050476bf13218902d5a84d093efc5ca0dcb26b
         dispatch(saveAction(form, saveActionParam, saveActionParam2));
     };
 
@@ -95,12 +96,15 @@ export function Options({
             <Grid container spacing={2}>
                 {Object.keys(data) &&
                     Object.keys(data).map(key => {
+<<<<<<< HEAD
                         if (!form[key]) {
                             if (key === 'firstName' || key === 'addressLine1' || key === 'zipCode' || key === 'city' || key === 'state' || key === 'countryName' || key === 'phoneNumber') {
                                 errors.push(key);
                             }
                         }
                         console.log(form.firstName);
+=======
+>>>>>>> bc050476bf13218902d5a84d093efc5ca0dcb26b
                         return (
                             <Grid item xs={6} sm={smCol} key={key}>
                                 <Option

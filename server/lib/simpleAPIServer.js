@@ -105,7 +105,11 @@ export async function buildSimpleAPIServer(cg, db) {
     method: "GET",
     path: "/api/current-version",
     handler: async (request, h) => {
+<<<<<<< HEAD
       return { version: "1.5.3 [Decamelize & Validation]" };
+=======
+      return { version: '1.5.2 [DELETE EASYNC WEBHOOKS]' };
+>>>>>>> bc050476bf13218902d5a84d093efc5ca0dcb26b
     }
   });
 

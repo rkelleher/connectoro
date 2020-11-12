@@ -163,8 +163,6 @@ function OrdersTable(props) {
                                         country: '',
                                         total_price: '',
                                         retailerOrderID: null,
-                                        SKU: '',
-                                        quantity: '',
                                     }
 
                                     let iconTracking;
@@ -248,11 +246,7 @@ function OrdersTable(props) {
                                             data.retailerOrderID = request.merchant_order_ids[0].merchant_order_id;
                                         }
                                     }
-
-                                    if (n.orderProducts[0]) {
-                                        data.SKU = n.orderProducts[0].product.SKU;
-                                        data.quantity = n.orderProducts[0].quantity
-                                    }
+                                    const key = true;
                                     return (
                                         <TableRow
                                             className="h-64 p8"
@@ -309,7 +303,7 @@ function OrdersTable(props) {
                                             >
                                                 <div className="flex flex-col">
                                                 <p>Total: {'£' + (data.total_price/100)}</p>
-                                                <p>SKU: {data.SKU + ' QTY: ' + data.quantity}</p>
+                                                <p>SKU: {n.orderProducts[0].product.SKU + ' QTY: ' + n.orderProducts[0].quantity}</p>
                                                 </div>
                                                 {}
                                             </TableCell>
@@ -348,9 +342,7 @@ function OrdersTable(props) {
                                                 <div>
                                                     <Tooltip title ="Send Order Via Easync">
                                                         <Button variant="contained" className="mr-8"
-                                                            onClick={event =>
-                                                                event.stopPropagation()
-                                                            }
+                                                            onClick={() => dispatch(Actions.testSendOrder(n._id))}
                                                         >
                                                             <Icon>shopping_cart</Icon>
                                                         </Button>
@@ -374,7 +366,7 @@ function OrdersTable(props) {
                                                                         <Button onClick={()=> dispatch(closeDialog())} color="primary" className='text-green-500'>
                                                                             Exit
                                                                         </Button>
-                                                                        <Button onClick={()=> dispatch(closeDialog())} color="primary" autoFocus startIcon={<VpnKey />} className="text-orange-400">
+                                                                        <Button onClick={() => dispatch(Actions.testSendOrder(n._id, key))} color="primary" autoFocus startIcon={<VpnKey />} className="text-orange-400">
                                                                             Create New Key
                                                                         </Button>
                                                                     </DialogActions>
