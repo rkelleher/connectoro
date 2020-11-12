@@ -1,6 +1,7 @@
 import cron from 'node-cron';
 import _ from "lodash";
 import Bluebird from "bluebird";
+import config from 'nconf';
 
 import {
   LINNW_INTEGRATION_TYPE,
@@ -78,13 +79,13 @@ async function pullLinnworksOrder(order, account) {
   await Order.create(convertedOrder);
 }
 
-async function pullLinnworksOrdersByLocation(account, cg) {
+async function pullLinnworksOrdersByLocation(account) {
   const integration = IntegrationUtil.getIntegrationByType(account, LINNW_INTEGRATION_TYPE);
 
   if (!integration.session) {
     const linnworksSession = await makeLinnworksAPISession(
       integration.appId,
-      cg("LINNW_APP_SECRET"),
+      config.get("LINNW_APP_SECRET"),
       integration.credentials && integration.credentials.get("INSTALL_TOKEN")
     );
 
@@ -106,13 +107,17 @@ async function pullLinnworksOrdersByLocation(account, cg) {
   return Bluebird.each(orders.Data, async order => pullLinnworksOrder(order, account));
 }
 
-export const cronFetchFromLinworks = (cg) => cron.schedule('0 */30 * * * *',  async () => {
+export const cronFetchFromLinworks = cron.schedule('0 */30 * * * *',  async () => {
+  console.log('-------------------------');
+  console.log("Cron pulling from linnworks job");
+  console.log('-------------------------');
+  await Log.create({log: 'Pull-linnworks'});
+
   const accounts = await AccountService.findByIntegrationType(LINNW_INTEGRATION_TYPE);
 
   if (!accounts.length) return;
-  await Log.create({log: 'Pull-linnworks'});
 
-  await Bluebird.each(accounts, async account => pullLinnworksOrdersByLocation(account, cg));
+  await Bluebird.each(accounts, async account => pullLinnworksOrdersByLocation(account));
 }, {
   timezone: 'Europe/Kiev',
 });

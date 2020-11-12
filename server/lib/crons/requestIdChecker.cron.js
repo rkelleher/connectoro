@@ -1,4 +1,5 @@
 import cron from 'node-cron';
+import config from 'nconf';
 
 import { 
     getAccount, 
@@ -18,8 +19,10 @@ import { setLinnworksOrderNote } from '../integrations/linnworks.js';
 import { LINNW_INTEGRATION_TYPE } from '../models/product.model.js';
 import { Log } from '../models/logs.model.js';
 
-export default (cg) => cron.schedule('00,10,20,30,40,50 * * * *',  async () => {
+export default (cg) => cron.schedule('00,10,20,30,40,50 * * * *',  async () => 
+    console.log('-------------------------
     console.log("Cron job request");
+    console.log('-------------------------');
     await Log.create({log: "requestID cron"});
 
     const orders = await getAllOrdersByStatus([EASYNC_ORDER_STATUSES.PROCESSING]);
@@ -60,7 +63,7 @@ export default (cg) => cron.schedule('00,10,20,30,40,50 * * * *',  async () => {
             if (!integration.session) {
                 const linnworksSession = await makeLinnworksAPISession(
                     integration.appId,
-                    cg("LINNW_APP_SECRET"),
+                    config.get("LINNW_APP_SECRET"),
                     integration.credentials && integration.credentials.get("INSTALL_TOKEN")
                 );
 
