@@ -66,7 +66,6 @@ export function Options({
 
     // TODO collapse into saveActionParam and just use objects
     const handleSubmit = () => {
-<<<<<<< HEAD
         if (errors.length > 0)  {
             const display = errors.map((field => {
                 field = decamelize(field)
@@ -85,8 +84,6 @@ export function Options({
                 }))
                 return;
         }
-=======
->>>>>>> bc050476bf13218902d5a84d093efc5ca0dcb26b
         dispatch(saveAction(form, saveActionParam, saveActionParam2));
     };
 
@@ -96,15 +93,12 @@ export function Options({
             <Grid container spacing={2}>
                 {Object.keys(data) &&
                     Object.keys(data).map(key => {
-<<<<<<< HEAD
                         if (!form[key]) {
                             if (key === 'firstName' || key === 'addressLine1' || key === 'zipCode' || key === 'city' || key === 'state' || key === 'countryName' || key === 'phoneNumber') {
                                 errors.push(key);
                             }
                         }
                         console.log(form.firstName);
-=======
->>>>>>> bc050476bf13218902d5a84d093efc5ca0dcb26b
                         return (
                             <Grid item xs={6} sm={smCol} key={key}>
                                 <Option
