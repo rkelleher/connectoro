@@ -54,29 +54,27 @@ export const ServiceOrderChecker = cron.schedule('0 */10 * * * *',  async () => 
         ) {
             const { orderId } = order['integrationData'][LINNW_INTEGRATION_TYPE];
 
-            if (!orderId) {
-                continue;
-            }
+            if ( orderId) {
+                const integration = IntegrationUtil.getIntegrationByType(account, LINNW_INTEGRATION_TYPE);
 
-            const integration = IntegrationUtil.getIntegrationByType(account, LINNW_INTEGRATION_TYPE);
-
-            if (!integration.session) {
-                const linnworksSession = await makeLinnworksAPISession(
-                    integration.appId,
-                    config.get("LINNW_APP_SECRET"),
-                    integration.credentials && integration.credentials.get("INSTALL_TOKEN")
+                if (!integration.session) {
+                    const linnworksSession = await makeLinnworksAPISession(
+                        integration.appId,
+                        config.get("LINNW_APP_SECRET"),
+                        integration.credentials && integration.credentials.get("INSTALL_TOKEN")
+                    );
+    
+                    integration.session = linnworksSession;
+    
+                    await account.save();
+                }
+    
+                setLinnworksOrderNote(
+                    integration.session.Token,
+                    orderId,
+                    requestId
                 );
-
-                integration.session = linnworksSession;
-
-                await account.save();
             }
-
-            setLinnworksOrderNote(
-                integration.session.Token,
-                orderId,
-                requestId
-            );
         }
 
         await updateOrderById(order._id, newValue);
