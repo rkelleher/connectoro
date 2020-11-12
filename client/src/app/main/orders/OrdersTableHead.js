@@ -12,7 +12,8 @@ import {
     MenuList,
     MenuItem,
     ListItemIcon,
-    ListItemText
+    ListItemText,
+    Select,
 } from "@material-ui/core";
 import clsx from "clsx";
 import { makeStyles } from "@material-ui/styles";
@@ -71,6 +72,15 @@ const useStyles = makeStyles(theme => ({
 function OrdersTableHead(props) {
     const classes = useStyles(props);
     const [selectedOrdersMenu, setSelectedOrdersMenu] = useState(null);
+    const [trackingOrder, setTrackingOrder] = useState('all');
+    const [statusOrder, setStatusOrder] = useState('all');
+
+    const changeTracking = (event) => {
+        setTrackingOrder(event.target.value);
+      };
+    const changeStatus = (event) => {
+        setStatusOrder(event.target.value);
+      };
 
     const createSortHandler = property => event => {
         props.onRequestSort(event, property);
@@ -142,39 +152,69 @@ function OrdersTableHead(props) {
                     )}
                 </TableCell>
                 {rows.map(row => {
-                    return (
-                        <TableCell
-                            key={row.id}
-                            align={row.align}
-                            // padding={row.disablePadding ? "none" : "default"}
-                            className="p8"
-                            sortDirection={
-                                props.order.id === row.id
-                                    ? props.order.direction
-                                    : false
-                            }
-                        >
-                            {row.sort && (
-                                <Tooltip
-                                    title="Sort"
-                                    placement={
-                                        row.align === "right"
-                                            ? "bottom-end"
-                                            : "bottom-start"
-                                    }
-                                    enterDelay={300}
-                                >
-                                    <TableSortLabel
-                                        active={props.order.id === row.id}
-                                        direction={props.order.direction}
-                                        onClick={createSortHandler(row.id)}
+                    if (row.id === 'tracking') {
+                        return (<TableCell>
+                                    <Select
+                                        className="w-full"
+                                        value={trackingOrder}
+                                        onChange={changeTracking}
                                     >
-                                        {row.label}
-                                    </TableSortLabel>
-                                </Tooltip>
-                            )}
-                        </TableCell>
-                    );
+                                        <MenuItem value={"all"}>All Tracking</MenuItem>
+                                        <MenuItem value={"delivered"}>Delivered</MenuItem>
+                                        <MenuItem value={"shipping"}>Shipping</MenuItem>
+                                        <MenuItem value={"error"}>Error</MenuItem>
+                                    </Select>
+                                </TableCell>)
+                    }
+                    else if (row.id === 'status') {
+                        return (<TableCell>
+                                    <Select
+                                        className="w-full"
+                                        value={statusOrder}
+                                        onChange={changeStatus}
+                                    >
+                                        <MenuItem value={"all"}>Status</MenuItem>
+                                        <MenuItem value={"open"}>Open</MenuItem>
+                                        <MenuItem value={"complete"}>Complete</MenuItem>
+                                        <MenuItem value={"error"}>Error</MenuItem>
+                                    </Select>
+                                </TableCell>)
+                    }
+                    else {
+                        return (
+                            <TableCell
+                                key={row.id}
+                                align={row.align}
+                                // padding={row.disablePadding ? "none" : "default"}
+                                className="p8"
+                                sortDirection={
+                                    props.order.id === row.id
+                                        ? props.order.direction
+                                        : false
+                                }
+                            >
+                                {row.sort && (
+                                    <Tooltip
+                                        title="Sort"
+                                        placement={
+                                            row.align === "right"
+                                                ? "bottom-end"
+                                                : "bottom-start"
+                                        }
+                                        enterDelay={300}
+                                    >
+                                        <TableSortLabel
+                                            active={props.order.id === row.id}
+                                            direction={props.order.direction}
+                                            onClick={createSortHandler(row.id)}
+                                        >
+                                            {row.label}
+                                        </TableSortLabel>
+                                    </Tooltip>
+                                )}
+                            </TableCell>
+                        );
+                    }
                 }, this)}
             </TableRow>
         </TableHead>

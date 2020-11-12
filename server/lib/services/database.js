@@ -24,7 +24,7 @@ function buildURI(cg) {
     return `mongodb+srv://${user}:${pass}@${host}/${name}${params}`;
   } else if (env === 'development') {
     // return 'mongodb+srv://testserver:OQT9ZXW20jIszyaT@cluster0-nbzw1.gcp.mongodb.net/test1';
-    return 'mongodb://localhost:27019/test1';
+    return 'mongodb://localhost:27017/test1';
   }
 }
 

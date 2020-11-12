@@ -123,23 +123,24 @@ function OrdersTable(props) {
                     />
 
                     <TableBody>
-                        {data &&
-                            _.orderBy(
-                                data,
-                                [
-                                    o => {
-                                        switch (order.id) {
-                                            case "id": {
-                                                return parseInt(o.id, 10);
-                                            }
-                                            default: {
-                                                return o[order.id];
-                                            }
-                                        }
-                                    }
-                                ],
-                                [order.direction]
-                            )
+                        {data 
+                        // &&
+                        //     _.orderBy(
+                        //         data,
+                        //         [
+                        //             o => {
+                        //                 switch (order.id) {
+                        //                     case "id": {
+                        //                         return parseInt(o.id, 10);
+                        //                     }
+                        //                     default: {
+                        //                         return o[order.id];
+                        //                     }
+                        //                 }
+                        //             }
+                        //         ],
+                        //         [order.direction]
+                        //     )
                                 .slice(
                                     page * rowsPerPage,
                                     page * rowsPerPage + rowsPerPage
@@ -151,6 +152,7 @@ function OrdersTable(props) {
                                         trackingStatus: null,
                                         trackingNumber: null,
                                         trackingURL: null,
+                                        tarckingMessage: null,
                                         easyncOrderStatus: null,
                                         easyncOrderMessage: null,
                                         orderSource: 'Manually',
@@ -170,6 +172,9 @@ function OrdersTable(props) {
                                 
                                         if (n.easyncTracking.status) {
                                             data.trackingStatus = n.easyncTracking.status;
+                                        }
+                                        if (n.easyncTracking.message) {
+                                            data.tarckingMessage = n.easyncTracking.message;
                                         }
                                 
                                         if (n.easyncTracking.trackingNumber) {
@@ -329,7 +334,7 @@ function OrdersTable(props) {
                                                     <div className="flex flex-col">
                                                         <p className="capitalize font-semibold">{data.trackingStatus}</p>
                                                         <p><a href={data.trackingURL} target="_blank">{data.trackingNumber}</a></p>
-                                                        {n.easyncTracking.message ? n.easyncTracking.message : null}
+                                                        {data.tarckingMessage}
                                                     </div>
                                                 </div>
                                             </TableCell>

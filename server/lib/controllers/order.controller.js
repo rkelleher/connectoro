@@ -138,8 +138,14 @@ export async function buildPopulatedOrdersForAccount(accountId) {
     },
     {
       $lookup: orderProductJoinProductLookup
-    }
-  ]);
+    },
+    // {
+    //   $match: {
+    //     'easyncOrderStatus.status': "complete"
+    //   }
+    // },
+  ]).sort({ createdDate: -1 });
+  console.log(orders[1]);
   orders.forEach(moveProductDataIntoOrderProducts);
   return orders;
 }
