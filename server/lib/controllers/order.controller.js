@@ -1,6 +1,7 @@
 import _ from "lodash";
 import { Order } from "../models/order.model.js";
 import mongoose from "mongoose";
+import moment from 'moment';
 import {
   buildEasyncOrderData,
   buildEasyncOrderProductData,
@@ -129,7 +130,50 @@ function moveProductDataIntoOrderProducts(order) {
   delete order.products;
 }
 
-export async function buildPopulatedOrdersForAccount(accountId) {
+export async function buildPopulatedOrdersForAccount(accountId ,request) {
+  let status;
+  let tracking;
+  let date = {};
+  const reqQuery = {...request.query}
+  console.log(reqQuery, reqQuery.rangeDate);
+  switch (reqQuery.status) {
+    case 'complete':
+      status = {'easyncOrderStatus.status': "complete"}
+      break;
+    case 'open':
+      status = {'easyncOrderStatus.status': "open"}
+      break;
+    case 'error':
+      status = {'easyncOrderStatus.status': "open"}
+      break;
+    default:
+      status = {}
+      break;
+  }
+  switch (reqQuery.tracking) {
+    case 'delivered':
+      tracking = {'easyncTracking.status': "delivered"}
+      break;
+    case 'error':
+      tracking = {'easyncTracking.status': "error"}
+      break;
+    case 'shipping':
+      tracking = {'easyncTracking.status': "shipping"}
+      break;
+    default:
+      tracking = {}
+      break;
+  }
+  if (reqQuery.startDate) {
+    date = { $and: [{"createdDate" : {"$gte": new Date(reqQuery.startDate)}}, {"createdDate" : {"$lte": new Date(reqQuery.endDate)}}]};
+  } 
+
+  if (reqQuery.rangeDate) {
+    let time = moment().format('YYYY-MM-DD');
+    // date = { $and: [{"createdDate" : {"$gt": new Date(reqQuery.rangeDate)}}, {"createdDate" : {"$lt": new Date(time)}}]}
+    date = {"createdDate" : {"$gte": new Date(reqQuery.rangeDate)}}
+  }
+  let tryThis = { createdDate: -1 };
   const orders = await Order.aggregate([
     {
       $match: {
@@ -139,13 +183,19 @@ export async function buildPopulatedOrdersForAccount(accountId) {
     {
       $lookup: orderProductJoinProductLookup
     },
-    // {
-    //   $match: {
-    //     'easyncOrderStatus.status': "complete"
-    //   }
-    // },
-  ]).sort({ createdDate: -1 });
-  console.log(orders[1]);
+    {
+      $match: 
+        status
+    },
+    {
+      $match: 
+        tracking
+    },
+    {
+      $match:
+      date
+    }
+  ]).sort(tryThis).limit(100);
   orders.forEach(moveProductDataIntoOrderProducts);
   return orders;
 }

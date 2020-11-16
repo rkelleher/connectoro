@@ -3,8 +3,15 @@ import history from '@history';
 
 export const GET_ORDERS = "[ORDERS] GET ORDERS";
 
-export function getOrders() {
-    const request = axios.get("/api/orders");
+export function getOrders(rangeDate, startDate, endDate) {
+    let queryStr='';
+    if (rangeDate) {
+        queryStr = `?rangeDate=${rangeDate}`
+    }
+    if (startDate) {
+        queryStr = `?startDate=${startDate}&endDate=${endDate}`
+    }
+    const request = axios.get(`/api/orders${queryStr}`);
     const process = data => {
         return data;
     };

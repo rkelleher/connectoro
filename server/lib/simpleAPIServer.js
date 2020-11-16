@@ -290,7 +290,7 @@ export async function buildSimpleAPIServer(cg, db) {
       if (user.role !== "admin") {
         return Boom.unauthorized();
       }
-      const orders = await buildPopulatedOrdersForAccount(user.account);
+      const orders = await buildPopulatedOrdersForAccount(user.account, request);
       return orders;
     }
   });
