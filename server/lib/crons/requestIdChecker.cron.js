@@ -17,18 +17,9 @@ import { updateOrderById, getAllOrdersByStatus } from '../controllers/order.cont
 import { getStatusByRequestId } from '../integrations/easync/getEasyncOrdedStatus.js';
 import { setLinnworksOrderNote } from '../integrations/linnworks.js';
 import { LINNW_INTEGRATION_TYPE } from '../models/product.model.js';
-import moment from 'moment'
 import { Log } from '../models/logs.model.js';
 
-let currentMinuts;
-
-export const ServiceOrderChecker = cron.schedule('0,10,20,30,40,50 */1 * * * *',  async () => {
-    const minutes = moment(new Date()).format('m');
-    if (currentMinuts === minutes) {
-            return;
-            
-        }
-     currentMinuts = minutes;    
+export const ServiceOrderChecker = cron.schedule('0 */10 * * * *',  async () => {
     console.log('-------------------------');
     console.log("Cron job request");
     console.log('-------------------------');
