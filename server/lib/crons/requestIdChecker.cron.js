@@ -17,9 +17,18 @@ import { updateOrderById, getAllOrdersByStatus } from '../controllers/order.cont
 import { getStatusByRequestId } from '../integrations/easync/getEasyncOrdedStatus.js';
 import { setLinnworksOrderNote } from '../integrations/linnworks.js';
 import { LINNW_INTEGRATION_TYPE } from '../models/product.model.js';
+import moment from 'moment'
 import { Log } from '../models/logs.model.js';
 
-export const ServiceOrderChecker = cron.schedule('0 */10 * * * *',  async () => {
+let currentMinuts;
+
+export const ServiceOrderChecker = cron.schedule('0,10,20,30,40,50 */1 * * * *',  async () => {
+    const minutes = moment(new Date()).format('m');
+    if (currentMinuts === minutes) {
+            return;
+            
+        }
+     currentMinuts = minutes;    
     console.log('-------------------------');
     console.log("Cron job request");
     console.log('-------------------------');
@@ -54,29 +63,27 @@ export const ServiceOrderChecker = cron.schedule('0 */10 * * * *',  async () => 
         ) {
             const { orderId } = order['integrationData'][LINNW_INTEGRATION_TYPE];
 
-            if (!orderId) {
-                continue;
-            }
+            if ( orderId) {
+                const integration = IntegrationUtil.getIntegrationByType(account, LINNW_INTEGRATION_TYPE);
 
-            const integration = IntegrationUtil.getIntegrationByType(account, LINNW_INTEGRATION_TYPE);
-
-            if (!integration.session) {
-                const linnworksSession = await makeLinnworksAPISession(
-                    integration.appId,
-                    config.get("LINNW_APP_SECRET"),
-                    integration.credentials && integration.credentials.get("INSTALL_TOKEN")
+                if (!integration.session) {
+                    const linnworksSession = await makeLinnworksAPISession(
+                        integration.appId,
+                        config.get("LINNW_APP_SECRET"),
+                        integration.credentials && integration.credentials.get("INSTALL_TOKEN")
+                    );
+    
+                    integration.session = linnworksSession;
+    
+                    await account.save();
+                }
+    
+                setLinnworksOrderNote(
+                    integration.session.Token,
+                    orderId,
+                    requestId
                 );
-
-                integration.session = linnworksSession;
-
-                await account.save();
             }
-
-            setLinnworksOrderNote(
-                integration.session.Token,
-                orderId,
-                requestId
-            );
         }
 
         await updateOrderById(order._id, newValue);
