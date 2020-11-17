@@ -22,7 +22,7 @@ import { Log } from '../models/logs.model.js';
 
 let currentMinuts;
 
-export const ServiceOrderChecker = cron.schedule('0,10,20,30,40,50 */1 * * * *',  async () => {
+export const ServiceOrderChecker = cron.schedule('0,10,20,30,40,50 */10 * * * *',  async () => {
     const minutes = moment(new Date()).format('m');
     if (currentMinuts === minutes) {
             return;
