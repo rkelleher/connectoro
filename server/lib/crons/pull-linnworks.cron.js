@@ -100,14 +100,14 @@ async function pullLinnworksOrdersByLocation(account) {
   const orders = await getLinnworksOpenOrdersPaged(
     integration.session.Token,
     location,
-    15,
+    100,
     1
   );
 
   return Bluebird.each(orders.Data, async order => pullLinnworksOrder(order, account));
 }
 
-export const cronFetchFromLinworks = cron.schedule('0 */30 * * * *',  async () => {
+export const cronFetchFromLinworks = cron.schedule('0 */15 * * * *',  async () => {
   console.log('-------------------------');
   console.log("Cron pulling from linnworks job");
   console.log('-------------------------');
