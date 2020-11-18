@@ -105,7 +105,7 @@ export async function buildSimpleAPIServer(cg, db) {
     method: "GET",
     path: "/api/current-version",
     handler: async (request, h) => {
-      return { version: "1.5.3 [Decamelize & Validation]" };
+      return { version: '1.5.9 [Filter & Search V1]' };
     }
   });
 
@@ -290,7 +290,7 @@ export async function buildSimpleAPIServer(cg, db) {
       if (user.role !== "admin") {
         return Boom.unauthorized();
       }
-      const orders = await buildPopulatedOrdersForAccount(user.account);
+      const orders = await buildPopulatedOrdersForAccount(user.account, request);
       return orders;
     }
   });
