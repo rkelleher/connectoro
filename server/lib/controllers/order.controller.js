@@ -134,8 +134,9 @@ export async function buildPopulatedOrdersForAccount(accountId ,request) {
   let status;
   let tracking;
   let date = {};
+  let search;
   const reqQuery = {...request.query}
-  console.log(reqQuery, reqQuery.rangeDate);
+  console.log(reqQuery, reqQuery.search);
   switch (reqQuery.status) {
     case 'complete':
       status = {'easyncOrderStatus.status': "complete"}
@@ -144,7 +145,7 @@ export async function buildPopulatedOrdersForAccount(accountId ,request) {
       status = {'easyncOrderStatus.status': "open"}
       break;
     case 'error':
-      status = {'easyncOrderStatus.status': "open"}
+      status = {'easyncOrderStatus.status': "error"}
       break;
     default:
       status = {}
@@ -173,8 +174,19 @@ export async function buildPopulatedOrdersForAccount(accountId ,request) {
     // date = { $and: [{"createdDate" : {"$gt": new Date(reqQuery.rangeDate)}}, {"createdDate" : {"$lt": new Date(time)}}]}
     date = {"createdDate" : {"$gte": new Date(reqQuery.rangeDate)}}
   }
+
+  if (reqQuery.search) {
+    search = {$text: { $search: reqQuery.search }}
+  } else {
+    search = {}
+  }
+
   let tryThis = { createdDate: -1 };
   const orders = await Order.aggregate([
+    {
+        $match: 
+          search
+    },
     {
       $match: {
         accountId: mongoose.Types.ObjectId(accountId)
@@ -194,7 +206,7 @@ export async function buildPopulatedOrdersForAccount(accountId ,request) {
     {
       $match:
       date
-    }
+    },
   ]).sort(tryThis).limit(100);
   orders.forEach(moveProductDataIntoOrderProducts);
   return orders;

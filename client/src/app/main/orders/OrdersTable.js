@@ -18,8 +18,8 @@ import {
     closeDialog,
     openDialog
 } from "app/store/actions";
-import { VpnKey,  CheckCircle, QueryBuilder, Warning } from "@material-ui/icons";
-import { FuseScrollbars } from "@fuse";
+import { VpnKey,  CheckCircle, QueryBuilder, Warning, SignalCellularNull } from "@material-ui/icons";
+import { FuseScrollbars, FuseLoading } from "@fuse";
 import { withRouter } from "react-router-dom";
 import _ from "@lodash";
 import OrdersTableHead from "./OrdersTableHead";
@@ -32,6 +32,7 @@ import shipping from "../../../app/assets/icons/shipping.svg"
 import './OrderTable.css';
 
 function OrdersTable(props) {
+    const isFetching = useSelector(({ orders }) => orders.isFetching);
     const dispatch = useDispatch();
     const orders = useSelector(({ orders }) => orders.data);
 
@@ -44,9 +45,9 @@ function OrdersTable(props) {
         id: 'createdDate'
     });
 
-    useEffect(() => {
-        dispatch(Actions.getOrders());
-    }, [dispatch]);
+    // useEffect(() => {
+    //     dispatch(Actions.getOrders());
+    // }, [dispatch]);
 
     useEffect(() => {
         setData(orders);
@@ -110,7 +111,9 @@ function OrdersTable(props) {
         setRowsPerPage(event.target.value);
     }
 
-    return (
+    return isFetching ? (
+        <FuseLoading/>
+    ) : (
         <div className="w-full flex flex-col">
             <FuseScrollbars className="flex-grow overflow-x-auto">
                 <Table className="min-w-xl order-table" aria-labelledby="tableTitle" stickyHeader aria-label="sticky table">
@@ -308,7 +311,7 @@ function OrdersTable(props) {
                                             >
                                                 <div className="flex flex-col">
                                                 <p>Total: {'£' + (data.total_price/100)}</p>
-                                                <p>SKU: {n.orderProducts[0].product.SKU + ' QTY: ' + n.orderProducts[0].quantity}</p>
+                                                <p>SKU: {n.orderProducts[0] ? n.orderProducts[0].product.SKU + ' QTY: ' + n.orderProducts[0].quantity : null}</p>
                                                 </div>
                                                 {}
                                             </TableCell>
@@ -343,6 +346,7 @@ function OrdersTable(props) {
                                                 component="th"
                                                 scope="row"
                                                 className="p8"
+                                                style={{width : "255px"}}
                                             >
                                                 <div>
                                                     <Tooltip title ="Send Order Via Easync">
@@ -414,7 +418,7 @@ function OrdersTable(props) {
                                                     </Tooltip>
                                                 </div>
                                                 <form noValidate autoComplete="off">
-                                                    <TextField id="outlined-basic" label="Notes" variant="outlined" size="small" className="w-full mt-8"/>
+                                                    <TextField label="Notes" variant="outlined" size="small" className="w-full mt-8"/>
                                                 </form>
                                             </TableCell>
                                         </TableRow>
