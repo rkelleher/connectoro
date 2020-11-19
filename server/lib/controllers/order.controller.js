@@ -135,6 +135,7 @@ export async function buildPopulatedOrdersForAccount(accountId ,request) {
   let tracking;
   let date = {};
   let search;
+  let limit;
   const reqQuery = {...request.query}
   console.log(reqQuery, reqQuery.search);
   switch (reqQuery.status) {
@@ -166,12 +167,11 @@ export async function buildPopulatedOrdersForAccount(accountId ,request) {
       break;
   }
   if (reqQuery.startDate) {
-    date = { $and: [{"createdDate" : {"$gte": new Date(reqQuery.startDate)}}, {"createdDate" : {"$lte": new Date(reqQuery.endDate)}}]};
+    let correctDate = moment(reqQuery.endDate).add(1, 'days');
+    date = { $and: [{"createdDate" : {"$gte": new Date(reqQuery.startDate)}}, {"createdDate" : {"$lt": new Date(correctDate)}}]};
   } 
 
   if (reqQuery.rangeDate) {
-    let time = moment().format('YYYY-MM-DD');
-    // date = { $and: [{"createdDate" : {"$gt": new Date(reqQuery.rangeDate)}}, {"createdDate" : {"$lt": new Date(time)}}]}
     date = {"createdDate" : {"$gte": new Date(reqQuery.rangeDate)}}
   }
 
@@ -181,33 +181,21 @@ export async function buildPopulatedOrdersForAccount(accountId ,request) {
     search = {}
   }
 
+  if (reqQuery.limit) {
+    limit = reqQuery.limit;
+  } else {
+    limit = 100;
+  }
+
   let tryThis = { createdDate: -1 };
   const orders = await Order.aggregate([
     {
-        $match: 
-          search
-    },
-    {
-      $match: {
-        accountId: mongoose.Types.ObjectId(accountId)
-      }
+      $match: { $and: [search, {accountId: mongoose.Types.ObjectId(accountId)}, tracking, status, date]}
     },
     {
       $lookup: orderProductJoinProductLookup
     },
-    {
-      $match: 
-        status
-    },
-    {
-      $match: 
-        tracking
-    },
-    {
-      $match:
-      date
-    },
-  ]).sort(tryThis).limit(100);
+  ]).sort(tryThis).limit(limit);
   orders.forEach(moveProductDataIntoOrderProducts);
   return orders;
 }

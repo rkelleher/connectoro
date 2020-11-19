@@ -9,82 +9,96 @@ import {
   } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
 import moment from 'moment';
+import { usePrevious } from "@fuse/hooks";
 import { useDispatch, useSelector } from "react-redux";
 
 function OrdersHeader(props) {
     const dispatch = useDispatch();
     const [startDate, setStartDate] = React.useState(moment().format('YYYY-MM-DD'));
     const [endDate, setEndDate] = React.useState(moment().format('YYYY-MM-DD'));
-    const [range, setRange] = React.useState(0);
+    const [range, setRange] = React.useState(moment().format('YYYY-MM-DD'));
     const [searchText, setSearchText] = React.useState('');
     const mainTheme = useSelector(({fuse}) => fuse.settings.mainTheme);
+    const statusOrder = useSelector(({ orders }) => orders.status);
+    const trackingOrder = useSelector(({ orders }) => orders.tracking);
     const params = {
-        rangeDate : null, 
+        rangeDate : moment().format('YYYY-MM-DD'), 
         startDate: null, 
-        endDate: endDate,
+        endDate: null,
         search: searchText,
+        status: statusOrder,
+        tracking: trackingOrder,
     };
 
     useEffect(() => {
+        if (searchText.length> 2) {
         const timeOutId = setTimeout(() => {
-            getOrders();
-            console.log('search');
+            params.rangeDate = null;
+            params.startDate = null;
+            params.endDate = null;
+            params.status = null;
+            params.tracking = null;
+            dispatch(Actions.getOrders(params));
             }, 500);
         return () => clearTimeout(timeOutId);
+        } else {
+            if (searchText.length === 0) {
+                params.rangeDate = moment().format('YYYY-MM-DD');
+                dispatch(Actions.getOrders(params));
+            }
+        }
     }, [searchText]);
-    
-    let rangeDate;
 
-    switch (range) {
-        case 10:
-            rangeDate = moment().subtract(1, 'days').format('YYYY-MM-DD');
-            break;
-        case 20:
-            rangeDate = moment().subtract(3, 'days').format('YYYY-MM-DD');
-            break;
-        case 30:
-            rangeDate = moment().subtract(7, 'days').format('YYYY-MM-DD');
-            break;
-        case 40:
-            rangeDate = moment().subtract(14, 'days').format('YYYY-MM-DD');
-            break;
-        case 50:
-            rangeDate = moment().subtract(30, 'days').format('YYYY-MM-DD');
-            break;
-        default:
-            rangeDate = null;
-            break;
-    }
+    const prevStatus = usePrevious(statusOrder);
+    const prevTracking = usePrevious(trackingOrder);
 
-    if (rangeDate) {
-        params.rangeDate = rangeDate;
-        params.startDate = null;
-        params.endDate = null;
-        dispatch(Actions.getOrders(params));
-        params.rangeDate = null;
-    }
+    useEffect(() => {
+        if (prevStatus !== statusOrder) {
+            if (range !== 0) {
+                params.rangeDate = range;
+            } else {
+                params.rangeDate = null;
+            }
+            dispatch(Actions.getOrders(params));
+        }
+        
+    }, [statusOrder]);
 
-    const getOrders = () => {
-        let correctRange = moment(endDate).add(1, 'days');
-        params.endDate = correctRange
-        dispatch(Actions.getOrders(params));
-        rangeDate = null;
+    useEffect(() => {
+        if (prevTracking !== trackingOrder) {
+            if (range !== 0) {
+                params.rangeDate = range;
+            } else {
+                params.rangeDate = null;
+            }
+            dispatch(Actions.getOrders(params));
+        }
+    }, [trackingOrder]);
+
+    const selectRange = (event) => {
+        params.rangeDate = event.target.value;
+        if (params.rangeDate !== 0) {
+            dispatch(Actions.getOrders(params));
+        }
+        setRange(event.target.value);
     }
 
     const setStart = (date) => {
+        params.rangeDate = null;
         const time = moment(date).format('YYYY-MM-DD');
-        setStartDate(time);
         params.startDate = time;
-        getOrders();
-        setRange(0);
+        params.endDate = endDate;
+        dispatch(Actions.getOrders(params));
+        setStartDate(time);
     }
 
     const setEnd = (date) => {
+        params.rangeDate = null;
         const time = moment(date).format('YYYY-MM-DD');
-        setEndDate(time);
+        params.endDate = time;
         params.startDate = startDate;
-        getOrders();
-        setRange(0);
+        dispatch(Actions.getOrders(params));
+        setEndDate(time);
     }
 
     return (
@@ -117,45 +131,50 @@ function OrdersHeader(props) {
             <div style={{width: "500px"}} className="flex justify-between items-center">
                 <Select
                     value={range}
-                    onChange={(event) => setRange(event.target.value)}
+                    onChange={selectRange}
                     >
-                    <MenuItem value={10}>Last Day</MenuItem>
-                    <MenuItem value={20}>Last 3 days</MenuItem>
-                    <MenuItem value={30}>Last 7 Days</MenuItem>
-                    <MenuItem value={40}>Last 14 Days</MenuItem>
-                    <MenuItem value={50}>Last 30 Days</MenuItem>
+                    <MenuItem value={moment().format('YYYY-MM-DD')}>Last Day</MenuItem>
+                    <MenuItem value={moment().subtract(2, 'days').format('YYYY-MM-DD')}>Last 3 Days</MenuItem>
+                    <MenuItem value={moment().subtract(6, 'days').format('YYYY-MM-DD')}>Last 7 Days</MenuItem>
+                    <MenuItem value={moment().subtract(13, 'days').format('YYYY-MM-DD')}>Last 14 Days</MenuItem>
+                    <MenuItem value={moment().subtract(29, 'days').format('YYYY-MM-DD')}>Last 30 Days</MenuItem>
+                    <MenuItem value={moment().subtract(89, 'days').format('YYYY-MM-DD')}>Last 90 Days</MenuItem>
+                    <MenuItem value={moment().subtract(179, 'days').format('YYYY-MM-DD')}>Last 180 Days</MenuItem>
+                    <MenuItem value={moment().subtract(359, 'days').format('YYYY-MM-DD')}>Last 360 Days</MenuItem>
                     <MenuItem value={0}>Custom Range</MenuItem>
                 </Select>
-                <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                    <KeyboardDatePicker
-                    style={{margin: "0 0 16px 0", width: "145px"}}
-                    disableToolbar
-                    variant="inline"
-                    margin="none"
-                    format="dd/MM/yyyy"
-                    id="date-picker-inline"
-                    label="Start Rang"
-                    value={startDate}
-                    onChange={setStart}
-                    KeyboardButtonProps={{
-                        'aria-label': 'change date',
-                    }}
-                    />
-                    <KeyboardDatePicker
-                    style={{margin: "0 0 16px 0", width : "145px"}}
-                    disableToolbar
-                    variant="inline"
-                    margin="normal"
-                    id="date-picker-inline"
-                    label="End Range"
-                    format="dd/MM/yyyy"
-                    value={endDate}
-                    onChange={setEnd}
-                    KeyboardButtonProps={{
-                        'aria-label': 'change date',
-                    }}
-                    />
+                {(range === 0) ?
+                    <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                        <KeyboardDatePicker
+                        style={{margin: "0 0 16px 0", width: "145px"}}
+                        disableToolbar
+                        variant="inline"
+                        margin="none"
+                        format="dd/MM/yyyy"
+                        id="date-picker-inline"
+                        label="Start Rang"
+                        value={startDate}
+                        onChange={setStart}
+                        KeyboardButtonProps={{
+                            'aria-label': 'change date',
+                        }}
+                        />
+                        <KeyboardDatePicker
+                        style={{margin: "0 0 16px 0", width : "145px"}}
+                        disableToolbar
+                        variant="inline"
+                        margin="normal"
+                        id="date-picker"
+                        label="End Range"
+                        format="dd/MM/yyyy"
+                        value={endDate}
+                        onChange={setEnd}
+                        KeyboardButtonProps={{
+                            'aria-label': 'change date',
+                        }}
+                        />
                 </MuiPickersUtilsProvider>
+                    : null}
             </div>
             <FuseAnimate animation="transition.slideRightIn" delay={300}>
                 <Button

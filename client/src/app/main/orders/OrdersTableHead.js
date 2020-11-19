@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
     TableHead,
     TableSortLabel,
@@ -16,7 +16,6 @@ import {
     Select,
 } from "@material-ui/core";
 import clsx from "clsx";
-import { showMessage } from 'app/store/actions';
 import { makeStyles } from "@material-ui/styles";
 import * as Actions from "app/store/actions";
 import { useDispatch } from "react-redux";
@@ -79,19 +78,15 @@ function OrdersTableHead(props) {
     const [statusOrder, setStatusOrder] = useState('');
     const dispatch = useDispatch();
 
-    useEffect(() => {
-        if (trackingOrder !== '') {
-            dispatch(Actions.setSelector('tracking', trackingOrder));
-            setStatusOrder('');
+    const changeFilter = (event, filter) => {
+        if (filter === 'status') {
+            setStatusOrder(event.target.value);
+            dispatch(Actions.setFilter('status', event.target.value));
+        } else if (filter === 'tracking') {
+            setTrackingOrder(event.target.value);
+            dispatch(Actions.setFilter('tracking', event.target.value));
         }
-    }, [trackingOrder]);
-
-    useEffect(() => {
-        if (statusOrder !== '') {
-            dispatch(Actions.setSelector('status', statusOrder));
-            setTrackingOrder('');
-        }
-    }, [statusOrder]);
+    }
 
     const createSortHandler = property => event => {
         props.onRequestSort(event, property);
@@ -169,10 +164,10 @@ function OrdersTableHead(props) {
                                         className="w-full"
                                         value={trackingOrder}
                                         displayEmpty
-                                        onChange={(event) => setTrackingOrder(event.target.value)}
+                                        onChange={(event) => changeFilter(event, 'tracking')}
                                     >
                                         <MenuItem value='' disabled>Tracking</MenuItem>
-                                        <MenuItem value={'all'}> All Trackings</MenuItem>
+                                        <MenuItem value={0}> All Trackings</MenuItem>
                                         <MenuItem value={'delivered'}>Delivered</MenuItem>
                                         <MenuItem value={'shipping'}>Shipping</MenuItem>
                                         <MenuItem value={'error'}>Error</MenuItem>
@@ -185,10 +180,10 @@ function OrdersTableHead(props) {
                                         className="w-full"
                                         value={statusOrder}
                                         displayEmpty
-                                        onChange={(event) => setStatusOrder(event.target.value)}
+                                        onChange={(event) => changeFilter(event, 'status')}
                                     >
                                         <MenuItem value='' disabled>Status</MenuItem>
-                                        <MenuItem value={'all'}>All Status</MenuItem>
+                                        <MenuItem value={0}>All Status</MenuItem>
                                         <MenuItem value={"open"}>Open</MenuItem>
                                         <MenuItem value={"complete"}>Complete</MenuItem>
                                         <MenuItem value={"error"}>Error</MenuItem>
