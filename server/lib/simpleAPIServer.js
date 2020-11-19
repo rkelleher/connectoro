@@ -105,7 +105,7 @@ export async function buildSimpleAPIServer(cg, db) {
     method: "GET",
     path: "/api/current-version",
     handler: async (request, h) => {
-      return { version: '1.5.9 [Filter & Search V1]' };
+      return { version: '1.5.9.1 [Filter & Search V1 fix UI]' };
     }
   });
 

@@ -163,7 +163,7 @@ function OrdersTableHead(props) {
                 </TableCell>
                 {rows.map(row => {
                     if (row.id === 'tracking') {
-                        return (<TableCell key={2}>
+                        return (<TableCell key={2} className="p8">
                                     <Select
                                         className="w-full"
                                         value={trackingOrder}
@@ -179,7 +179,7 @@ function OrdersTableHead(props) {
                                 </TableCell>)
                     }
                     else if (row.id === 'status') {
-                        return (<TableCell key={3}>
+                        return (<TableCell key={3} className="p8">
                                     <Select
                                         className="w-full"
                                         value={statusOrder}
