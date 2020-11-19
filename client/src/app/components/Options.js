@@ -101,7 +101,6 @@ export function Options({
                                 errors.push(key);
                             }
                         }
-                        console.log(form.firstName);
                         return (
                             <Grid item xs={6} sm={smCol} key={key}>
                                 <Option

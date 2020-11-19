@@ -18,10 +18,9 @@ import {
     closeDialog,
     openDialog
 } from "app/store/actions";
-import { VpnKey,  CheckCircle, QueryBuilder, Warning, SignalCellularNull } from "@material-ui/icons";
+import { VpnKey,  CheckCircle, QueryBuilder, Warning } from "@material-ui/icons";
 import { FuseScrollbars, FuseLoading } from "@fuse";
 import { withRouter } from "react-router-dom";
-import _ from "@lodash";
 import OrdersTableHead from "./OrdersTableHead";
 import * as Actions from "app/store/actions";
 import { useDispatch, useSelector } from "react-redux";
@@ -35,7 +34,6 @@ function OrdersTable(props) {
     const isFetching = useSelector(({ orders }) => orders.isFetching);
     const dispatch = useDispatch();
     const orders = useSelector(({ orders }) => orders.data);
-
     const [selected, setSelected] = useState([]);
     const [data, setData] = useState(orders);
     const [page, setPage] = useState(0);
@@ -200,6 +198,7 @@ function OrdersTable(props) {
                                         }
 
                                     }
+
                                     let icon;
                                     if (n.easyncOrderStatus) {
                                         data.easyncOrderStatus = n.easyncOrderStatus.status;
@@ -222,6 +221,12 @@ function OrdersTable(props) {
                                             default:
                                                 icon = null;
                                         }
+                                        const { request } = n.easyncOrderStatus;
+                                        if (request) {
+                                        if (request.merchant_order_ids && request.merchant_order_ids.length) {
+                                            data.retailerOrderID = request.merchant_order_ids[0].merchant_order_id;
+                                        }
+                                    }
                                     }
                                     const { EASYNC, LINNW} = n.integrationData;
                                     if (LINNW) {
@@ -248,12 +253,7 @@ function OrdersTable(props) {
                                             data.country = n.shippingAddress.countryName;
                                         }
                                     }
-                                    const { request } = n.easyncOrderStatus;
-                                    if (request) {
-                                        if (request.merchant_order_ids && request.merchant_order_ids.length) {
-                                            data.retailerOrderID = request.merchant_order_ids[0].merchant_order_id;
-                                        }
-                                    }
+                                    
                                     const key = true;
                                     return (
                                         <TableRow
@@ -311,7 +311,7 @@ function OrdersTable(props) {
                                             >
                                                 <div className="flex flex-col">
                                                 <p>Total: {'£' + (data.total_price/100)}</p>
-                                                <p>SKU: {n.orderProducts[0] ? n.orderProducts[0].product.SKU + ' QTY: ' + n.orderProducts[0].quantity : null}</p>
+                                                <p>SKU: {(n.orderProducts[0] && n.orderProducts[0].product) ? n.orderProducts[0].product.SKU + ' QTY: ' + n.orderProducts[0].quantity : null}</p>
                                                 </div>
                                                 {}
                                             </TableCell>

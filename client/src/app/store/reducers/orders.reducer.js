@@ -3,7 +3,9 @@ import * as Actions from '../actions';
 const initialState = {
     data      : [],
     searchText: '',
-    isFetching: false
+    isFetching: false,
+    status: null,
+    tracking: null,
 };
 
 const ordersReducer = function (state = initialState, action) {
@@ -22,6 +24,20 @@ const ordersReducer = function (state = initialState, action) {
             return {
                 ...state,
                 isFetching: true,
+            };
+        }
+        case Actions.SET_STATUS_ORDER:
+        {
+            return {
+                ...state,
+                status: action.payload,
+            };
+        }
+        case Actions.SET_TRACKING_ORDER:
+        {
+            return {
+                ...state,
+                tracking: action.payload,
             };
         }
         default:
