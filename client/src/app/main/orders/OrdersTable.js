@@ -317,6 +317,7 @@ function OrdersTable(props) {
                                             </TableCell>
 
                                             <TableCell
+                                                style={{width : "220px"}}
                                                 component="th"
                                                 scope="row"
                                                 className="status p8"
@@ -329,6 +330,7 @@ function OrdersTable(props) {
                                                 </div>
                                             </TableCell>
                                             <TableCell
+                                                style={{width : "220px"}}
                                                 component="th"
                                                 scope="row"
                                                 className="p8"

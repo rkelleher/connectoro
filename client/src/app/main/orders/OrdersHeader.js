@@ -88,8 +88,12 @@ function OrdersHeader(props) {
     }
 
     return (
-        <div className="flex flex-col w-full">
-            <div className="flex justify-center">
+        <div className="flex flex-1 w-full items-center justify-between">
+            <FuseAnimate animation="transition.slideLeftIn" delay={300}>
+                <Typography className="hidden sm:flex" variant="h6">
+                    Orders
+                </Typography>
+            </FuseAnimate>
             <ThemeProvider theme={mainTheme}>
                     <FuseAnimate animation="transition.slideDownIn" delay={300}>
                         <Paper className="flex items-center w-full max-w-512 px-8 py-4 rounded-8" elevation={1}>
@@ -110,65 +114,57 @@ function OrdersHeader(props) {
                         </Paper>
                     </FuseAnimate>
                 </ThemeProvider>
-            </div>
-            <div className="flex flex-1 w-full items-center justify-between">
-                <FuseAnimate animation="transition.slideLeftIn" delay={300}>
-                    <Typography className="hidden sm:flex" variant="h6">
-                        Orders
-                    </Typography>
-                </FuseAnimate>
-                <div style={{width: "800px"}} className="flex justify-between items-center">
-                    <Select
-                        value={range}
-                        onChange={(event) => setRange(event.target.value)}
-                        >
-                        <MenuItem value={10}>Last Day</MenuItem>
-                        <MenuItem value={20}>Last 3 days</MenuItem>
-                        <MenuItem value={30}>Last 7 Days</MenuItem>
-                        <MenuItem value={40}>Last 14 Days</MenuItem>
-                        <MenuItem value={50}>Last 30 Days</MenuItem>
-                        <MenuItem value={0}>Custom Range</MenuItem>
-                    </Select>
-                    <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                        <KeyboardDatePicker
-                        style={{margin: "0 0 16px 0"}}
-                        disableToolbar
-                        variant="inline"
-                        margin="none"
-                        format="dd/MM/yyyy"
-                        id="date-picker-inline"
-                        label="Start Rang"
-                        value={startDate}
-                        onChange={setStart}
-                        KeyboardButtonProps={{
-                            'aria-label': 'change date',
-                        }}
-                        />
-                        <KeyboardDatePicker
-                        style={{margin: "0 0 16px 0"}}
-                        disableToolbar
-                        variant="inline"
-                        margin="normal"
-                        id="date-picker-inline"
-                        label="End Range"
-                        format="dd/MM/yyyy"
-                        value={endDate}
-                        onChange={setEnd}
-                        KeyboardButtonProps={{
-                            'aria-label': 'change date',
-                        }}
-                        />
-                    </MuiPickersUtilsProvider>
-                </div>
-                <FuseAnimate animation="transition.slideRightIn" delay={300}>
-                    <Button
-                        variant="contained"
-                        onClick={() => dispatch(Actions.createOrder())}
+            <div style={{width: "500px"}} className="flex justify-between items-center">
+                <Select
+                    value={range}
+                    onChange={(event) => setRange(event.target.value)}
                     >
-                        Create Order
-                    </Button>
-                </FuseAnimate>
+                    <MenuItem value={10}>Last Day</MenuItem>
+                    <MenuItem value={20}>Last 3 days</MenuItem>
+                    <MenuItem value={30}>Last 7 Days</MenuItem>
+                    <MenuItem value={40}>Last 14 Days</MenuItem>
+                    <MenuItem value={50}>Last 30 Days</MenuItem>
+                    <MenuItem value={0}>Custom Range</MenuItem>
+                </Select>
+                <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                    <KeyboardDatePicker
+                    style={{margin: "0 0 16px 0", width: "145px"}}
+                    disableToolbar
+                    variant="inline"
+                    margin="none"
+                    format="dd/MM/yyyy"
+                    id="date-picker-inline"
+                    label="Start Rang"
+                    value={startDate}
+                    onChange={setStart}
+                    KeyboardButtonProps={{
+                        'aria-label': 'change date',
+                    }}
+                    />
+                    <KeyboardDatePicker
+                    style={{margin: "0 0 16px 0", width : "145px"}}
+                    disableToolbar
+                    variant="inline"
+                    margin="normal"
+                    id="date-picker-inline"
+                    label="End Range"
+                    format="dd/MM/yyyy"
+                    value={endDate}
+                    onChange={setEnd}
+                    KeyboardButtonProps={{
+                        'aria-label': 'change date',
+                    }}
+                    />
+                </MuiPickersUtilsProvider>
             </div>
+            <FuseAnimate animation="transition.slideRightIn" delay={300}>
+                <Button
+                    variant="contained"
+                    onClick={() => dispatch(Actions.createOrder())}
+                >
+                    Create Order
+                </Button>
+            </FuseAnimate>
         </div>
     );
 }
