@@ -574,7 +574,7 @@ export async function buildSimpleAPIServer(cg, db) {
       const userId = request.headers.authenticatedUserId;
       const user = await getUser(userId);
       if (user.role !== "admin") {
-        return { version: '1.5.2 [DELETE EASYNC WEBHOOKS]' };
+        return Boom.unauthorized();
       }
       const products = getProductsForAccount(user.account);
       return products;
