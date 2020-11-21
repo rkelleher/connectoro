@@ -85,6 +85,15 @@ export async function buildSimpleAPIServer(cg, db) {
 
   server.app.db = db;
 
+  // Get current version
+  server.route({
+    method: "GET",
+    path: "/api/try-cron",
+    handler: async (request, h) => {
+      return { version: 'should work well' };
+    }
+  });
+
   await server.register(hapiJWT);
 
   const JWT_SECRET = cg("JWT_SECRET");
