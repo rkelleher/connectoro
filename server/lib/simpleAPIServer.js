@@ -105,9 +105,11 @@ export async function buildSimpleAPIServer(cg, db) {
     method: "GET",
     path: "/api/current-version",
     handler: async (request, h) => {
-      if(request.headers["X-Appengine-Cron"]){return { version: 'CRON JOB' };}
+      if (user.role !== "admin" && request.get("X-Appengine-Cron")) {
+        return { version: '1.5.2 [DELETE EASYNC WEBHOOKS]' };
+      }
       else{
-         return { version: '1.5.2 [DELETE EASYNC WEBHOOKS]' };
+        return { version: '1.5.2 [DELETE EASYNC WEBHOOKS]' };
       }
     }
   });
