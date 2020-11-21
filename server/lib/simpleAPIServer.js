@@ -89,6 +89,9 @@ export async function buildSimpleAPIServer(cg, db) {
   server.route({
     method: "GET",
     path: "/api/try-cron",
+    options: {
+      auth: false
+    },
     handler: async (request, h) => {
       return { version: 'should work well' };
     }
