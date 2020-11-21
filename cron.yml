@@ -1,13 +1,7 @@
 cron:
   - description: "Cron schedule"
-    url: /api/current-version
-    schedule: every 4 mins
+    url: /api/try-cron
+    schedule: every 9 mins
     retry_parameters:
       min_backoff_seconds: 2.5
       max_doublings: 5
-  - description: "Cron schedule"
-    url: /login
-    schedule: every 4 mins
-  - description: "Cron schedule"
-    url: /api/current-version
-    schedule: every 4 mins

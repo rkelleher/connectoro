@@ -85,7 +85,7 @@ export async function buildSimpleAPIServer(cg, db) {
 
   server.app.db = db;
 
-  // Get current version
+  // Don't delete this route, any way.
   server.route({
     method: "GET",
     path: "/api/try-cron",
@@ -93,7 +93,7 @@ export async function buildSimpleAPIServer(cg, db) {
       auth: false
     },
     handler: async (request, h) => {
-      return { version: 'should work well' };
+      return { version: 'Cron is runnig!' };
     }
   });
 
