@@ -16,18 +16,24 @@ function OrdersHeader(props) {
     const dispatch = useDispatch();
     const [startDate, setStartDate] = React.useState(moment().format('YYYY-MM-DD'));
     const [endDate, setEndDate] = React.useState(moment().format('YYYY-MM-DD'));
-    const [range, setRange] = React.useState(moment().format('YYYY-MM-DD'));
+    const [range, setRange] = React.useState(1);
     const [searchText, setSearchText] = React.useState('');
     const mainTheme = useSelector(({fuse}) => fuse.settings.mainTheme);
     const statusOrder = useSelector(({ orders }) => orders.status);
     const trackingOrder = useSelector(({ orders }) => orders.tracking);
+    const direction = useSelector(({ orders }) => orders.direction);
+    const page = useSelector(({ orders }) => orders.page);
+    const rowsPerPage = useSelector(({ orders }) => orders.rowsPerPage);
     const params = {
-        rangeDate : moment().format('YYYY-MM-DD'), 
+        rangeDate : null, 
         startDate: null, 
         endDate: null,
         search: searchText,
         status: statusOrder,
         tracking: trackingOrder,
+        direction: direction || 'dsc',
+        page: page,
+        limit: rowsPerPage,
     };
 
     useEffect(() => {
@@ -38,12 +44,13 @@ function OrdersHeader(props) {
             params.endDate = null;
             params.status = null;
             params.tracking = null;
+            params.page = null;
+            params.limit = null;
             dispatch(Actions.getOrders(params));
             }, 500);
         return () => clearTimeout(timeOutId);
         } else {
             if (searchText.length === 0) {
-                params.rangeDate = moment().format('YYYY-MM-DD');
                 dispatch(Actions.getOrders(params));
             }
         }
@@ -51,6 +58,9 @@ function OrdersHeader(props) {
 
     const prevStatus = usePrevious(statusOrder);
     const prevTracking = usePrevious(trackingOrder);
+    const prevDirection = usePrevious(direction);
+    const prevRowsPerPage = usePrevious(rowsPerPage);
+    const prevPage = usePrevious(page);
 
     useEffect(() => {
         if (prevStatus !== statusOrder) {
@@ -66,7 +76,7 @@ function OrdersHeader(props) {
 
     useEffect(() => {
         if (prevTracking !== trackingOrder) {
-            if (range !== 0) {
+            if ((range !== 0 ) && (range !== 1)) {
                 params.rangeDate = range;
             } else {
                 params.rangeDate = null;
@@ -74,6 +84,27 @@ function OrdersHeader(props) {
             dispatch(Actions.getOrders(params));
         }
     }, [trackingOrder]);
+
+    useEffect(() => {
+        if (prevDirection !== direction) {
+            params.direction = direction;
+            dispatch(Actions.getOrders(params));
+        }
+    }, [direction]);
+
+    useEffect(() => {
+        if (prevRowsPerPage !== rowsPerPage) {
+            params.limit = rowsPerPage;
+            dispatch(Actions.getOrders(params));
+        }
+    }, [rowsPerPage]);
+
+    useEffect(() => {
+        if (prevPage !== page) {
+            params.page = page;
+            dispatch(Actions.getOrders(params));
+        }
+    }, [page]);
 
     const selectRange = (event) => {
         params.rangeDate = event.target.value;
@@ -102,7 +133,7 @@ function OrdersHeader(props) {
     }
 
     return (
-        <div className="flex flex-1 w-full items-center justify-between">
+        <div className="flex flex-1 w-full items-center">
             <FuseAnimate animation="transition.slideLeftIn" delay={300}>
                 <Typography className="hidden sm:flex" variant="h6">
                     Orders
@@ -110,7 +141,7 @@ function OrdersHeader(props) {
             </FuseAnimate>
             <ThemeProvider theme={mainTheme}>
                     <FuseAnimate animation="transition.slideDownIn" delay={300}>
-                        <Paper className="flex items-center w-full max-w-512 px-8 py-4 rounded-8" elevation={1}>
+                        <Paper className="flex items-center w-full max-w-512 px-8 py-4 rounded-8 mx-20" elevation={1}>
 
                             <Icon className="mr-8" color="action">search</Icon>
 
@@ -128,11 +159,12 @@ function OrdersHeader(props) {
                         </Paper>
                     </FuseAnimate>
                 </ThemeProvider>
-            <div style={{width: "500px"}} className="flex justify-between items-center">
+            <div style={{width: "465px"}} className="flex justify-between items-center">
                 <Select
                     value={range}
                     onChange={selectRange}
                     >
+                    <MenuItem value={1}>All Dates</MenuItem>
                     <MenuItem value={moment().format('YYYY-MM-DD')}>Last Day</MenuItem>
                     <MenuItem value={moment().subtract(2, 'days').format('YYYY-MM-DD')}>Last 3 Days</MenuItem>
                     <MenuItem value={moment().subtract(6, 'days').format('YYYY-MM-DD')}>Last 7 Days</MenuItem>
@@ -180,6 +212,7 @@ function OrdersHeader(props) {
                 <Button
                     variant="contained"
                     onClick={() => dispatch(Actions.createOrder())}
+                    className="ml-auto"
                 >
                     Create Order
                 </Button>

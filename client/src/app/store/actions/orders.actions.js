@@ -5,12 +5,15 @@ import qs from 'qs';
 export const GET_ORDERS = "[ORDERS] GET ORDERS";
 export const GOT_ORDERS = "[ORDERS] GOT ORDERS";
 export const SET_STATUS_ORDER = "[ORDERS] SET STATUS ORDER";
-export const SET_TRACKING_ORDER = "[ORDERS] SET_ RACKING ORDER";
+export const SET_TRACKING_ORDER = "[ORDERS] SET_TRACKING ORDER";
+export const SET_DIRECTION = "[ORDERS] SET_DIRECTION ORDER";
+export const SET_PAGE = "[ORDERS] SET_PAGE ORDER";
+export const SET_ROWS_PER_PAGE = "[ORDERS] ROWS_PER_PAGE ORDER";
+
 
 export function getOrders(params) {
     let result = {};
     Object.keys(params).forEach((key) => { if ((params[key])) result[key] = params[key]; })
-    console.log(result);
     const request = axios.get('/api/orders', {
         params: {
         ...result
@@ -49,6 +52,33 @@ export function setFilter (field,value) {
                 payload: value, 
             })
         }
+    }
+}
+
+export function setDirection (direction) {
+    return dispatch => {
+        return dispatch({
+            type: SET_DIRECTION,
+            payload: direction,
+        })
+    }
+}
+
+export function setPageNumber(number) {
+    return dispatch => {
+        return dispatch({
+            type: SET_PAGE,
+            payload: number,
+        })
+    }
+}
+
+export function setRowsOnPage(number) {
+    return dispatch => {
+        return dispatch({
+            type: SET_ROWS_PER_PAGE,
+            payload: number,
+        })
     }
 }
 
