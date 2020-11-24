@@ -136,8 +136,9 @@ export async function buildPopulatedOrdersForAccount(accountId ,request) {
   let date = {};
   let search;
   let limit;
+  let direction;
+  let skip;
   const reqQuery = {...request.query}
-  console.log(reqQuery, reqQuery.search);
   switch (reqQuery.status) {
     case 'complete':
       status = {'easyncOrderStatus.status': "complete"}
@@ -182,12 +183,26 @@ export async function buildPopulatedOrdersForAccount(accountId ,request) {
   }
 
   if (reqQuery.limit) {
-    limit = reqQuery.limit;
+    limit = Number(reqQuery.limit);
   } else {
     limit = 100;
   }
 
-  let tryThis = { createdDate: -1 };
+  if (reqQuery.page) {
+    skip = Number(reqQuery.page) * limit
+  } else {
+    skip = 0;
+  }
+
+  if (reqQuery.direction) {
+    if(reqQuery.direction === 'dsc') {
+      direction = { createdDate: -1 };
+    }
+    else {
+      direction = { createdDate: 1 };
+    }
+  } 
+    
   const orders = await Order.aggregate([
     {
       $match: { $and: [search, {accountId: mongoose.Types.ObjectId(accountId)}, tracking, status, date]}
@@ -195,9 +210,19 @@ export async function buildPopulatedOrdersForAccount(accountId ,request) {
     {
       $lookup: orderProductJoinProductLookup
     },
-  ]).sort(tryThis).limit(limit);
+  ]).sort(direction).skip(skip).limit(limit);
+
+  const ordersWithOutLimit = await Order.aggregate([
+    {
+      $match: { $and: [search, {accountId: mongoose.Types.ObjectId(accountId)}, tracking, status, date]}
+    },
+    {
+      $lookup: orderProductJoinProductLookup
+    },
+  ]).sort(direction);
+  let count = ordersWithOutLimit.length;
   orders.forEach(moveProductDataIntoOrderProducts);
-  return orders;
+  return {orders, count};
 }
 
 export async function buildPopulatedOrder(orderId) {

@@ -76,6 +76,7 @@ function OrdersTableHead(props) {
     const [selectedOrdersMenu, setSelectedOrdersMenu] = useState(null);
     const [trackingOrder, setTrackingOrder] = useState('');
     const [statusOrder, setStatusOrder] = useState('');
+    const [ordersDirection, setOrdersDirections] = useState('asc');
     const dispatch = useDispatch();
 
     const changeFilter = (event, filter) => {
@@ -89,7 +90,15 @@ function OrdersTableHead(props) {
     }
 
     const createSortHandler = property => event => {
-        props.onRequestSort(event, property);
+        if (property === 'createdDate') {
+            props.onRequestSort(event, property);
+            if (ordersDirection === 'asc') {
+                setOrdersDirections('dsc');
+            } else {
+                setOrdersDirections('asc');
+            }
+            dispatch(Actions.setDirection(ordersDirection));
+        }
     };
 
     function openSelectedOrdersMenu(event) {
