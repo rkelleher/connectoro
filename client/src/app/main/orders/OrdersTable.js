@@ -35,10 +35,12 @@ function OrdersTable(props) {
     const dispatch = useDispatch();
     const count = useSelector(({ orders }) => orders.count);
     const orders = useSelector(({ orders }) => orders.data);
+    const pageNumber = useSelector(({ orders }) => orders.page);
+    const ordersNumber = useSelector(({ orders }) => orders.rowsPerPage);
     const [selected, setSelected] = useState([]);
     const [data, setData] = useState(orders);
-    const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(100);
+    const [page, setPage] = useState((pageNumber-1) || 0);
+    const [rowsPerPage, setRowsPerPage] = useState(ordersNumber || 100);
     const [order, setOrder] = useState({
         direction: "desc",
         id: 'createdDate'
@@ -125,6 +127,7 @@ function OrdersTable(props) {
                     />
                     
                     {isFetching ?  <FuseLoading/> :
+                    (count === 0) ? <p className="flex absolute w-full h-full justify-center items-center text-7xl" style={{fontSize: "4.5rem"}}>Not found</p> :  
                     <TableBody>
                     {data 
                     // &&

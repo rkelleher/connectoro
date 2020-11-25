@@ -14,112 +14,212 @@ import { useDispatch, useSelector } from "react-redux";
 
 function OrdersHeader(props) {
     const dispatch = useDispatch();
+    const paramsState = useSelector(({ orders }) => orders.paramsState);
     const [startDate, setStartDate] = React.useState(moment().format('YYYY-MM-DD'));
     const [endDate, setEndDate] = React.useState(moment().format('YYYY-MM-DD'));
-    const [range, setRange] = React.useState(1);
-    const [searchText, setSearchText] = React.useState('');
+    const [range, setRange] = React.useState(0);
+    const [searchText, setSearchText] = React.useState();
     const mainTheme = useSelector(({fuse}) => fuse.settings.mainTheme);
     const statusOrder = useSelector(({ orders }) => orders.status);
     const trackingOrder = useSelector(({ orders }) => orders.tracking);
     const direction = useSelector(({ orders }) => orders.direction);
     const page = useSelector(({ orders }) => orders.page);
     const rowsPerPage = useSelector(({ orders }) => orders.rowsPerPage);
-    const params = {
-        rangeDate : null, 
-        startDate: null, 
-        endDate: null,
-        search: searchText,
-        status: statusOrder,
-        tracking: trackingOrder,
-        direction: direction || 'dsc',
-        page: page,
-        limit: rowsPerPage,
-    };
-
-    useEffect(() => {
-        if (searchText.length> 2) {
-        const timeOutId = setTimeout(() => {
-            params.rangeDate = null;
-            params.startDate = null;
-            params.endDate = null;
-            params.status = null;
-            params.tracking = null;
-            params.page = null;
-            params.limit = null;
-            dispatch(Actions.getOrders(params));
-            }, 500);
-        return () => clearTimeout(timeOutId);
-        } else {
-            if (searchText.length === 0) {
-                dispatch(Actions.getOrders(params));
-            }
-        }
-    }, [searchText]);
 
     const prevStatus = usePrevious(statusOrder);
     const prevTracking = usePrevious(trackingOrder);
     const prevDirection = usePrevious(direction);
     const prevRowsPerPage = usePrevious(rowsPerPage);
     const prevPage = usePrevious(page);
+    const prevSearch = usePrevious(searchText);
+    const prevStartDate = usePrevious(startDate);
+
+    let params = {
+        rangeDate : range || null, 
+        startDate: startDate || null, 
+        endDate: endDate || null,
+        search: searchText || null,
+        status: statusOrder || null,
+        tracking: trackingOrder || null,
+        direction: direction || 'dsc',
+        page: page-1 || null,
+        limit: rowsPerPage || null,
+    };
 
     useEffect(() => {
-        if (prevStatus !== statusOrder) {
-            if (range !== 0) {
+        if (Object.keys(paramsState).length === 0 && paramsState.constructor === Object) {
+            params.startDate = null;
+            params.endDate = null;
+            params.status = null;
+            params.tracking = null;
+            dispatch(Actions.getOrders(params));
+        } else {
+            if (paramsState.rangeDate) {
+                setRange(paramsState.rangeDate);
+            }
+            if (paramsState.endDate) {
+                setEndDate(paramsState.endDate);
+            }
+            if (paramsState.startDate) {
+                setStart(paramsState.startDate);
+            }
+            setSearchText(paramsState.search);
+            params = paramsState;
+        };
+    }, []);
+
+    useEffect(() => {
+        if (searchText && searchText.length> 2 && prevSearch) {
+        const timeOutId = setTimeout(() => {
+            if (range !== 1) {
+                params.startDate = null;
+                params.endDate = null;
+            }
+            if (statusOrder === 1) {
+                params.status = null;
+            }
+            if (trackingOrder === 1) {
+                params.tracking = null;
+            }
+            params.page = 0;
+            dispatch(Actions.saveParams(params));
+            dispatch(Actions.getOrders(params));
+            }, 500);
+        return () => clearTimeout(timeOutId);
+        } else {
+            if (searchText === '' && (prevSearch !== searchText)) {
+                params.startDate = null;
+                params.endDate = null;
+                if (statusOrder === 1) {
+                    params.status = null;
+                }
+                if (trackingOrder === 1) {
+                    params.tracking = null;
+                }
+                dispatch(Actions.saveParams(params));
+                dispatch(Actions.getOrders(params));
+            }
+        }
+    }, [searchText]);
+
+    useEffect(() => {
+        if (prevStatus) {
+            if (range !== 1) {
                 params.rangeDate = range;
+                params.startDate = null;
+                params.endDate = null;
             } else {
                 params.rangeDate = null;
             }
+            if (trackingOrder === 1) {
+                params.tracking = null;
+            }
+            dispatch(Actions.saveParams(params));
             dispatch(Actions.getOrders(params));
         }
-        
     }, [statusOrder]);
 
     useEffect(() => {
-        if (prevTracking !== trackingOrder) {
-            if ((range !== 0 ) && (range !== 1)) {
+        if (prevTracking) {
+            if ((range !== 1 )) {
                 params.rangeDate = range;
+                params.startDate = null;
+                params.endDate = null;
             } else {
                 params.rangeDate = null;
             }
+            if (statusOrder === 1) {
+                params.status = null;
+            }
+            dispatch(Actions.saveParams(params));
             dispatch(Actions.getOrders(params));
         }
     }, [trackingOrder]);
 
     useEffect(() => {
-        if (prevDirection !== direction) {
+        if (prevDirection) {
+            if (statusOrder === 1) {
+                params.status = null;
+            }
+            if (trackingOrder === 1) {
+                params.tracking = null;
+            }
             params.direction = direction;
+            dispatch(Actions.saveParams(params));
             dispatch(Actions.getOrders(params));
         }
     }, [direction]);
 
     useEffect(() => {
-        if (prevRowsPerPage !== rowsPerPage) {
+        if (prevRowsPerPage) {
             params.limit = rowsPerPage;
+            if (range !==1 ) {
+                params.startDate = null;
+                params.endDate = null;
+            }
+            if (statusOrder === 1) {
+                params.status = null;
+            }
+            if (trackingOrder === 1) {
+                params.tracking = null;
+            }
+            dispatch(Actions.saveParams(params));
             dispatch(Actions.getOrders(params));
         }
     }, [rowsPerPage]);
 
     useEffect(() => {
-        if (prevPage !== page) {
-            params.page = page;
+        if (prevPage) {
+            params.page = page-1;
+            if (range !== 1 ) {
+                params.startDate = null;
+                params.endDate = null;
+            }
+            if (statusOrder === 1) {
+                params.status = null;
+            }
+            if (trackingOrder === 1) {
+                params.tracking = null;
+            }
+            dispatch(Actions.saveParams(params));
             dispatch(Actions.getOrders(params));
         }
     }, [page]);
 
     const selectRange = (event) => {
+        setRange(event.target.value);
         params.rangeDate = event.target.value;
-        if (params.rangeDate !== 0) {
+        params.startDate = null;
+        params.endDate = null;
+        if (statusOrder === 1) {
+            params.status = null;
+        }
+        if (trackingOrder === 1) {
+            params.tracking = null;
+        }
+        if (params.rangeDate !== 1) {
+            dispatch(Actions.saveParams(params));
             dispatch(Actions.getOrders(params));
         }
-        setRange(event.target.value);
     }
 
     const setStart = (date) => {
         params.rangeDate = null;
         const time = moment(date).format('YYYY-MM-DD');
-        params.startDate = time;
         params.endDate = endDate;
-        dispatch(Actions.getOrders(params));
+        params.startDate = time;
+        if (statusOrder === 1) {
+            params.status = null;
+        }
+        if (trackingOrder === 1) {
+            params.tracking = null;
+        }
+        if (prevStartDate) {
+            console.log(prevStartDate, time);
+            dispatch(Actions.saveParams(params));
+            dispatch(Actions.getOrders(params));
+        }
+        params.rangeDate = 1;
         setStartDate(time);
     }
 
@@ -128,9 +228,21 @@ function OrdersHeader(props) {
         const time = moment(date).format('YYYY-MM-DD');
         params.endDate = time;
         params.startDate = startDate;
+        if (statusOrder === 1) {
+            params.status = null;
+        }
+        if (trackingOrder === 1) {
+            params.tracking = null;
+        }
+        dispatch(Actions.saveParams(params));
         dispatch(Actions.getOrders(params));
+        params.rangeDate = 1;
         setEndDate(time);
     }
+
+    
+
+    
 
     return (
         <div className="flex flex-1 w-full items-center">
@@ -164,7 +276,7 @@ function OrdersHeader(props) {
                     value={range}
                     onChange={selectRange}
                     >
-                    <MenuItem value={1}>All Dates</MenuItem>
+                    <MenuItem value={0}>All Dates</MenuItem>
                     <MenuItem value={moment().format('YYYY-MM-DD')}>Last Day</MenuItem>
                     <MenuItem value={moment().subtract(2, 'days').format('YYYY-MM-DD')}>Last 3 Days</MenuItem>
                     <MenuItem value={moment().subtract(6, 'days').format('YYYY-MM-DD')}>Last 7 Days</MenuItem>
@@ -173,9 +285,9 @@ function OrdersHeader(props) {
                     <MenuItem value={moment().subtract(89, 'days').format('YYYY-MM-DD')}>Last 90 Days</MenuItem>
                     <MenuItem value={moment().subtract(179, 'days').format('YYYY-MM-DD')}>Last 180 Days</MenuItem>
                     <MenuItem value={moment().subtract(359, 'days').format('YYYY-MM-DD')}>Last 360 Days</MenuItem>
-                    <MenuItem value={0}>Custom Range</MenuItem>
+                    <MenuItem value={1}>Custom Range</MenuItem>
                 </Select>
-                {(range === 0) ?
+                {(range === 1) ?
                     <MuiPickersUtilsProvider utils={DateFnsUtils}>
                         <KeyboardDatePicker
                         style={{margin: "0 0 16px 0", width: "145px"}}

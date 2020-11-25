@@ -18,7 +18,7 @@ import {
 import clsx from "clsx";
 import { makeStyles } from "@material-ui/styles";
 import * as Actions from "app/store/actions";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 const rows = [
     {
@@ -73,9 +73,11 @@ const useStyles = makeStyles(theme => ({
 
 function OrdersTableHead(props) {
     const classes = useStyles(props);
+    const status = useSelector(({ orders }) => orders.status);
+    const tracking = useSelector(({ orders }) => orders.tracking);
     const [selectedOrdersMenu, setSelectedOrdersMenu] = useState(null);
-    const [trackingOrder, setTrackingOrder] = useState('');
-    const [statusOrder, setStatusOrder] = useState('');
+    const [trackingOrder, setTrackingOrder] = useState(tracking || 1);
+    const [statusOrder, setStatusOrder] = useState(status || 1);
     const [ordersDirection, setOrdersDirections] = useState('asc');
     const dispatch = useDispatch();
 
@@ -175,7 +177,7 @@ function OrdersTableHead(props) {
                                         displayEmpty
                                         onChange={(event) => changeFilter(event, 'tracking')}
                                     >
-                                        <MenuItem value='' disabled>Tracking</MenuItem>
+                                        <MenuItem value={1} disabled>Tracking</MenuItem>
                                         <MenuItem value={0}> All Trackings</MenuItem>
                                         <MenuItem value={'delivered'}>Delivered</MenuItem>
                                         <MenuItem value={'shipping'}>Shipping</MenuItem>
@@ -191,7 +193,7 @@ function OrdersTableHead(props) {
                                         displayEmpty
                                         onChange={(event) => changeFilter(event, 'status')}
                                     >
-                                        <MenuItem value='' disabled>Status</MenuItem>
+                                        <MenuItem value={1} disabled>Status</MenuItem>
                                         <MenuItem value={0}>All Status</MenuItem>
                                         <MenuItem value={"open"}>Open</MenuItem>
                                         <MenuItem value={"complete"}>Complete</MenuItem>

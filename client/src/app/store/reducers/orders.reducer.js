@@ -4,12 +4,13 @@ const initialState = {
     data      : [],
     searchText: '',
     isFetching: false,
-    status: undefined,
-    tracking: undefined,
+    status: 1,
+    tracking: 1,
     count: 0,
-    direction: undefined,
-    page: undefined,
-    rowsPerPage: undefined,
+    direction: 'dsc',
+    page: 1,
+    rowsPerPage: 100,
+    paramsState : {}
 };
 
 const ordersReducer = function (state = initialState, action) {
@@ -56,7 +57,7 @@ const ordersReducer = function (state = initialState, action) {
         {
             return {
                 ...state,
-                page: action.payload,
+                page: action.payload+1,
             };
         }
         case Actions.SET_ROWS_PER_PAGE:
@@ -64,6 +65,13 @@ const ordersReducer = function (state = initialState, action) {
             return {
                 ...state,
                 rowsPerPage: action.payload,
+            };
+        }
+        case Actions.SAVE_PARAMS:
+        {
+            return {
+                ...state,
+                paramsState: action.payload,
             };
         }
         default:

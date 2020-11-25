@@ -9,6 +9,7 @@ export const SET_TRACKING_ORDER = "[ORDERS] SET_TRACKING ORDER";
 export const SET_DIRECTION = "[ORDERS] SET_DIRECTION ORDER";
 export const SET_PAGE = "[ORDERS] SET_PAGE ORDER";
 export const SET_ROWS_PER_PAGE = "[ORDERS] ROWS_PER_PAGE ORDER";
+export const SAVE_PARAMS = "[ORDERS] SAVE_PARAMS ORDER";
 
 
 export function getOrders(params) {
@@ -78,6 +79,15 @@ export function setRowsOnPage(number) {
         return dispatch({
             type: SET_ROWS_PER_PAGE,
             payload: number,
+        })
+    }
+}
+
+export function saveParams(params) {
+    return dispatch => {
+        return dispatch({
+            type: SAVE_PARAMS,
+            payload: params,
         })
     }
 }
