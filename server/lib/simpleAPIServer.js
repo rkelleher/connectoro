@@ -85,6 +85,18 @@ export async function buildSimpleAPIServer(cg, db) {
 
   server.app.db = db;
 
+  // Don't delete this route, any way.
+  server.route({
+    method: "GET",
+    path: "/api/try-cron",
+    options: {
+      auth: false
+    },
+    handler: async (request, h) => {
+      return { version: 'Cron is runnig!' };
+    }
+  });
+
   await server.register(hapiJWT);
 
   const JWT_SECRET = cg("JWT_SECRET");
