@@ -177,7 +177,7 @@ export async function buildPopulatedOrdersForAccount(accountId ,request) {
   }
 
   if (reqQuery.search) {
-    search = {$text: { $search: reqQuery.search }}
+    search = {$or: [{"shippingAddress.firstName": {$regex: reqQuery.search, $options: "i"}}, {"shippingAddress.zipCode": {$regex: reqQuery.search, $options: "i"}}, {"shippingAddress.addressLine1": {$regex: reqQuery.search, $options: "i"}}, {OrderId: {$regex: reqQuery.search}}]}
   } else {
     search = {}
   }
@@ -201,11 +201,15 @@ export async function buildPopulatedOrdersForAccount(accountId ,request) {
     else {
       direction = { createdDate: 1 };
     }
-  } 
-    
+  }
+  
   const orders = await Order.aggregate([
+    {$addFields: {OrderId: {$toString: '$integrationData.LINNW.numOrderId'}}},
     {
-      $match: { $and: [search, {accountId: mongoose.Types.ObjectId(accountId)}, tracking, status, date]}
+      $match: search
+    },
+    {
+      $match: { $and: [{accountId: mongoose.Types.ObjectId(accountId)}, tracking, status, date]}
     },
     {
       $lookup: orderProductJoinProductLookup
@@ -213,8 +217,12 @@ export async function buildPopulatedOrdersForAccount(accountId ,request) {
   ]).sort(direction).skip(skip).limit(limit);
 
   const ordersWithOutLimit = await Order.aggregate([
+    {$addFields: {OrderId: {$toString: '$integrationData.LINNW.numOrderId'}}},
     {
-      $match: { $and: [search, {accountId: mongoose.Types.ObjectId(accountId)}, tracking, status, date]}
+      $match: search
+    },
+    {
+      $match: { $and: [{accountId: mongoose.Types.ObjectId(accountId)}, tracking, status, date]}
     },
     {
       $lookup: orderProductJoinProductLookup

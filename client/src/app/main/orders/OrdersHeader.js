@@ -69,7 +69,7 @@ function OrdersHeader(props) {
     }, []);
 
     useEffect(() => {
-        if (searchText && searchText.length> 2 && prevSearch) {
+        if (searchText && searchText.length> 2 && (paramsState.search !== searchText)) {
         const timeOutId = setTimeout(() => {
             if (range !== 1) {
                 params.startDate = null;
