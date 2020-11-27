@@ -177,8 +177,7 @@ function OrdersTableHead(props) {
                                         displayEmpty
                                         onChange={(event) => changeFilter(event, 'tracking')}
                                     >
-                                        <MenuItem value={1} disabled>Tracking</MenuItem>
-                                        <MenuItem value={0}> All Trackings</MenuItem>
+                                        <MenuItem value={1}> All Trackings</MenuItem>
                                         <MenuItem value={'delivered'}>Delivered</MenuItem>
                                         <MenuItem value={'shipping'}>Shipping</MenuItem>
                                         <MenuItem value={'error'}>Error</MenuItem>
@@ -193,8 +192,7 @@ function OrdersTableHead(props) {
                                         displayEmpty
                                         onChange={(event) => changeFilter(event, 'status')}
                                     >
-                                        <MenuItem value={1} disabled>Status</MenuItem>
-                                        <MenuItem value={0}>All Status</MenuItem>
+                                        <MenuItem value={1}>All Status</MenuItem>
                                         <MenuItem value={"open"}>Open</MenuItem>
                                         <MenuItem value={"complete"}>Complete</MenuItem>
                                         <MenuItem value={"error"}>Error</MenuItem>
