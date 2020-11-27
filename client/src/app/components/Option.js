@@ -17,29 +17,11 @@ export function Option({
     setInForm
 }) {
     if (choices === "str") {
-
-        const decamelize = (str, separator) => {
-            separator = typeof separator === 'undefined' ? ' ' : separator;
-        
-            return str
-                .replace(/([a-z\d])([A-Z\d])/g, '$1' + separator + '$2')
-                .replace(/([A-Z]+)([A-Z][a-z\d]+)/g, '$1' + separator + '$2')
-                .toLowerCase();
-        }
-        let styleLetters;
-        if (label === 'zipCode' || label === 'state') {
-            styleLetters = {style: {textTransform: 'uppercase'}}
-        }
-            else {
-                styleLetters = {style: {textTransform: 'capitalize'}}
-            }
-        label = decamelize(label);
         return (
             <TextField
-                style={
-                    {maxWidth: isInline ? 100 : 300, textTransform: "capitalize"}
-                }
-                inputProps={styleLetters}
+                style={{
+                    maxWidth: isInline ? 100 : 300
+                }}
                 label={label}
                 id={optionKey}
                 name={optionKey}
@@ -49,7 +31,6 @@ export function Option({
                 fullWidth
             />
         );
-        
     } else if (choices === "bool") {
         return (
             <FormControlLabel
