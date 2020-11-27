@@ -1,6 +1,7 @@
 import _ from "lodash";
 import { Order } from "../models/order.model.js";
 import mongoose from "mongoose";
+import moment from 'moment';
 import {
   buildEasyncOrderData,
   buildEasyncOrderProductData,
@@ -129,19 +130,107 @@ function moveProductDataIntoOrderProducts(order) {
   delete order.products;
 }
 
-export async function buildPopulatedOrdersForAccount(accountId) {
+export async function buildPopulatedOrdersForAccount(accountId ,request) {
+  let status;
+  let tracking;
+  let date = {};
+  let search;
+  let limit;
+  let direction;
+  let skip;
+  const reqQuery = {...request.query}
+  switch (reqQuery.status) {
+    case 'complete':
+      status = {'easyncOrderStatus.status': "complete"}
+      break;
+    case 'open':
+      status = {'easyncOrderStatus.status': "open"}
+      break;
+    case 'error':
+      status = {'easyncOrderStatus.status': "error"}
+      break;
+    default:
+      status = {}
+      break;
+  }
+  switch (reqQuery.tracking) {
+    case 'delivered':
+      tracking = {'easyncTracking.status': "delivered"}
+      break;
+    case 'error':
+      tracking = {'easyncTracking.status': "error"}
+      break;
+    case 'shipping':
+      tracking = {'easyncTracking.status': "shipping"}
+      break;
+    default:
+      tracking = {}
+      break;
+  }
+  if (reqQuery.startDate) {
+    let correctDate = moment(reqQuery.endDate).add(1, 'days');
+    date = { $and: [{"createdDate" : {"$gte": new Date(reqQuery.startDate)}}, {"createdDate" : {"$lt": new Date(correctDate)}}]};
+  } 
+
+  if (reqQuery.rangeDate) {
+    date = {"createdDate" : {"$gte": new Date(reqQuery.rangeDate)}}
+  }
+
+  if (reqQuery.search) {
+    search = {$or: [{"shippingAddress.firstName": {$regex: reqQuery.search, $options: "i"}}, {"shippingAddress.zipCode": {$regex: reqQuery.search, $options: "i"}}, {"shippingAddress.addressLine1": {$regex: reqQuery.search, $options: "i"}}, {OrderId: {$regex: reqQuery.search}}]}
+  } else {
+    search = {}
+  }
+
+  if (reqQuery.limit) {
+    limit = Number(reqQuery.limit);
+  } else {
+    limit = 100;
+  }
+
+  if (reqQuery.page) {
+    skip = Number(reqQuery.page) * limit
+  } else {
+    skip = 0;
+  }
+
+  if (reqQuery.direction) {
+    if(reqQuery.direction === 'dsc') {
+      direction = { createdDate: -1 };
+    }
+    else {
+      direction = { createdDate: 1 };
+    }
+  }
+  
   const orders = await Order.aggregate([
+    {$addFields: {OrderId: {$toString: '$integrationData.LINNW.numOrderId'}}},
     {
-      $match: {
-        accountId: mongoose.Types.ObjectId(accountId)
-      }
+      $match: search
+    },
+    {
+      $match: { $and: [{accountId: mongoose.Types.ObjectId(accountId)}, tracking, status, date]}
     },
     {
       $lookup: orderProductJoinProductLookup
-    }
-  ]);
+    },
+  ]).sort(direction).skip(skip).limit(limit);
+
+  const ordersWithOutLimit = await Order.aggregate([
+    {$addFields: {OrderId: {$toString: '$integrationData.LINNW.numOrderId'}}},
+    {
+      $match: search
+    },
+    {
+      $match: { $and: [{accountId: mongoose.Types.ObjectId(accountId)}, tracking, status, date]}
+    },
+    {
+      $lookup: orderProductJoinProductLookup
+    },
+  ]).sort(direction);
+  let count = ordersWithOutLimit.length;
   orders.forEach(moveProductDataIntoOrderProducts);
-  return orders;
+  return {orders, count};
 }
 
 export async function buildPopulatedOrder(orderId) {

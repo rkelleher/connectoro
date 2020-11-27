@@ -117,7 +117,7 @@ export async function buildSimpleAPIServer(cg, db) {
     method: "GET",
     path: "/api/current-version",
     handler: async (request, h) => {
-      return { version: '1.5.2 [DELETE EASYNC WEBHOOKS]' };
+      return { version: '1.6.7 [Filter & Search V3 (regex) fix UI]' };
     }
   });
 
@@ -302,7 +302,7 @@ export async function buildSimpleAPIServer(cg, db) {
       if (user.role !== "admin") {
         return Boom.unauthorized();
       }
-      const orders = await buildPopulatedOrdersForAccount(user.account);
+      const orders = await buildPopulatedOrdersForAccount(user.account, request);
       return orders;
     }
   });
