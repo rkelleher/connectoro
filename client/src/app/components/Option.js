@@ -27,7 +27,7 @@ export function Option({
                 .toLowerCase();
         }
         let styleLetters;
-        if (label === 'zipCode' || label === 'state') {
+        if (label === 'zipCode' || label === 'city') {
             styleLetters = {style: {textTransform: 'uppercase'}}
         }
             else {
