@@ -303,8 +303,8 @@ function OrdersTable(props) {
                                             className="customer p8"
                                         >
                                             <div className="flex flex-col">
-                                            <p className="font-bold mb-1">{data.first_name + ' ' + data.last_name}</p>
-                                            <p>{data.address_line1 + ',  ' + data.address_line2}</p>
+                                            <p className="font-bold mb-1 capitalize">{data.first_name + ' ' + data.last_name}</p>
+                                            <p className="capitalize">{data.address_line1 + ',  ' + data.address_line2}</p>
                                             <p>{data.zip_code + ',  ' + data.country}</p>
                                             </div>
                                         </TableCell>
