@@ -205,31 +205,22 @@ export async function buildPopulatedOrdersForAccount(accountId ,request) {
   
   const orders = await Order.aggregate([
     {$addFields: {OrderId: {$toString: '$integrationData.LINNW.numOrderId'}}},
+    // {
+    //   $match: search
+    // },
     {
-      $match: search
-    },
-    {
-      $match: { $and: [{accountId: mongoose.Types.ObjectId(accountId)}, tracking, status, date]}
+      $match: { $and: [{accountId: mongoose.Types.ObjectId(accountId)}, tracking, status, date, search]}
     },
     {
       $lookup: orderProductJoinProductLookup
     },
   ]).sort(direction).skip(skip).limit(limit);
-
-  const ordersWithOutLimit = await Order.aggregate([
-    {$addFields: {OrderId: {$toString: '$integrationData.LINNW.numOrderId'}}},
-    {
-      $match: search
-    },
-    {
-      $match: { $and: [{accountId: mongoose.Types.ObjectId(accountId)}, tracking, status, date]}
-    },
-    {
-      $lookup: orderProductJoinProductLookup
-    },
-  ]).sort(direction);
-  let count = ordersWithOutLimit.length;
+  console.log('before', new Date());
+  const ordersWithOutLimit = await Order.count({ $and: [{accountId: mongoose.Types.ObjectId(accountId)}, tracking, status, date, search]})
+  console.log('after', new Date())
+  let count = ordersWithOutLimit || orders.length;
   orders.forEach(moveProductDataIntoOrderProducts);
+  
   return {orders, count};
 }
 
