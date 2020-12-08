@@ -38,7 +38,7 @@ export const ServiceOrderChecker = cron.schedule('0,10,20,30,40,50 */10 * * * *'
 
     for (const order of orders) {
         const { requestId = null } = order.easyncOrderStatus;
-
+        
         if (!requestId) { continue; };
 
         const account = await getAccount(order.accountId);
@@ -87,6 +87,7 @@ export const ServiceOrderChecker = cron.schedule('0,10,20,30,40,50 */10 * * * *'
         }
 
         await updateOrderById(order._id, newValue);
+        io.emit('updateOrderStatus' , order._id, newValue)
     }
 },  {
     timezone: 'Europe/Kiev',

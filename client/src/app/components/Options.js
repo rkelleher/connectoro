@@ -97,7 +97,7 @@ export function Options({
                 {Object.keys(data) &&
                     Object.keys(data).map(key => {
                         if (!form[key]) {
-                            if (key === 'firstName' || key === 'addressLine1' || key === 'zipCode' || key === 'city' || key === 'state' || key === 'countryName' || key === 'phoneNumber') {
+                            if (key === 'firstName' || key === 'addressLine1' || key === 'zipCode' || key === 'city' || key === 'countryName' || key === 'phoneNumber') {
                                 errors.push(key);
                             }
                         }

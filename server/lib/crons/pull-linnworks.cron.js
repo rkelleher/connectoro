@@ -74,9 +74,34 @@ async function pullLinnworksOrder(order, account) {
     });
   }
 
-  convertedOrder.orderProducts = products;
+  function moveProductDataIntoOrderProducts(order) {
+    order.orderProducts.forEach(orderProduct => {
+      orderProduct.product = _.find(order.products, product =>
+        product._id.equals(orderProduct.productId)
+      );
+    });
+    delete order.products;
+  }
 
-  await Order.create(convertedOrder);
+  const orderProductJoinProductLookup = {
+    from: "products",
+    localField: "orderProducts.productId",
+    foreignField: "_id",
+    as: "products"
+  };
+
+  convertedOrder.orderProducts = products;
+  const newOrder = await Order.create(convertedOrder);
+  const fullOrder = await Order.aggregate([
+    {
+      $match: {"integrationData.LINNW.numOrderId" : newOrder.integrationData.LINNW.numOrderId}
+    },
+    {
+      $lookup: orderProductJoinProductLookup
+    },
+  ]);
+  fullOrder.forEach(moveProductDataIntoOrderProducts);
+  io.emit('newOrder', fullOrder[0]);
 }
 
 async function pullLinnworksOrdersByLocation(account) {

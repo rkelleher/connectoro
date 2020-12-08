@@ -99,6 +99,8 @@ export async function updateOrderById(orderId, { requestId = null, status = null
         { _id: orderId },
         { $set: { easyncOrderStatus }}
     );
+
+    io.emit('updateOrderStatus' , orderId, status);
   }
 }
 
@@ -162,6 +164,9 @@ export async function buildPopulatedOrdersForAccount(accountId ,request) {
       break;
     case 'shipping':
       tracking = {'easyncTracking.status': "shipping"}
+      break;
+    case 'no':
+      tracking = {'easyncTracking.status': null}
       break;
     default:
       tracking = {}
