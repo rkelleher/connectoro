@@ -18,6 +18,7 @@ import {
     closeDialog,
     openDialog
 } from "app/store/actions";
+import socket from "socket.io-client";
 import { VpnKey,  CheckCircle, QueryBuilder, Warning } from "@material-ui/icons";
 import { FuseScrollbars, FuseLoading } from "@fuse";
 import { withRouter } from "react-router-dom";
@@ -53,6 +54,22 @@ function OrdersTable(props) {
     useEffect(() => {
         setData(orders);
     }, [orders]);
+
+    useEffect(() => {
+        const io = socket('http://localhost:3000');
+        io.on('news', function (data) {
+            console.log(data);
+        });
+        io.on('newOrder' , function (order) {
+            dispatch(Actions.newOrder(order))
+        });
+        io.on('updateOrderStatus' , function (id, status) {
+            dispatch(Actions.updateStatus(id, status))
+        });
+        io.on('updateOrderTracking' , function (id, tracking) {
+            dispatch(Actions.updateTracking(id, tracking))
+        });
+    }, []);
 
     function handleRequestSort(event, property) {
         const id = property;
@@ -305,7 +322,7 @@ function OrdersTable(props) {
                                             <div className="flex flex-col">
                                             <p className="font-bold mb-1 capitalize">{data.first_name + ' ' + data.last_name}</p>
                                             <p className="capitalize">{data.address_line1 + ',  ' + data.address_line2}</p>
-                                            <p>{data.zip_code + ',  ' + data.country}</p>
+                                            <p><span className="uppercase">{data.zip_code}</span><span className="capitalize">{',  ' + data.country}</span></p>
                                             </div>
                                         </TableCell>
 

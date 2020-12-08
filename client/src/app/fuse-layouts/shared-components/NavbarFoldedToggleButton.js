@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {Icon, IconButton} from '@material-ui/core';
 import _ from '@lodash';
 import * as Actions from 'app/store/actions';
@@ -8,6 +8,10 @@ function NavbarFoldedToggleButton(props)
 {
     const dispatch = useDispatch();
     const settings = useSelector(({fuse}) => fuse.settings.current);
+
+    useEffect(() => {
+        dispatch(Actions.setDefaultSettings(_.set({}, 'layout.config.navbar.folded', !settings.layout.config.navbar.folded)));
+    }, []);
 
     return (
         <IconButton

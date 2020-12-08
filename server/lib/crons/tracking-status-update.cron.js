@@ -54,6 +54,7 @@ export const TrackingUpdateStatusCron = cron.schedule('0 0 */8 * * *',  async ()
       }
 
       await order.save();
+      io.emit('updateOrderTracking' , order._id, request.result.status);
     } catch (error) {}
   }
 }, {

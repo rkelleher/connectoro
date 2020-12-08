@@ -4,7 +4,7 @@ export async function getStatusByRequestId(requestId, token) {
     const uri = `https://core.easync.io/api/v1/orders/${requestId}`;
 
     const headers = {
-        Authorization: "Basic " + new Buffer(token + ":").toString("base64"),
+        Authorization: "Basic " + Buffer.from(token + ":").toString("base64"),
         "Content-Type": "application/json"
     };
 
@@ -21,7 +21,7 @@ export async function getTrackingByRequestId(requestId, token) {
     const uri = `https://core.easync.io/api/v1/tracking/${requestId}`;
 
     const headers = {
-        Authorization: "Basic " + new Buffer(token + ":").toString("base64"),
+        Authorization: "Basic " + Buffer.from(token + ":").toString("base64"),
         "Content-Type": "application/json"
     };
 

@@ -1,7 +1,9 @@
 import _ from "lodash";
 import axios from 'axios';
-
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
 const get = _.get;
+
 
 import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
@@ -117,7 +119,7 @@ export async function buildSimpleAPIServer(cg, db) {
     method: "GET",
     path: "/api/current-version",
     handler: async (request, h) => {
-      return { version: '1.6.7 [Filter & Search V3 (regex) fix UI]' };
+      return { version: '1.6.8 [Sockets]' };
     }
   });
 
@@ -297,6 +299,7 @@ export async function buildSimpleAPIServer(cg, db) {
     method: "GET",
     path: "/api/orders",
     handler: async (request, h) => {
+      request.io = io;
       const userId = request.headers.authenticatedUserId;
       const user = await getUser(userId);
       if (user.role !== "admin") {
@@ -1352,6 +1355,14 @@ export async function buildSimpleAPIServer(cg, db) {
 
       return { success: true };
     }
+  });
+
+  global.io = require("socket.io")(server.listener);
+
+  
+
+  io.on('connection', function(socket) {
+    socket.emit('news', 'cnnected');
   });
 
   return server;

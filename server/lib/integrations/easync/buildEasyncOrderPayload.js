@@ -151,7 +151,7 @@ export async function buildEasyncOrderReq (payload, token) {
     const uri = "https://core.easync.io/api/v1/orders";
 
     const headers = {
-      Authorization: "Basic " + new Buffer(token + ":").toString("base64"),
+      Authorization: "Basic " + Buffer.from(token + ":").toString("base64"),
       "Content-Type": "application/json"
     };
 

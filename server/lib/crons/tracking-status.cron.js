@@ -16,7 +16,7 @@ export const TrackingStatusCron = cron.schedule('0 */90 * * * *',  async () => {
   await Log.create({log: 'Tracking cron'});
 
   const orders = await getAwaitingTrackerOrders();
-
+  
   for (const order of orders) {
     try {
       const { requestId } = order.easyncOrderStatus;
@@ -64,7 +64,7 @@ export const TrackingStatusCron = cron.schedule('0 */90 * * * *',  async () => {
         linnwIntegration.session = linnworksSession;
         await account.save();
       }
-        
+
       await sendTrackingNumberToLinnw(
         linnwIntegration.session.Token,
         orderId,
@@ -82,6 +82,7 @@ export const TrackingStatusCron = cron.schedule('0 */90 * * * *',  async () => {
 
       order.easyncTracking.processedOnSource = res.Processed;
       await order.save();
+      io.emit('updateOrderTracking' , order._id, request.result.status);
     } catch (error) {}
   }
 }, {

@@ -181,6 +181,7 @@ function OrdersTableHead(props) {
                                         <MenuItem value={'delivered'}>Delivered</MenuItem>
                                         <MenuItem value={'shipping'}>Shipping</MenuItem>
                                         <MenuItem value={'error'}>Error</MenuItem>
+                                        <MenuItem value={'no'}>No Tracking</MenuItem>
                                     </Select>
                                 </TableCell>)
                     }

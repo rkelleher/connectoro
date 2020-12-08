@@ -10,6 +10,9 @@ export const SET_DIRECTION = "[ORDERS] SET_DIRECTION ORDER";
 export const SET_PAGE = "[ORDERS] SET_PAGE ORDER";
 export const SET_ROWS_PER_PAGE = "[ORDERS] ROWS_PER_PAGE ORDER";
 export const SAVE_PARAMS = "[ORDERS] SAVE_PARAMS ORDER";
+export const NEW_ORDER_SOCKET = "[ORDERS] NEW_ORDER_SOCKET";
+export const UPDATE_ORDER_STATUS_SOCKET = "[ORDERS] UPDATE_ORDER_STATUS_SOCKET";
+export const UPDATE_ORDER_TRACKING_SOCKET = "[ORDERS] UPDATE_ORDER_TRACKING_SOCKET";
 
 
 export function getOrders(params) {
@@ -101,4 +104,33 @@ export function createOrder() {
             });
         }
     };
+}
+
+export function newOrder(order) {
+    return dispatch => {
+        return dispatch({
+            type: NEW_ORDER_SOCKET,
+            payload: order,
+        })
+    }
+}
+
+export function updateStatus(id, status) {
+    return dispatch => {
+        return dispatch ({
+            type: UPDATE_ORDER_STATUS_SOCKET,
+            id: id,
+            status: status,
+        })
+    }
+}
+
+export function updateTracking(id, tracking) {
+    return dispatch => {
+        return dispatch ({
+            type: UPDATE_ORDER_TRACKING_SOCKET,
+            id: id,
+            tracking: tracking,
+        })
+    }
 }
