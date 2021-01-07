@@ -84,7 +84,7 @@ const ordersReducer = function (state = initialState, action) {
         case Actions.UPDATE_ORDER_STATUS_SOCKET:
             const index = state.data.findIndex(data => data._id == action.id); //finding index of the item
             const newArray = [...state.data]; //making a new array
-            if (index) {
+            if (index !== -1) {
                 newArray[index].easyncOrderStatus.status = action.status //changing value in the new array
             }
         {
