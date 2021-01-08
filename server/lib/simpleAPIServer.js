@@ -76,7 +76,7 @@ const ERR_WRONG_PASSWORD = "ERR_WRONG_PASSWORD";
 
 export async function buildSimpleAPIServer(cg, db) {
   assert(cg && db, "Missing params");
-
+  console.log(cg("PORT"))
   const server = Hapi.server({
     port: cg("PORT"),
     host: cg("HTTP_SERVER_HOST"),
@@ -1357,7 +1357,11 @@ export async function buildSimpleAPIServer(cg, db) {
     }
   });
 
-  global.io = require("socket.io")(server.listener);
+  global.io = require("socket.io")(server.listener, {
+    cors: {
+      origin: '*',
+    }
+  });
 
   
 

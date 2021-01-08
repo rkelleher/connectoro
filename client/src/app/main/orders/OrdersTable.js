@@ -56,7 +56,7 @@ function OrdersTable(props) {
     }, [orders]);
 
     useEffect(() => {
-        const io = socket('https://stage.connectoro.io');
+        const io = socket('https://stage.connectoro.io/');
         io.on('news', function (data) {
             console.log(data);
         });
@@ -144,7 +144,7 @@ function OrdersTable(props) {
                     />
                     
                     {isFetching ?  <FuseLoading/> :
-                    (count === 0) ? <p className="flex absolute w-full h-full justify-center items-center text-7xl" style={{fontSize: "4.5rem"}}>Not found</p> :  
+                    (count === 0) ? <TableBody><TableRow><TableCell><p className="flex absolute w-full h-full justify-center items-center text-7xl" style={{fontSize: "4.5rem"}}>Not found</p></TableCell></TableRow></TableBody> :  
                     <TableBody>
                     {data 
                     // &&
