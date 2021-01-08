@@ -56,7 +56,7 @@ function OrdersTable(props) {
     }, [orders]);
 
     useEffect(() => {
-        const io = socket('https://stage.connectoro.io');
+        const io = socket('https://stage.connectoro.io:3000');
         io.on('news', function (data) {
             console.log(data);
         });
